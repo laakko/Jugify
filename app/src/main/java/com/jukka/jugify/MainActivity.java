@@ -22,6 +22,13 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Album;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
 public class MainActivity extends AppCompatActivity implements
         SpotifyPlayer.NotificationCallback, ConnectionStateCallback
 {
@@ -29,7 +36,10 @@ public class MainActivity extends AppCompatActivity implements
     private static final String CLIENT_ID = "55e7a5c941d54aed915d3f9e0140350d";
     private static final String REDIRECT_URI = "com.jukka.jugify://callback";
     private static final int REQUEST_CODE = 1995;
-    private Player mPlayer;
+    public static Player mPlayer;
+    public static String atoken;
+    static SpotifyService spotify;
+    public static boolean userAuthd = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +86,12 @@ public class MainActivity extends AppCompatActivity implements
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
+                SpotifyApi api = new SpotifyApi();
+                api.setAccessToken(response.getAccessToken());
+                spotify = api.getService();
+                userAuthd = true;
+
+
                 Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
                 Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
                     @Override
@@ -126,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements
         Log.d("MainActivity", "User logged in");
 
         // This is the line that plays a song.
-        mPlayer.playUri(null, "spotify:track:2TpxZ7JUBn3uw46aR7qd6V", 0, 0);
+
     }
 
     @Override

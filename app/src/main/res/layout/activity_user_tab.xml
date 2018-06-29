@@ -12,10 +12,10 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/txtUsername"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="Your data"
+            android:text="Welcome, "
             android:textAlignment="center"
             android:textSize="30sp"
             android:textStyle="bold"
