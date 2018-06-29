@@ -1,5 +1,6 @@
 package com.jukka.jugify;
 
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,11 +12,15 @@ import android.widget.TextView;
 
 import com.spotify.sdk.android.player.Spotify;
 
+import java.sql.Array;
+import java.util.ArrayList;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -50,7 +55,45 @@ public class UserTab extends Fragment {
                 }
             });
 
+            spotify.getTopArtists(new Callback<Pager<Artist>>() {
+                @Override
+                public void success(Pager<Artist> pager, Response response) {
+                   ArrayList<Artist> topartistslist = new ArrayList<Artist>();
 
+                    for(Artist a : pager.items){
+                        topartistslist.add(a);
+                        Log.i("Artist:", a.name);
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("Top artists failure", error.toString());
+                }
+            });
+
+            spotify.getTopTracks(new Callback<Pager<Track>>() {
+                @Override
+                public void success(Pager<Track> pager, Response response) {
+                    ArrayList<Track> toptrackslist = new ArrayList<Track>();
+
+                    for(Track t : pager.items){
+                        toptrackslist.add(t);
+                        Log.i("Track:", t.name);
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("Top tracks failure", error.toString());
+                }
+            });
+
+        }
+
+        if(name_gotten){
+            username.setText("Welcome, " + displayname);
+            username.setTextColor(Color.LTGRAY);
         }
 
         return view;
