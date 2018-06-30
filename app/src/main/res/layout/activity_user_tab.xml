@@ -6,6 +6,9 @@
     android:layout_height="match_parent"
     tools:context="com.jukka.jugify.UserTab">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,12 +18,62 @@
             android:id="@+id/txtUsername"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="Welcome, "
+            android:text="Hello"
             android:textAlignment="center"
             android:textSize="30sp"
             android:textStyle="bold"
             tools:layout_editor_absoluteX="45dp"
             tools:layout_editor_absoluteY="16dp" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="\n \n Top Artists:"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <GridView
+            android:id="@+id/gridTopArtists"
+            android:layout_marginTop="10dp"
+            android:layout_width="300dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="0dp"
+            android:horizontalSpacing="0dp"
+            android:layout_height="500dp"
+            android:numColumns="3"/>
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:text="Top Genres" />
+
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:text="\n Top tracks: \n" />
+
+        <ListView
+            android:layout_marginStart="15dp"
+            android:id="@+id/listTopTracks"
+            android:layout_width="wrap_content"
+            android:layout_height="1500dp" />
+
     </LinearLayout>
+
+    </ScrollView>
+
 
 </android.support.constraint.ConstraintLayout>

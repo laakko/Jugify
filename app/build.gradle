@@ -44,4 +44,8 @@ dependencies {
 
     // Java - Spotify Web Api wrapper
     compile 'com.github.kaaes:spotify-web-api-android:0.4.1'
+
+    // Image loader
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+
 }
