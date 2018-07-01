@@ -16,18 +16,22 @@ import com.spotify.sdk.android.player.Spotify;
 
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit.http.QueryMap;
 
 import static com.jukka.jugify.MainActivity.atoken;
 import static com.jukka.jugify.MainActivity.spotify;
@@ -63,8 +67,9 @@ public class UserTab extends Fragment {
                 }
             });
 
-
-            spotify.getTopArtists(new Callback<Pager<Artist>>() {
+            Map<String, Object> options = new HashMap<>();
+            options.put("time_range", "long_term");
+            spotify.getTopArtists(options, new Callback<Pager<Artist>>() {
                 @Override
                 public void success(Pager<Artist> pager, Response response) {
                     tagadapter = new TopArtistsGridAdapter(getContext().getApplicationContext(), topartistslist);
@@ -86,7 +91,8 @@ public class UserTab extends Fragment {
                 }
             });
 
-            spotify.getTopTracks(new Callback<Pager<Track>>() {
+
+            spotify.getTopTracks(options, new Callback<Pager<Track>>() {
                 @Override
                 public void success(Pager<Track> pager, Response response) {
 
@@ -105,6 +111,21 @@ public class UserTab extends Fragment {
                 }
             });
 
+            spotify.getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
+                @Override
+                public void success(Pager<PlaylistSimple> pager, Response response) {
+
+                    for(PlaylistSimple p : pager.items){
+                        Log.i("playlist2:", p.name);
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("My playlists failure", error.toString());
+                }
+            });
+
 
             GridView gridTopArtists = (GridView) view.findViewById(R.id.gridTopArtists);
             if(topartists_gotten){
@@ -114,7 +135,7 @@ public class UserTab extends Fragment {
             if(toptracks_gotten){
                 listTopTracks.setAdapter((trackadapter));
             }
-
+            GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
 
 
         }

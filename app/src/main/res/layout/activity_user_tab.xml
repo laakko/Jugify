@@ -26,6 +26,21 @@
             tools:layout_editor_absoluteY="16dp" />
 
         <TextView
+            android:id="@+id/textView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Your playlists:"
+            android:textAlignment="center" />
+
+
+        <GridView
+            android:id="@+id/gridPlaylists"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:gravity="center"
+            android:numColumns="3"/>
+
+        <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,6 +48,7 @@
             android:textAlignment="center"
             android:textSize="18sp"
             android:textStyle="bold" />
+
 
         <GridView
             android:id="@+id/gridTopArtists"

@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements
         ImageLoader.getInstance().init(config);
 
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming", "user-top-read"});
+        builder.setScopes(new String[]{"user-read-private", "streaming", "user-top-read", "user-read-currently-playing", "user-modify-playback-state"});
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
