@@ -161,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
             public void onEvent(PlayerState playerState) {
                 final Track track = playerState.track;
                 if (track != null) {
-                    Log.d("MainActivity", track.name + " by " + track.artist.name);
                     trackName = track.name + " by " + track.artist.name;
                 }
             }
