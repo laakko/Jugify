@@ -39,6 +39,9 @@ dependencies {
     // spotify auth
     compile 'com.spotify.android:auth:1.0.0-alpha'
 
+    // Spotify app remote
+    compile project(':spotify-app-remote-release-0.4.0')
+
     // spotify player
     compile 'com.spotify.sdk:spotify-player-24-noconnect-2.20b@aar'
 

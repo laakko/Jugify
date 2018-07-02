@@ -31,17 +31,26 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class MainActivity extends AppCompatActivity implements
-        SpotifyPlayer.NotificationCallback, ConnectionStateCallback
-{
+import com.spotify.android.appremote.api.ConnectionParams;
+import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.SpotifyAppRemote;
+
+import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.PlayerState;
+import com.spotify.protocol.types.Track;
+
+
+
+public class MainActivity extends AppCompatActivity {
 
     private static final String CLIENT_ID = "55e7a5c941d54aed915d3f9e0140350d";
     private static final String REDIRECT_URI = "com.jukka.jugify://callback";
     private static final int REQUEST_CODE = 1995;
-    public static Player mPlayer;
+    public static SpotifyAppRemote mSpotifyAppRemote;
     public static String atoken;
     static SpotifyService spotify;
     public static boolean userAuthd = false;
+    public static String trackName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements
         ImageLoader.getInstance().init(config);
 
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming", "user-top-read", "user-read-currently-playing", "user-modify-playback-state"});
+        builder.setScopes(new String[]{"user-read-private", "streaming", "user-top-read", "user-read-currently-playing", "user-modify-playback-state", "app-remote-control"});
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
@@ -72,17 +81,23 @@ public class MainActivity extends AppCompatActivity implements
         final PagerAdapter adapter = new PageAdapter
                 (getSupportFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(1);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-             //   viewPager.getAdapter().notifyDataSetChanged();
+                viewPager.getAdapter().notifyDataSetChanged();
+
             }
+
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
+
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
     }
 
@@ -94,82 +109,62 @@ public class MainActivity extends AppCompatActivity implements
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
+
+                // Authenticate Spotify Web API
                 SpotifyApi api = new SpotifyApi();
                 api.setAccessToken(response.getAccessToken());
                 spotify = api.getService();
                 userAuthd = true;
 
+                // Authenticate Spotify App Remote
+                ConnectionParams connectionParams = new ConnectionParams.Builder(CLIENT_ID)
+                        .setRedirectUri(REDIRECT_URI)
+                        .showAuthView(false)
+                        .build();
 
-                Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
-                Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
-                    @Override
-                    public void onInitialized(SpotifyPlayer spotifyPlayer) {
-                        mPlayer = spotifyPlayer;
-                        mPlayer.addConnectionStateCallback(MainActivity.this);
-                        mPlayer.addNotificationCallback(MainActivity.this);
-                    }
+                SpotifyAppRemote.CONNECTOR.connect(this, connectionParams,
+                        new Connector.ConnectionListener() {
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
-                    }
-                });
+                            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                                mSpotifyAppRemote = spotifyAppRemote;
+                                Log.i("MainActivity", "Connected! Yay!");
+
+                                // Now you can start interacting with App Remote
+                                connected();
+
+                            }
+
+                            public void onFailure(Throwable throwable) {
+                                Log.i("MyActivity", throwable.getMessage(), throwable);
+
+                                // Something went wrong when attempting to connect! Handle errors here
+                            }
+                        });
+
             }
         }
 
     }
 
     @Override
-    protected void onDestroy() {
-        Spotify.destroyPlayer(this);
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
+        SpotifyAppRemote.CONNECTOR.disconnect(mSpotifyAppRemote);
     }
 
-    @Override
-    public void onPlaybackEvent(PlayerEvent playerEvent) {
-        Log.d("MainActivity", "Playback event received: " + playerEvent.name());
-        switch (playerEvent) {
-            // Handle event type as necessary
-            default:
-                break;
-        }
-    }
+    private void connected() {
 
-    @Override
-    public void onPlaybackError(Error error) {
-        Log.d("MainActivity", "Playback error received: " + error.name());
-        switch (error) {
-            // Handle error type as necessary
-            default:
-                break;
-        }
-    }
+        // Subscribe to PlayerState
+        mSpotifyAppRemote.getPlayerApi()
+                .subscribeToPlayerState().setEventCallback(new Subscription.EventCallback<PlayerState>() {
 
-    @Override
-    public void onLoggedIn() {
-        Log.d("MainActivity", "User logged in");
-
-        // This is the line that plays a song.
-
-    }
-
-    @Override
-    public void onLoggedOut() {
-        Log.d("MainActivity", "User logged out");
-    }
-
-    @Override
-    public void onLoginFailed(Error var1) {
-        Log.d("MainActivity", "Login failed");
-    }
-
-    @Override
-    public void onTemporaryError() {
-        Log.d("MainActivity", "Temporary error occurred");
-    }
-
-    @Override
-    public void onConnectionMessage(String message) {
-        Log.d("MainActivity", "Received connection message: " + message);
+            public void onEvent(PlayerState playerState) {
+                final Track track = playerState.track;
+                if (track != null) {
+                    Log.d("MainActivity", track.name + " by " + track.artist.name);
+                    trackName = track.name + " by " + track.artist.name;
+                }
+            }
+        });
     }
 }

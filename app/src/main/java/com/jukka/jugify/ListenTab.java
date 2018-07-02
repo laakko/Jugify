@@ -12,8 +12,9 @@ import android.widget.TextView;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 
-import static com.jukka.jugify.MainActivity.mPlayer;
+import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 import static com.jukka.jugify.MainActivity.spotify;
+import static com.jukka.jugify.MainActivity.trackName;
 import static com.jukka.jugify.MainActivity.userAuthd;
 
 public class ListenTab extends Fragment {
@@ -25,15 +26,10 @@ public class ListenTab extends Fragment {
 
         txtNowPlaying = (TextView) view.findViewById(R.id.txtNowPlaying);
 
-
         if(userAuthd){
-            if(mPlayer.getPlaybackState().isPlaying){
-                Log.i("Täällä", "ollaan");
-                txtNowPlaying.setText(mPlayer.getMetadata().currentTrack.name);
-            }
+            txtNowPlaying.setText(trackName);
 
         }
-
         return view;
     }
 }
