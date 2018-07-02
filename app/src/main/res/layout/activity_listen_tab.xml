@@ -1,7 +1,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/imgNowPlaying"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
+        app:srcCompat="@drawable/ic_launcher_background" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -62,6 +71,8 @@
         android:layout_marginTop="30dp"
         android:text="Musical information:" />
 
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -72,22 +83,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Key: E major" />
+            android:text="Key: E major (Estimate)" />
 
         <TextView
             android:id="@+id/txtBPM"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Tempo: 120 BPM" />
+            android:text="Tempo: 120 BPM (Estimate)" />
 
         <TextView
-            android:id="@+id/textView8"
+            android:id="@+id/txtLoudness"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Loudness: -12dB" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtTimeSignature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Time Signature: 4" />
 
 </LinearLayout>
 

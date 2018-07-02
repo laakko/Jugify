@@ -151,7 +151,7 @@ public class UserTab extends Fragment {
                 public void success(Pager<PlaylistSimple> pager, Response response) {
 
                     for(PlaylistSimple p : pager.items){
-                        Log.i("playlist2:", p.name);
+
                     }
                 }
 
