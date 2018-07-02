@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import static com.jukka.jugify.MainActivity.mPlayer;
 import static com.jukka.jugify.MainActivity.spotify;
 import static com.jukka.jugify.MainActivity.userAuthd;
 import static com.jukka.jugify.UserTab.displayname;
