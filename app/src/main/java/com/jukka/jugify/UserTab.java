@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,6 +28,7 @@ import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
+import kaaes.spotify.webapi.android.models.SavedAlbum;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 import kaaes.spotify.webapi.android.models.UserPrivate;
@@ -45,10 +47,13 @@ public class UserTab extends Fragment {
     public static boolean name_gotten = false;
     public static boolean topartists_gotten = false;
     public static boolean toptracks_gotten = false;
+    public static boolean myplaylists_gotten = false;
     public ArrayList<Artist> topartistslist = new ArrayList<Artist>();
     public ArrayList<Track> toptrackslist = new ArrayList<>();
+    public ArrayList<PlaylistSimple> myplaylistslist = new ArrayList<>();
     public static TopArtistsGridAdapter tagadapter;
     public static TopTracksListAdapter trackadapter;
+    public static MyPlaylistsGridAdapter padapter;
 
 
     @Override
@@ -58,12 +63,10 @@ public class UserTab extends Fragment {
         TextView username = (TextView) view.findViewById(R.id.txtUsername);
         final GridView gridTopArtists = (GridView) view.findViewById(R.id.gridTopArtists);
         final ListView listTopTracks = (ListView) view.findViewById(R.id.listTopTracks);
-        GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
+        final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
         final Button btnshort = (Button) view.findViewById(R.id.btnShort);
         final Button btnmedium = (Button) view.findViewById(R.id.btnMedium);
         final Button btnlong = (Button) view.findViewById(R.id.btnLong);
-
-        Log.i("topartistsgotten:", Boolean.toString(topartists_gotten));
 
         if(userAuthd) {
 
@@ -107,6 +110,13 @@ public class UserTab extends Fragment {
                 listTopTracks.setAdapter(trackadapter);
             }
 
+            if(!myplaylists_gotten){
+                padapter = new MyPlaylistsGridAdapter(getContext().getApplicationContext(), myplaylistslist);
+                MyPlaylists(padapter, gridPlaylists);
+            } else {
+                gridPlaylists.setAdapter(padapter);
+            }
+
             btnshort.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -143,24 +153,6 @@ public class UserTab extends Fragment {
                     TopTracks(options, trackadapter, listTopTracks);
                 }
             });
-
-
-
-            spotify.getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
-                @Override
-                public void success(Pager<PlaylistSimple> pager, Response response) {
-
-                    for(PlaylistSimple p : pager.items){
-
-                    }
-                }
-
-                @Override
-                public void failure(RetrofitError error) {
-                    Log.d("My playlists failure", error.toString());
-                }
-            });
-
 
 
         }
@@ -212,6 +204,8 @@ public class UserTab extends Fragment {
 
                 toptracks_gotten = true;
                 list.setAdapter(adapter);
+
+
             }
 
             @Override
@@ -220,4 +214,45 @@ public class UserTab extends Fragment {
             }
         });
     }
+
+
+    public void myAlbums() {
+        spotify.getMySavedAlbums(new Callback<Pager<SavedAlbum>>() {
+            @Override
+            public void success(Pager<SavedAlbum> savedAlbumPager, Response response) {
+
+                for(SavedAlbum sa : savedAlbumPager.items){
+
+                }
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
+    public void MyPlaylists(final MyPlaylistsGridAdapter adapter, final GridView grid) {
+        spotify.getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
+            @Override
+            public void success(Pager<PlaylistSimple> pager, Response response) {
+
+                adapter.clear();
+                for(PlaylistSimple p : pager.items){
+                    adapter.add(p);
+                }
+
+                myplaylists_gotten = true;
+                grid.setAdapter(adapter);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("My playlists failure", error.toString());
+            }
+        });
+    }
+
 }

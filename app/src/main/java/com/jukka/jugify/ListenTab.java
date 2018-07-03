@@ -75,7 +75,7 @@ public class ListenTab extends Fragment {
                         isplaying = true;
                     }
                     if (track != null) {
-                        trackName = track.name + " by " + track.artist.name;
+                        trackName = track.name + "\n" + track.artist.name + "\n" + track.album.name;
                         txtNowPlaying.setText(trackName);
 
                         imguri = track.imageUri.raw;
@@ -85,25 +85,19 @@ public class ListenTab extends Fragment {
                         getAudioFeatures(track.uri.substring(14));
 
 
-
-                        /*
                         mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
                                 .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
                                     @Override
                                     public void onResult(Bitmap bitmap) {
+
                                         imgnowplaying.setImageBitmap(bitmap);
                                     }
                                 });
-                    */
+
                     }
                 }
             });
 
-
-            if(image_gotten){
-                ImageLoader imgloader = ImageLoader.getInstance();
-                imgloader.displayImage(imguri, imgnowplaying, new ImageSize(200,200));
-            }
 
 
 

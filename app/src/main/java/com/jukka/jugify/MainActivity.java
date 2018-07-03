@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 // Authenticate Spotify App Remote
                 ConnectionParams connectionParams = new ConnectionParams.Builder(CLIENT_ID)
                         .setRedirectUri(REDIRECT_URI)
+                        .setPreferredImageSize(1000).setPreferredThumbnailImageSize(100)
                         .showAuthView(false)
                         .build();
 
