@@ -12,6 +12,7 @@ to make my most used features more easily accessible.
 - Unnecessary features removed
 - Easy and quick access to saved playlists, albums and favorite artists; just one click away
 - Musical information on currently playing track: view estimates of key, tempo, loudness and time signature!
+- Song lyrics! One of my favourite features, that was removed from the official Spotify application, is back
 - Artist exploration page: discover new music based on your interests
 
 **Screenshots**:
