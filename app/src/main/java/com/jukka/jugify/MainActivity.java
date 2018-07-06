@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.getInstance().init(config);
 
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming", "user-top-read", "user-read-currently-playing", "user-modify-playback-state", "app-remote-control"});
+        builder.setScopes(new String[]{"user-read-private", "streaming", "user-top-read", "user-read-currently-playing", "user-library-read", "user-modify-playback-state", "app-remote-control"});
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
@@ -147,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -154,6 +155,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connected() {
+
+        // TODO Add items to listen tab on connected state
 
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()

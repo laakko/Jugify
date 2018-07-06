@@ -48,12 +48,15 @@ public class UserTab extends Fragment {
     public static boolean topartists_gotten = false;
     public static boolean toptracks_gotten = false;
     public static boolean myplaylists_gotten = false;
+    public static boolean myalbums_gotten = false;
     public ArrayList<Artist> topartistslist = new ArrayList<Artist>();
     public ArrayList<Track> toptrackslist = new ArrayList<>();
     public ArrayList<PlaylistSimple> myplaylistslist = new ArrayList<>();
+    public ArrayList<SavedAlbum> myalbumslist = new ArrayList<>();
     public static TopArtistsGridAdapter tagadapter;
     public static TopTracksListAdapter trackadapter;
     public static MyPlaylistsGridAdapter padapter;
+    public static MyAlbumsGridAdapter albadapter;
 
 
     @Override
@@ -64,6 +67,7 @@ public class UserTab extends Fragment {
         final GridView gridTopArtists = (GridView) view.findViewById(R.id.gridTopArtists);
         final ListView listTopTracks = (ListView) view.findViewById(R.id.listTopTracks);
         final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
+        final GridView gridAlbums = (GridView) view.findViewById(R.id.gridAlbums);
         final Button btnshort = (Button) view.findViewById(R.id.btnShort);
         final Button btnmedium = (Button) view.findViewById(R.id.btnMedium);
         final Button btnlong = (Button) view.findViewById(R.id.btnLong);
@@ -115,6 +119,13 @@ public class UserTab extends Fragment {
                 MyPlaylists(padapter, gridPlaylists);
             } else {
                 gridPlaylists.setAdapter(padapter);
+            }
+
+            if(!myalbums_gotten){
+                albadapter = new MyAlbumsGridAdapter(getContext().getApplicationContext(), myalbumslist);
+                MyAlbums(albadapter, gridAlbums);
+            } else {
+                gridAlbums.setAdapter(albadapter);
             }
 
             btnshort.setOnClickListener(new View.OnClickListener() {
@@ -216,20 +227,23 @@ public class UserTab extends Fragment {
     }
 
 
-    public void myAlbums() {
+    public void MyAlbums(final MyAlbumsGridAdapter adapter, final GridView grid) {
         spotify.getMySavedAlbums(new Callback<Pager<SavedAlbum>>() {
             @Override
             public void success(Pager<SavedAlbum> savedAlbumPager, Response response) {
 
+                adapter.clear();
                 for(SavedAlbum sa : savedAlbumPager.items){
-
+                    adapter.add(sa);
                 }
 
+                myalbums_gotten = true;
+                grid.setAdapter(adapter);
             }
 
             @Override
             public void failure(RetrofitError error) {
-
+                Log.d("My albums failure", error.toString());
             }
         });
     }
