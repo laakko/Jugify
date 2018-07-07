@@ -147,9 +147,6 @@ public class MainActivity extends AppCompatActivity {
                                 dialog.hide();
                                 viewPager.getAdapter().notifyDataSetChanged();
 
-                                // Start interacting with Spotify App Remote
-                                connected();
-
                             }
 
                             public void onFailure(Throwable throwable) {
@@ -205,10 +202,10 @@ public class MainActivity extends AppCompatActivity {
         Log.i("Is remote connected?", Boolean.toString(mSpotifyAppRemote.isConnected()));
     }
 
+    /*
     private void connected() {
 
-        // TODO Add items to listen tab on connected state
-        /*
+
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState().setEventCallback(new Subscription.EventCallback<PlayerState>() {
@@ -220,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        */
+
     }
+    */
 }

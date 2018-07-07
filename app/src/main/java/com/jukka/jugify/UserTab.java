@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListAdapter;
@@ -38,13 +39,12 @@ import retrofit.client.Response;
 import retrofit.http.QueryMap;
 
 import static com.jukka.jugify.MainActivity.atoken;
+import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 import static com.jukka.jugify.MainActivity.spotify;
 import static com.jukka.jugify.MainActivity.userAuthd;
 
 public class UserTab extends Fragment {
 
-    public static String displayname;
-    public static boolean name_gotten = false;
     public static boolean topartists_gotten = false;
     public static boolean toptracks_gotten = false;
     public static boolean myplaylists_gotten = false;
@@ -63,7 +63,7 @@ public class UserTab extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.activity_user_tab, container, false);
-        TextView username = (TextView) view.findViewById(R.id.txtUsername);
+        final TextView username = (TextView) view.findViewById(R.id.txtUsername);
         final GridView gridTopArtists = (GridView) view.findViewById(R.id.gridTopArtists);
         final ListView listTopTracks = (ListView) view.findViewById(R.id.listTopTracks);
         final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
@@ -77,8 +77,8 @@ public class UserTab extends Fragment {
             spotify.getMe(new Callback<UserPrivate>() {
                 @Override
                 public void success(UserPrivate user, Response response) {
-                    name_gotten = true;
-                    displayname = user.id;
+                    username.setText("Hello, " + user.id);
+                    username.setTextColor(Color.LTGRAY);
                 }
                 @Override
                 public void failure(RetrofitError error) {
@@ -121,12 +121,31 @@ public class UserTab extends Fragment {
                 gridPlaylists.setAdapter(padapter);
             }
 
+            gridPlaylists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    // Play the clicked playlist
+                    mSpotifyAppRemote.getPlayerApi().play(padapter.getItem(i).uri);
+                }
+            });
+
             if(!myalbums_gotten){
                 albadapter = new MyAlbumsGridAdapter(getContext().getApplicationContext(), myalbumslist);
                 MyAlbums(albadapter, gridAlbums);
             } else {
                 gridAlbums.setAdapter(albadapter);
             }
+
+            gridAlbums.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    // Play the clicked album
+                    mSpotifyAppRemote.getPlayerApi().play(albadapter.getItem(i).album.uri);
+                }
+            });
+
+
+
 
             btnshort.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -166,11 +185,6 @@ public class UserTab extends Fragment {
             });
 
 
-        }
-
-        if(name_gotten){
-            username.setText("Hello, " + displayname);
-            username.setTextColor(Color.LTGRAY);
         }
 
         return view;

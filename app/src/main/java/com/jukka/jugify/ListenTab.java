@@ -44,9 +44,7 @@ public class ListenTab extends Fragment {
     ImageView imgnowplaying;
     static String imguri;
     Boolean image_gotten = false;
-    TextView key;
-    TextView tempo;
-    TextView loudness;
+    TextView key, tempo, loudness, timesignature;
     static  String keystr;
 
     @Override
@@ -61,6 +59,7 @@ public class ListenTab extends Fragment {
         key = (TextView) view.findViewById(R.id.txtKey);
         tempo = (TextView) view.findViewById(R.id.txtBPM);
         loudness = (TextView) view.findViewById(R.id.txtLoudness);
+        timesignature = (TextView) view.findViewById(R.id.txtTimeSignature);
 
         if(userAuthd){
 
@@ -173,6 +172,7 @@ public class ListenTab extends Fragment {
                 key.setText("Key: "+keystr);
                 tempo.setText("Tempo: "+Integer.toString(Math.round(aft.tempo)) + " BPM");
                 loudness.setText("Loudness: "+Float.toString(aft.loudness) + "dB");
+                timesignature.setText("Time signature: " + Integer.toString(aft.time_signature));
 
             }
 
