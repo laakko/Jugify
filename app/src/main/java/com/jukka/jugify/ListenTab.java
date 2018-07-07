@@ -40,7 +40,9 @@ public class ListenTab extends Fragment {
     Button playpause;
     Button skip;
     Button prev;
+    Button shuffle;
     Boolean isplaying = false;
+    Boolean shuffling = false;
     ImageView imgnowplaying;
     static String imguri;
     Boolean image_gotten = false;
@@ -55,6 +57,7 @@ public class ListenTab extends Fragment {
         playpause = (Button) view.findViewById(R.id.btnPlay);
         skip = (Button) view.findViewById(R.id.btnNext);
         prev = (Button) view.findViewById(R.id.btnPrev);
+        shuffle = (Button) view.findViewById(R.id.btnShuffle);
         imgnowplaying = (ImageView) view.findViewById(R.id.imgNowPlaying);
         key = (TextView) view.findViewById(R.id.txtKey);
         tempo = (TextView) view.findViewById(R.id.txtBPM);
@@ -67,12 +70,20 @@ public class ListenTab extends Fragment {
             mSpotifyAppRemote.getPlayerApi()
                     .subscribeToPlayerState().setEventCallback(new Subscription.EventCallback<PlayerState>() {
                 public void onEvent(PlayerState playerState) {
+
                     final Track track = playerState.track;
+
                     if(playerState.isPaused){
                         isplaying = false;
-                    } else{
+                    } else {
                         isplaying = true;
                     }
+                    if(playerState.playbackOptions.isShuffling){
+                        shuffling = true;
+                    } else {
+                        shuffling = false;
+                    }
+
                     if (track != null) {
                         trackName = track.name + "\n" + track.artist.name + "\n" + track.album.name;
                         txtNowPlaying.setText(trackName);
@@ -100,7 +111,7 @@ public class ListenTab extends Fragment {
 
 
 
-            // Play/Pause, Skip and Prev buttons
+            // Play/Pause, Skip, Prev and shuffle buttons
             playpause.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -125,6 +136,19 @@ public class ListenTab extends Fragment {
                     mSpotifyAppRemote.getPlayerApi().skipPrevious();
                 }
             });
+
+            shuffle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(shuffling) {
+                        mSpotifyAppRemote.getPlayerApi().setShuffle(false);
+                    } else {
+                        mSpotifyAppRemote.getPlayerApi().setShuffle(true);
+                    }
+
+                }
+            });
+
         }
         return view;
     }

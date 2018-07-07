@@ -12,10 +12,8 @@ import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-
 import static com.jukka.jugify.MainActivity.spotify;
-import static com.jukka.jugify.UserTab.displayname;
-import static com.jukka.jugify.UserTab.name_gotten;
+
 
 public class ExploreTab extends Fragment {
 

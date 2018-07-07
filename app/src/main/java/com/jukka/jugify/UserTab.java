@@ -113,6 +113,12 @@ public class UserTab extends Fragment {
             } else {
                 listTopTracks.setAdapter(trackadapter);
             }
+            listTopTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    mSpotifyAppRemote.getPlayerApi().play(trackadapter.getItem(i).uri);
+                }
+            });
 
             if(!myplaylists_gotten){
                 padapter = new MyPlaylistsGridAdapter(getContext().getApplicationContext(), myplaylistslist);
