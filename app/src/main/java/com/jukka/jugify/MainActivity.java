@@ -1,5 +1,6 @@
 package com.jukka.jugify;
 
+import android.app.ProgressDialog;
 import android.support.v4.app.Fragment;
 import android.app.Activity;
 import android.content.Intent;
@@ -50,7 +51,10 @@ public class MainActivity extends AppCompatActivity {
     public static String atoken;
     static SpotifyService spotify;
     public static boolean userAuthd = false;
+    public static boolean updateTabs = true;
     public static String trackName;
+    private static ViewPager viewPager;
+    public static ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +81,13 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setText("Explore"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        final ViewPager viewPager = findViewById(R.id.pager);
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Waiting for Spotify authentication..");
+        dialog.setCancelable(false);
+        dialog.setInverseBackgroundForced(false);
+        dialog.show();
+
+        viewPager = findViewById(R.id.pager);
         final PagerAdapter adapter = new PageAdapter
                 (getSupportFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(adapter);
@@ -87,8 +97,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-                viewPager.getAdapter().notifyDataSetChanged();
-
             }
 
             @Override
@@ -115,6 +123,11 @@ public class MainActivity extends AppCompatActivity {
                 api.setAccessToken(response.getAccessToken());
                 spotify = api.getService();
                 userAuthd = true;
+                //dialog.hide();
+
+
+
+
 
                 // Authenticate Spotify App Remote
                 ConnectionParams connectionParams = new ConnectionParams.Builder(CLIENT_ID)
@@ -130,7 +143,11 @@ public class MainActivity extends AppCompatActivity {
                                 mSpotifyAppRemote = spotifyAppRemote;
                                 Log.i("MainActivity", "Connected! Yay!");
 
-                                // Now you can start interacting with App Remote
+                                // Spotify auth finished -> close dialog -> update tabs
+                                dialog.hide();
+                                viewPager.getAdapter().notifyDataSetChanged();
+
+                                // Start interacting with Spotify App Remote
                                 connected();
 
                             }
@@ -151,13 +168,47 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        // Disconnect the app remote
         SpotifyAppRemote.CONNECTOR.disconnect(mSpotifyAppRemote);
+    }
+
+    @Override
+    protected void onRestart(){
+        super.onRestart();
+
+        // Reconnect the app remote
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Reconnecting to Spotify..");
+        dialog.setCancelable(false);
+        dialog.setInverseBackgroundForced(false);
+        dialog.show();
+
+        ConnectionParams connectionParams = new ConnectionParams.Builder(CLIENT_ID)
+                .setRedirectUri(REDIRECT_URI)
+                .setPreferredImageSize(1000).setPreferredThumbnailImageSize(100)
+                .showAuthView(false)
+                .build();
+        SpotifyAppRemote.CONNECTOR.connect(this, connectionParams,
+                new Connector.ConnectionListener() {
+
+                    public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                        mSpotifyAppRemote = spotifyAppRemote;
+                        viewPager.getAdapter().notifyDataSetChanged();
+                        dialog.hide();
+                    }
+
+                    public void onFailure(Throwable throwable) {
+                        Log.i("MyActivity", throwable.getMessage(), throwable);
+                        // Something went wrong when attempting to connect! Handle errors here
+                    }
+                });
+        Log.i("Is remote connected?", Boolean.toString(mSpotifyAppRemote.isConnected()));
     }
 
     private void connected() {
 
         // TODO Add items to listen tab on connected state
-
+        /*
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState().setEventCallback(new Subscription.EventCallback<PlayerState>() {
@@ -169,5 +220,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        */
     }
 }
