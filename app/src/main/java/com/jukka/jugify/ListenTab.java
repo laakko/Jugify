@@ -9,10 +9,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.spotify.protocol.client.CallResult;
@@ -20,8 +29,12 @@ import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
@@ -29,6 +42,7 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+import static com.jukka.jugify.MainActivity.displayheight;
 import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 import static com.jukka.jugify.MainActivity.spotify;
 import static com.jukka.jugify.MainActivity.trackName;
@@ -37,6 +51,7 @@ import static com.jukka.jugify.MainActivity.userAuthd;
 public class ListenTab extends Fragment {
 
     TextView txtNowPlaying;
+    TextView lyrics;
     Button playpause;
     Button skip;
     Button prev;
@@ -47,7 +62,8 @@ public class ListenTab extends Fragment {
     static String imguri;
     Boolean image_gotten = false;
     TextView key, tempo, loudness, timesignature;
-    static  String keystr;
+    static String keystr;
+    TextView songduration;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,6 +79,18 @@ public class ListenTab extends Fragment {
         tempo = (TextView) view.findViewById(R.id.txtBPM);
         loudness = (TextView) view.findViewById(R.id.txtLoudness);
         timesignature = (TextView) view.findViewById(R.id.txtTimeSignature);
+        lyrics = (TextView) view.findViewById(R.id.txtLyrics);
+        songduration = (TextView) view.findViewById(R.id.txtSongDuration);
+
+
+        final ScrollView scrollview = (ScrollView) view.findViewById(R.id.scrollview);
+
+        if(displayheight == 1794) {
+            scrollview.getLayoutParams().height = 924;
+            scrollview.requestLayout();
+        }
+
+
 
         if(userAuthd){
 
@@ -85,14 +113,16 @@ public class ListenTab extends Fragment {
                     }
 
                     if (track != null) {
-                        trackName = track.name + "\n" + track.artist.name + "\n" + track.album.name;
+                        trackName = track.name + "\n" + track.artist.name;
                         txtNowPlaying.setText(trackName);
-
+                        songduration.setText(Long.toString(track.duration));
                         imguri = track.imageUri.raw;
                         image_gotten = true;
 
-                        Log.i("asd", track.uri);
                         getAudioFeatures(track.uri.substring(14));
+                       // lyrics.setText("loading..");
+                        String requestURL = "https://api.lyrics.ovh/v1/" + track.artist.name + "/" + track.name;
+                        lyricsApi(requestURL);
 
 
                         mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
@@ -107,8 +137,6 @@ public class ListenTab extends Fragment {
                     }
                 }
             });
-
-
 
 
             // Play/Pause, Skip, Prev and shuffle buttons
@@ -126,6 +154,7 @@ public class ListenTab extends Fragment {
             skip.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    lyrics.setText("loading..");
                     mSpotifyAppRemote.getPlayerApi().skipNext();
                 }
             });
@@ -133,6 +162,7 @@ public class ListenTab extends Fragment {
             prev.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    lyrics.setText("loading..");
                     mSpotifyAppRemote.getPlayerApi().skipPrevious();
                 }
             });
@@ -151,6 +181,22 @@ public class ListenTab extends Fragment {
 
         }
         return view;
+    }
+
+    public void getNowPlayingInformation(String uri) {
+        spotify.getAlbum(uri, new Callback<Album>() {
+            @Override
+            public void success(Album a, Response response) {
+                String releasedate = a.release_date;
+                String popularity = Integer.toString(a.popularity);
+                String albumname = a.name;
+
+            }
+            @Override
+            public void failure(RetrofitError error){
+                Log.d("Album failure", error.toString());
+            }
+        });
     }
 
 
@@ -202,9 +248,40 @@ public class ListenTab extends Fragment {
 
             @Override
             public void failure(RetrofitError error){
-                Log.d("Album failure", error.toString());
+                Log.d("Audio features failure", error.toString());
             }
         });
+    }
+
+    public void lyricsApi(String url) {
+
+        // API: https://lyricsovh.docs.apiary.io
+        RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try{
+                            String txtlyrics = response.getString("lyrics");
+                            lyrics.setText("\n" + txtlyrics + "\n");
+                        } catch(JSONException je) {
+                            je.printStackTrace();
+                        }
+
+                    }
+                }, new com.android.volley.Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        lyrics.setText("Lyrics query failed :(");
+
+                    }
+                });
+
+        queue.add(jsonObjectRequest);
+
+
+
+
     }
 
 

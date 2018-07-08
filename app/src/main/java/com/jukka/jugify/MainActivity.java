@@ -1,6 +1,7 @@
 package com.jukka.jugify;
 
 import android.app.ProgressDialog;
+import android.graphics.Point;
 import android.support.v4.app.Fragment;
 import android.app.Activity;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Display;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "55e7a5c941d54aed915d3f9e0140350d";
     private static final String REDIRECT_URI = "com.jukka.jugify://callback";
     private static final int REQUEST_CODE = 1995;
+    public static int displayheight;
+    //public static int displaywidth;
     public static SpotifyAppRemote mSpotifyAppRemote;
     public static String atoken;
     static SpotifyService spotify;
@@ -69,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        displayheight = size.y;
+
 
         /* Uncomment to enable toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
