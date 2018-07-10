@@ -35,37 +35,50 @@
                 android:textStyle="bold" />
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/txtKey"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+
                     android:text="Key: E major" />
 
                 <TextView
                     android:id="@+id/txtBPM"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_marginLeft="20dp"
                     android:text="Tempo: 120 BPM " />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/txtLoudness"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_marginRight="20dp"
                     android:text="Loudness: -12dB" />
+
+
+                <TextView
+                    android:id="@+id/txtTimeSignature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Time Signature: 4" />
+
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/txtTimeSignature"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Time Signature: 4" />
 
             <TextView
                 android:id="@+id/textView6"

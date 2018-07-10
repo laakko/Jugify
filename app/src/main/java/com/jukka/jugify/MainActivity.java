@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Display;
 
+import com.gigamole.navigationtabstrip.NavigationTabStrip;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -84,11 +85,18 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         */
 
+        /*
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("User"));
         tabLayout.addTab(tabLayout.newTab().setText("Listen"));
         tabLayout.addTab(tabLayout.newTab().setText("Explore"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+        */
+
+        NavigationTabStrip tabLayout2 = findViewById(R.id.tab_layout_2);
+        tabLayout2.setTitles("User", "Listen", "Explore");
+        tabLayout2.setAnimationDuration(220);
+
 
         dialog = new ProgressDialog(this);
         dialog.setMessage("Waiting for Spotify authentication..");
@@ -97,10 +105,12 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
 
         viewPager = findViewById(R.id.pager);
+
         final PagerAdapter adapter = new PageAdapter
-                (getSupportFragmentManager(), tabLayout.getTabCount());
+                (getSupportFragmentManager(), 3);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(1);
+        /*
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -116,6 +126,11 @@ public class MainActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+        */
+
+       // tabLayout2.setTabIndex(1, true);
+        tabLayout2.setViewPager(viewPager);
+
     }
 
     @Override

@@ -32,6 +32,8 @@ import com.spotify.protocol.types.Track;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.concurrent.TimeUnit;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
@@ -115,7 +117,13 @@ public class ListenTab extends Fragment {
                     if (track != null) {
                         trackName = track.name + "\n" + track.artist.name;
                         txtNowPlaying.setText(trackName);
-                        songduration.setText(Long.toString(track.duration));
+                        String duration = String.format("%d:%d",
+                                TimeUnit.MILLISECONDS.toMinutes(track.duration),
+                                TimeUnit.MILLISECONDS.toSeconds(track.duration) -
+                                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(track.duration))
+                        );
+                        songduration.setText(duration);
+
                         imguri = track.imageUri.raw;
                         image_gotten = true;
 

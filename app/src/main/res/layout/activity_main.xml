@@ -36,6 +36,7 @@
         android:layout_weight="1"/>
 
 
+    <!--- Basic tab layout
     <android.support.design.widget.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
@@ -45,6 +46,21 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:tabIndicatorColor="@color/colorPrimaryDark" />
+         -->
+
+    <com.gigamole.navigationtabstrip.NavigationTabStrip
+        android:id="@+id/tab_layout_2"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="@color/colorPrimary"
+        app:nts_active_color="@color/colorAccent"
+        app:nts_color="@color/colorAccent"
+        app:nts_type="line"
+        app:nts_factor="3"
+        app:nts_corners_radius="1.5dp"
+        app:nts_inactive_color="@color/colorPrimaryDark"
+        app:nts_weight="3dp"/>
 
 
 </LinearLayout>
