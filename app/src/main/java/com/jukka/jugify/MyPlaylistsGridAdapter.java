@@ -11,7 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ public class MyPlaylistsGridAdapter extends ArrayAdapter<PlaylistSimple> {
         if (listItem == null)
             listItem = LayoutInflater.from(mContext).inflate(R.layout.layout_top_artists, parent, false);
 
+
         PlaylistSimple plist = playlistslist.get(position);
         ImageView currentArtistImage = listItem.findViewById(R.id.imgArtist);
         TextView currentArtistName = listItem.findViewById(R.id.txtArtistName);
@@ -44,7 +47,12 @@ public class MyPlaylistsGridAdapter extends ArrayAdapter<PlaylistSimple> {
         currentArtistName.setText(pname);
         String artistImageUrl = plist.images.get(0).url;
         ImageLoader imgloader = ImageLoader.getInstance();
-        imgloader.displayImage(artistImageUrl, currentArtistImage, new ImageSize(100,100));
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                .showStubImage(R.drawable.baseline_album_24).build();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
+        //imgloader.displayImage(artistImageUrl, currentArtistImage, new ImageSize(100,100));
+        imgloader.displayImage(artistImageUrl, currentArtistImage, defaultOptions);
+
 
         return listItem;
 

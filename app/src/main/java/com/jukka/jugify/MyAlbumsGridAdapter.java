@@ -10,7 +10,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 
 import java.util.ArrayList;
@@ -42,7 +44,11 @@ public class MyAlbumsGridAdapter extends ArrayAdapter<SavedAlbum> {
         albumName.setText(aname);
         String albumImageUrl = sa.album.images.get(0).url;
         ImageLoader imgloader = ImageLoader.getInstance();
-        imgloader.displayImage(albumImageUrl, albumImage, new ImageSize(100,100));
+        //imgloader.displayImage(albumImageUrl, albumImage, new ImageSize(100,100));
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                .showStubImage(R.drawable.baseline_album_24).build();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
+        imgloader.displayImage(albumImageUrl, albumImage, defaultOptions);
 
 
         return listItem;

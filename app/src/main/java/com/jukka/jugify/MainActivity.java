@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean userAuthd = false;
     public static boolean updateTabs = true;
     public static String trackName;
+    public static String trackArtist;
     private static ViewPager viewPager;
     public static ProgressDialog dialog;
 
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         NavigationTabStrip tabLayout2 = findViewById(R.id.tab_layout_2);
         tabLayout2.setTitles("User", "Listen", "Explore");
-        tabLayout2.setAnimationDuration(220);
+        tabLayout2.setAnimationDuration(150);
 
 
         dialog = new ProgressDialog(this);

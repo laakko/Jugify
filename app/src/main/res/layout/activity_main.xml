@@ -51,16 +51,14 @@
     <com.gigamole.navigationtabstrip.NavigationTabStrip
         android:id="@+id/tab_layout_2"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_gravity="center"
+        android:layout_height="45dp"
+        android:layout_gravity="bottom"
         android:background="@color/colorPrimary"
         app:nts_active_color="@color/colorAccent"
         app:nts_color="@color/colorAccent"
         app:nts_type="line"
-        app:nts_factor="3"
-        app:nts_corners_radius="1.5dp"
         app:nts_inactive_color="@color/colorPrimaryDark"
-        app:nts_weight="3dp"/>
+        app:nts_weight="4dp"/>
 
 
 </LinearLayout>

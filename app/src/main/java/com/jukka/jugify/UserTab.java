@@ -116,7 +116,8 @@ public class UserTab extends Fragment {
             listTopTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    mSpotifyAppRemote.getPlayerApi().play(trackadapter.getItem(i).uri);
+                   mSpotifyAppRemote.getPlayerApi().play(trackadapter.getItem(i).uri);
+                   // mSpotifyAppRemote.getPlayerApi().queue(trackadapter.getItem(i).uri);
                 }
             });
 
