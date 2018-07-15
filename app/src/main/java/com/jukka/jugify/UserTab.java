@@ -16,6 +16,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.gigamole.navigationtabstrip.NavigationTabStrip;
 import com.spotify.sdk.android.player.Spotify;
 
 import java.sql.Array;
@@ -73,6 +74,10 @@ public class UserTab extends Fragment {
         final Button btnmedium = (Button) view.findViewById(R.id.btnMedium);
         final Button btnlong = (Button) view.findViewById(R.id.btnLong);
         Toasty.Config.getInstance().setTextColor(getResources().getColor(R.color.colorAccent)).apply();
+
+        NavigationTabStrip datatimeline = view.findViewById(R.id.datatimeline);
+        datatimeline.setTitles("SHORT", "MEDIUM", "LONG");
+        datatimeline.setAnimationDuration(100);
 
 
         if(userAuthd) {

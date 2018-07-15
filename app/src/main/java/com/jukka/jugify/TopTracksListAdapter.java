@@ -41,6 +41,9 @@ public class TopTracksListAdapter extends ArrayAdapter<Track> {
         Track currentTrack = trackslist.get(position);
         TextView currentTrackName = listItem.findViewById(R.id.txtTopTrack);
         TextView currentTrackInfo = listItem.findViewById(R.id.txtTopTrackInfo);
+        TextView currentTrackRanking = listItem.findViewById(R.id.txtTrackRank);
+
+        currentTrackRanking.setText(" #" + Integer.toString(position+1));
 
         currentTrackName.setText(currentTrack.name);
         currentTrackName.setTextColor(Color.WHITE);

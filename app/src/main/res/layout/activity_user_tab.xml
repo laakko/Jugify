@@ -76,14 +76,39 @@
             android:numColumns="3" />
 
 
+
+
+        <TextView
+            android:id="@+id/txtdata"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Data and Stats"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="5dp"
+         />
+
         <TextView
             android:id="@+id/txtview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginBottom="5dp"
-            android:text="Choose timeline for data below:"
+            android:text="Choose timeline:"
             android:textAlignment="center" />
+
+        <com.gigamole.navigationtabstrip.NavigationTabStrip
+            android:id="@+id/datatimeline"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            app:nts_type="point"
+            app:nts_active_color="@color/colorAccent"
+            app:nts_color="@color/colorAccent"
+            app:nts_inactive_color="#BDBDBD"
+            app:nts_weight="6dp"
+            android:layout_marginBottom="10dp"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -37,6 +38,7 @@ import com.spotify.protocol.types.Track;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -67,6 +69,7 @@ public class ListenTab extends Fragment {
     ImageButton shuffle;
     Boolean isplaying = false;
     Boolean shuffling = false;
+    Float instrumental;
     ImageView imgnowplaying;
     SeekBar seekbar;
     static String imguri;
@@ -74,8 +77,10 @@ public class ListenTab extends Fragment {
     TextView key, tempo, loudness, timesignature;
     static String keystr;
     TextView songduration, songposition;
+    TextView songinformation;
     TrackProgressBar mTrackProgressBar;
     LinearLayout bottomlayout;
+    ProgressBar popularitybar, valencebar, dancebar, energybar, acousticbar;
 
 
     @Override
@@ -98,6 +103,12 @@ public class ListenTab extends Fragment {
         songposition = (TextView) view.findViewById(R.id.txtSongPosition);
         seekbar = (SeekBar) view.findViewById(R.id.seekBar);
         bottomlayout = (LinearLayout) view.findViewById(R.id.bottomlayout);
+        songinformation = (TextView) view.findViewById(R.id.txtSongInformation);
+        popularitybar = (ProgressBar) view.findViewById(R.id.popularityBar);
+        valencebar = (ProgressBar) view.findViewById(R.id.valenceBar);
+        dancebar = (ProgressBar) view.findViewById(R.id.danceBar);
+        energybar = (ProgressBar) view.findViewById(R.id.energyBar);
+        acousticbar = (ProgressBar) view.findViewById(R.id.acousticBar);
 
 
         final ScrollView scrollview = (ScrollView) view.findViewById(R.id.scrollview);
@@ -160,6 +171,8 @@ public class ListenTab extends Fragment {
                         mTrackProgressBar.update(playerState.playbackPosition);
                         seekbar.setEnabled(true);
 
+                        // Get track information
+                        getNowPlayingInformation(track.album.uri.substring(14));
 
                         // Get audio features
                         getAudioFeatures(track.uri.substring(14));
@@ -233,13 +246,18 @@ public class ListenTab extends Fragment {
         return view;
     }
 
-    public void getNowPlayingInformation(String uri) {
+    public void getNowPlayingInformation(final String uri) {
+
+
+
         spotify.getAlbum(uri, new Callback<Album>() {
             @Override
             public void success(Album a, Response response) {
-                String releasedate = a.release_date;
-                String popularity = Integer.toString(a.popularity);
-                String albumname = a.name;
+
+                songinformation.setText("From " + a.name + "\nreleased " + a.release_date);
+                popularitybar.setProgress(a.popularity, true);
+
+
 
             }
             @Override
@@ -247,6 +265,9 @@ public class ListenTab extends Fragment {
                 Log.d("Album failure", error.toString());
             }
         });
+
+
+
     }
 
 
@@ -298,6 +319,12 @@ public class ListenTab extends Fragment {
                 loudness.setText("Loudness: "+Float.toString(aft.loudness) + "dB");
                 timesignature.setText("Time signature: " + Integer.toString(aft.time_signature));
 
+                energybar.setProgress(Math.round(aft.energy * 100));
+                dancebar.setProgress(Math.round(aft.danceability * 100));
+                valencebar.setProgress(Math.round(aft.valence * 100));
+                acousticbar.setProgress(Math.round(aft.acousticness * 100));
+                instrumental = aft.instrumentalness;
+
             }
 
             @Override
@@ -310,31 +337,32 @@ public class ListenTab extends Fragment {
     public void lyricsApi(String url) {
 
         // API: https://lyricsovh.docs.apiary.io
-        RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try{
-                            String txtlyrics = response.getString("lyrics");
-                            lyrics.setText("\n" + txtlyrics + "\n");
-                        } catch(JSONException je) {
-                            je.printStackTrace();
+        if(instrumental > 0.8) {
+            lyrics.setText("The track is instrumental!");
+        } else {
+            RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try{
+                                String txtlyrics = response.getString("lyrics");
+                                lyrics.setText("\n" + txtlyrics + "\n");
+                            } catch(JSONException je) {
+                                je.printStackTrace();
+                            }
+
                         }
+                    }, new com.android.volley.Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            lyrics.setText("Lyrics not found for the song :( \n Check back later");
 
-                    }
-                }, new com.android.volley.Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        lyrics.setText("Lyrics not found for the song :( \n Check back later");
+                        }
+                    });
 
-                    }
-                });
-
-        queue.add(jsonObjectRequest);
-
-
-
+            queue.add(jsonObjectRequest);
+        }
 
     }
 
