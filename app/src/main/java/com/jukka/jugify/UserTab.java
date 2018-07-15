@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
@@ -71,6 +72,8 @@ public class UserTab extends Fragment {
         final Button btnshort = (Button) view.findViewById(R.id.btnShort);
         final Button btnmedium = (Button) view.findViewById(R.id.btnMedium);
         final Button btnlong = (Button) view.findViewById(R.id.btnLong);
+        Toasty.Config.getInstance().setTextColor(getResources().getColor(R.color.colorAccent)).apply();
+
 
         if(userAuthd) {
 
@@ -118,6 +121,7 @@ public class UserTab extends Fragment {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                    mSpotifyAppRemote.getPlayerApi().play(trackadapter.getItem(i).uri);
                    // mSpotifyAppRemote.getPlayerApi().queue(trackadapter.getItem(i).uri);
+                    toast("Now playing: "+trackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
                 }
             });
 
@@ -133,6 +137,7 @@ public class UserTab extends Fragment {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     // Play the clicked playlist
                     mSpotifyAppRemote.getPlayerApi().play(padapter.getItem(i).uri);
+                    toast("Now playing: "+padapter.getItem(i).name, R.drawable.ic_playlist_play_black_36dp, Color.BLACK);
                 }
             });
 
@@ -148,6 +153,7 @@ public class UserTab extends Fragment {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     // Play the clicked album
                     mSpotifyAppRemote.getPlayerApi().play(albadapter.getItem(i).album.uri);
+                    toast("Now playing: "+albadapter.getItem(i).album.name, R.drawable.baseline_album_24, Color.BLACK);
                 }
             });
 
@@ -288,6 +294,10 @@ public class UserTab extends Fragment {
                 Log.d("My playlists failure", error.toString());
             }
         });
+    }
+
+    public void toast(String message, int drawable, int tintcolor) {
+        Toasty.custom(getContext(), message, drawable, tintcolor, 700, true, true).show();
     }
 
 }

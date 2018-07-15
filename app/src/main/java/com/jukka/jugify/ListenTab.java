@@ -7,6 +7,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,6 +75,8 @@ public class ListenTab extends Fragment {
     static String keystr;
     TextView songduration, songposition;
     TrackProgressBar mTrackProgressBar;
+    LinearLayout bottomlayout;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -94,6 +97,7 @@ public class ListenTab extends Fragment {
         songduration = (TextView) view.findViewById(R.id.txtSongDuration);
         songposition = (TextView) view.findViewById(R.id.txtSongPosition);
         seekbar = (SeekBar) view.findViewById(R.id.seekBar);
+        bottomlayout = (LinearLayout) view.findViewById(R.id.bottomlayout);
 
 
         final ScrollView scrollview = (ScrollView) view.findViewById(R.id.scrollview);
@@ -171,8 +175,12 @@ public class ListenTab extends Fragment {
                                     public void onResult(Bitmap bitmap) {
 
                                         imgnowplaying.setImageBitmap(bitmap);
+                                       // createAlbumColorPalette(bitmap);
+
+
                                     }
                                 });
+
 
                     } else {
                         seekbar.setEnabled(false);
@@ -329,6 +337,37 @@ public class ListenTab extends Fragment {
 
 
     }
+
+
+
+    private void createAlbumColorPalette(Bitmap bitmap) {
+
+        Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+            @Override
+            public void onGenerated(Palette palette) {
+
+
+
+
+                Palette.Swatch Vibrant = palette.getVibrantSwatch();
+                Palette.Swatch darkVibrant = palette.getDarkVibrantSwatch();
+                Palette.Swatch lightVibrant = palette.getLightVibrantSwatch();
+
+                if(darkVibrant != null){
+                    txtNowArtist.setTextColor(darkVibrant.getRgb());
+                    txtNowPlaying.setTextColor(darkVibrant.getRgb());
+                    bottomlayout.setBackgroundColor(darkVibrant.getTitleTextColor());
+                    prev.setColorFilter(darkVibrant.getRgb());
+                    skip.setColorFilter(darkVibrant.getRgb());
+                }
+
+
+
+
+            }
+        });
+    }
+
 
     private class TrackProgressBar {
 

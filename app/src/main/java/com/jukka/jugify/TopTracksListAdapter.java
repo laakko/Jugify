@@ -45,7 +45,8 @@ public class TopTracksListAdapter extends ArrayAdapter<Track> {
         currentTrackName.setText(currentTrack.name);
         currentTrackName.setTextColor(Color.WHITE);
 
-        currentTrackInfo.setText(currentTrack.artists.get(0).name + "\n" + currentTrack.album.name + ", track " + currentTrack.track_number);
+        //currentTrackInfo.setText(currentTrack.artists.get(0).name + "\n" + currentTrack.album.name + ", track " + currentTrack.track_number);
+        currentTrackInfo.setText(currentTrack.artists.get(0).name + "\n" + currentTrack.album.name);
         currentTrackInfo.setTextColor(Color.LTGRAY);
 
         ImageView trackimg = listItem.findViewById(R.id.imgTopTrack);
