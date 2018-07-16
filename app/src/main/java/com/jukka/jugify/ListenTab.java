@@ -60,6 +60,7 @@ import static com.jukka.jugify.MainActivity.userAuthd;
 
 public class ListenTab extends Fragment {
 
+    TextView txtTitle;
     TextView txtNowPlaying;
     TextView txtNowArtist;
     TextView lyrics;
@@ -108,7 +109,8 @@ public class ListenTab extends Fragment {
         valencebar = (ProgressBar) view.findViewById(R.id.valenceBar);
         dancebar = (ProgressBar) view.findViewById(R.id.danceBar);
         energybar = (ProgressBar) view.findViewById(R.id.energyBar);
-        acousticbar = (ProgressBar) view.findViewById(R.id.acousticBar);
+       // acousticbar = (ProgressBar) view.findViewById(R.id.acousticBar);
+        txtTitle = (TextView) view.findViewById(R.id.txtTitle);
 
 
         final ScrollView scrollview = (ScrollView) view.findViewById(R.id.scrollview);
@@ -158,6 +160,7 @@ public class ListenTab extends Fragment {
                         txtNowPlaying.setText(trackName);
                         txtNowArtist.setText(trackArtist);
                         txtNowArtist.setTextColor(Color.GRAY);
+                        txtTitle.setText(track.name + " by " + track.artist.name);
                         String duration = String.format("%d:%d",
                                 TimeUnit.MILLISECONDS.toMinutes(track.duration),
                                 TimeUnit.MILLISECONDS.toSeconds(track.duration) -
@@ -188,7 +191,40 @@ public class ListenTab extends Fragment {
                                     public void onResult(Bitmap bitmap) {
 
                                         imgnowplaying.setImageBitmap(bitmap);
-                                       // createAlbumColorPalette(bitmap);
+
+
+
+                                        Palette p = Palette.from(bitmap).maximumColorCount(8).generate();
+                                        /*
+                                        bottomlayout.setBackgroundColor(p.getDominantColor(Color.BLACK));
+                                        playpause.setColorFilter(p.getVibrantColor(Color.WHITE));
+                                        prev.setColorFilter(p.getVibrantColor(Color.WHITE));
+                                        skip.setColorFilter(p.getVibrantColor(Color.WHITE));
+                                        txtNowPlaying.setTextColor(p.getVibrantColor(Color.WHITE));
+                                        txtNowArtist.setTextColor(p.getVibrantColor(Color.WHITE));
+
+                                        if(p.getVibrantColor(Color.BLACK) == p.getDominantColor(Color.BLACK)){
+                                            //bottomlayout.setBackgroundColor(p.getDarkMutedColor(Color.BLACK));
+                                            playpause.setColorFilter(p.getDarkMutedColor(Color.WHITE));
+                                            prev.setColorFilter(p.getDarkMutedColor(Color.WHITE));
+                                            skip.setColorFilter(p.getDarkMutedColor(Color.WHITE));
+                                            txtNowPlaying.setTextColor(p.getDarkMutedColor(Color.WHITE));
+                                            txtNowArtist.setTextColor(p.getDarkMutedColor(Color.WHITE));
+                                        }
+                                        */
+
+                                        Palette.Swatch vibrant = p.getDominantSwatch();
+                                        bottomlayout.setBackgroundColor(vibrant.getRgb());
+                                        playpause.setColorFilter(vibrant.getBodyTextColor());
+                                        prev.setColorFilter(vibrant.getBodyTextColor());
+                                        skip.setColorFilter(vibrant.getBodyTextColor());
+                                        txtNowPlaying.setTextColor(vibrant.getBodyTextColor());
+                                        txtNowArtist.setTextColor(vibrant.getTitleTextColor());
+
+
+
+
+
 
 
                                     }
@@ -248,13 +284,11 @@ public class ListenTab extends Fragment {
 
     public void getNowPlayingInformation(final String uri) {
 
-
-
         spotify.getAlbum(uri, new Callback<Album>() {
             @Override
             public void success(Album a, Response response) {
 
-                songinformation.setText("From " + a.name + "\nreleased " + a.release_date);
+                songinformation.setText("From " + '"' + a.name + '"' + "\nreleased " + a.release_date);
                 popularitybar.setProgress(a.popularity, true);
 
 
@@ -265,9 +299,6 @@ public class ListenTab extends Fragment {
                 Log.d("Album failure", error.toString());
             }
         });
-
-
-
     }
 
 
@@ -322,7 +353,7 @@ public class ListenTab extends Fragment {
                 energybar.setProgress(Math.round(aft.energy * 100));
                 dancebar.setProgress(Math.round(aft.danceability * 100));
                 valencebar.setProgress(Math.round(aft.valence * 100));
-                acousticbar.setProgress(Math.round(aft.acousticness * 100));
+               // acousticbar.setProgress(Math.round(aft.acousticness * 100));
                 instrumental = aft.instrumentalness;
 
             }
@@ -338,7 +369,7 @@ public class ListenTab extends Fragment {
 
         // API: https://lyricsovh.docs.apiary.io
         if(instrumental > 0.8) {
-            lyrics.setText("The track is instrumental!");
+            lyrics.setText("This track is instrumental!");
         } else {
             RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -377,17 +408,6 @@ public class ListenTab extends Fragment {
 
 
 
-                Palette.Swatch Vibrant = palette.getVibrantSwatch();
-                Palette.Swatch darkVibrant = palette.getDarkVibrantSwatch();
-                Palette.Swatch lightVibrant = palette.getLightVibrantSwatch();
-
-                if(darkVibrant != null){
-                    txtNowArtist.setTextColor(darkVibrant.getRgb());
-                    txtNowPlaying.setTextColor(darkVibrant.getRgb());
-                    bottomlayout.setBackgroundColor(darkVibrant.getTitleTextColor());
-                    prev.setColorFilter(darkVibrant.getRgb());
-                    skip.setColorFilter(darkVibrant.getRgb());
-                }
 
 
 

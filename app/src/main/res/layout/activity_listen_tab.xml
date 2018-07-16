@@ -16,7 +16,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textView9"
+                android:id="@+id/txtTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
@@ -27,10 +27,11 @@
 
             <TextView
                 android:id="@+id/txtSongInformation"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
-                android:text="from Hardwired to self destruct, released 2016" />
+                android:textAlignment="center"
+                android:text="from Hardwired to self destruct, released 2016"
+                android:layout_marginBottom="10dp"/>
 
             <TextView
                 android:id="@+id/txtPopularity"
@@ -90,7 +91,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:text="Danceability:" />
+                android:text="Danceability" />
 
             <ProgressBar
                 android:id="@+id/danceBar"
@@ -101,24 +102,6 @@
                 android:progress="50"
                 android:scaleY="3"
                 android:layout_marginBottom="5dp"/>
-
-            <TextView
-                android:id="@+id/txtAcousticness"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="Acousticness:" />
-
-            <ProgressBar
-                android:id="@+id/acousticBar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="100"
-                android:progress="50"
-                android:scaleY="3"
-                android:layout_marginBottom="5dp"/>
-
 
 
             <TextView
@@ -218,6 +201,7 @@
             android:layout_marginTop="10dp"
             android:text="Atlas, Rise"
             android:textAlignment="center"
+            android:textStyle="bold"
             android:textSize="18sp" />
 
         <TextView

@@ -201,8 +201,6 @@ public class UserTab extends Fragment {
                     TopTracks(options, trackadapter, listTopTracks);
                 }
             });
-
-
         }
 
         return view;
@@ -300,6 +298,12 @@ public class UserTab extends Fragment {
             }
         });
     }
+
+
+    public void myDevices() {
+
+    }
+
 
     public void toast(String message, int drawable, int tintcolor) {
         Toasty.custom(getContext(), message, drawable, tintcolor, 700, true, true).show();
