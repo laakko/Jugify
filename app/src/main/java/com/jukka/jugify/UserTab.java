@@ -1,6 +1,7 @@
 package com.jukka.jugify;
 
 import android.graphics.Color;
+import android.graphics.drawable.TransitionDrawable;
 import android.support.annotation.ColorInt;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -78,6 +79,8 @@ public class UserTab extends Fragment {
         NavigationTabStrip datatimeline = view.findViewById(R.id.datatimeline);
         datatimeline.setTitles("SHORT", "MEDIUM", "LONG");
         datatimeline.setAnimationDuration(100);
+
+
 
 
         if(userAuthd) {

@@ -2,6 +2,8 @@ package com.jukka.jugify;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -32,6 +34,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.client.Subscription;
+import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 
@@ -82,6 +85,7 @@ public class ListenTab extends Fragment {
     TrackProgressBar mTrackProgressBar;
     LinearLayout bottomlayout;
     ProgressBar popularitybar, valencebar, dancebar, energybar, acousticbar;
+    ImageView imageNowPlayingBig;
 
 
     @Override
@@ -94,7 +98,7 @@ public class ListenTab extends Fragment {
         skip = (ImageButton) view.findViewById(R.id.btnNext);
         prev = (ImageButton) view.findViewById(R.id.btnPrev);
         shuffle = (ImageButton) view.findViewById(R.id.btnShuffle);
-        imgnowplaying = (ImageView) view.findViewById(R.id.imgNowPlaying);
+        //imgnowplaying = (ImageView) view.findViewById(R.id.imgNowPlaying);
         key = (TextView) view.findViewById(R.id.txtKey);
         tempo = (TextView) view.findViewById(R.id.txtBPM);
         loudness = (TextView) view.findViewById(R.id.txtLoudness);
@@ -111,16 +115,18 @@ public class ListenTab extends Fragment {
         energybar = (ProgressBar) view.findViewById(R.id.energyBar);
        // acousticbar = (ProgressBar) view.findViewById(R.id.acousticBar);
         txtTitle = (TextView) view.findViewById(R.id.txtTitle);
+        imageNowPlayingBig = (ImageView) view.findViewById(R.id.imageArtistBig);
 
 
         final ScrollView scrollview = (ScrollView) view.findViewById(R.id.scrollview);
 
         if(displayheight == 1794) {
-            scrollview.getLayoutParams().height = 924;
+            scrollview.getLayoutParams().height = 1298;
             scrollview.requestLayout();
         }
 
         mTrackProgressBar = new TrackProgressBar(seekbar);
+
 
 
 
@@ -142,7 +148,7 @@ public class ListenTab extends Fragment {
                         shuffling = true;
                     } else {
                         shuffling = false;
-                        shuffle.setColorFilter(Color.GREEN);
+                        shuffle.setColorFilter(Color.parseColor("#427DD1"));
                     }
 
                     if(playerState.playbackSpeed > 0) {
@@ -189,8 +195,7 @@ public class ListenTab extends Fragment {
                                 .setResultCallback(new CallResult.ResultCallback<Bitmap>() {
                                     @Override
                                     public void onResult(Bitmap bitmap) {
-
-                                        imgnowplaying.setImageBitmap(bitmap);
+                                        imageNowPlayingBig.setImageBitmap(bitmap);
 
 
 
@@ -214,18 +219,18 @@ public class ListenTab extends Fragment {
                                         */
 
                                         Palette.Swatch vibrant = p.getDominantSwatch();
-                                        bottomlayout.setBackgroundColor(vibrant.getRgb());
-                                        playpause.setColorFilter(vibrant.getBodyTextColor());
-                                        prev.setColorFilter(vibrant.getBodyTextColor());
-                                        skip.setColorFilter(vibrant.getBodyTextColor());
+                                       // bottomlayout.setBackgroundColor(vibrant.getRgb());
+                                        //playpause.setColorFilter(vibrant.getBodyTextColor());
+                                        //prev.setColorFilter(vibrant.getBodyTextColor());
+                                        //skip.setColorFilter(vibrant.getBodyTextColor());
+                                        txtNowPlaying.setBackgroundColor(vibrant.getRgb());
+                                        txtNowArtist.setBackgroundColor(vibrant.getRgb());
                                         txtNowPlaying.setTextColor(vibrant.getBodyTextColor());
                                         txtNowArtist.setTextColor(vibrant.getTitleTextColor());
-
-
-
-
-
-
+                                        //songduration.setTextColor(vibrant.getTitleTextColor());
+                                        //songposition.setTextColor(vibrant.getTitleTextColor());
+                                        //seekbar.getThumb().setColorFilter(vibrant.getBodyTextColor(), PorterDuff.Mode.MULTIPLY);
+                                        //seekbar.getProgressDrawable().setColorFilter(vibrant.getTitleTextColor(), PorterDuff.Mode.MULTIPLY);
 
                                     }
                                 });

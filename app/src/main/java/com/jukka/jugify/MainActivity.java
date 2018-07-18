@@ -2,6 +2,7 @@ package com.jukka.jugify;
 
 import android.app.ProgressDialog;
 import android.graphics.Point;
+import android.graphics.drawable.TransitionDrawable;
 import android.support.v4.app.Fragment;
 import android.app.Activity;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Display;
+import android.view.View;
 
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean updateTabs = true;
     public static String trackName;
     public static String trackArtist;
-    private static ViewPager viewPager;
+    public static ViewPager viewPager;
     public static ProgressDialog dialog;
 
     @Override
@@ -131,7 +133,10 @@ public class MainActivity extends AppCompatActivity {
 
        // tabLayout2.setTabIndex(1, true);
         tabLayout2.setViewPager(viewPager);
-
+        /*
+        TransitionDrawable transition = (TransitionDrawable) MainActivity.viewPager.getBackground();
+        transition.startTransition(1000);
+        */
     }
 
     @Override

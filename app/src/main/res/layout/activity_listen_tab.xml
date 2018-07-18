@@ -7,7 +7,7 @@
     <ScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
-        android:layout_height="410dp"
+        android:layout_height="490dp"
         android:fillViewport="true">
 
         <LinearLayout
@@ -32,6 +32,16 @@
                 android:textAlignment="center"
                 android:text="from Hardwired to self destruct, released 2016"
                 android:layout_marginBottom="10dp"/>
+
+            <ImageView
+                android:id="@+id/imageArtistBig"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/baseline_album_24" />
 
             <TextView
                 android:id="@+id/txtPopularity"
@@ -198,20 +208,21 @@
             android:id="@+id/txtNowPlaying"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_weight="0"
             android:text="Atlas, Rise"
             android:textAlignment="center"
-            android:textStyle="bold"
-            android:textSize="18sp" />
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/txtNowArtist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Metallica"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="0"
             android:textAlignment="center"
-            android:layout_marginBottom="5dp"
-            android:textSize="18sp" />
+            android:text="Metallica"
+            android:textSize="15sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -233,8 +244,8 @@
                 android:layout_weight="2"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="15dp"/>
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"/>
 
             <TextView
                 android:id="@+id/txtSongDuration"
@@ -247,76 +258,69 @@
         </LinearLayout>
 
 
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/imgNowPlaying"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_marginStart="5dp"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
-                app:srcCompat="@drawable/baseline_album_24" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:orientation="vertical">
-
-
-                <ImageButton
-                    android:id="@+id/btnPrev"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="5dp"
                     android:layout_weight="1"
-                    android:text="prev"
-                    app:srcCompat="@drawable/ic_skip_previous_black_24dp"
-                    android:background="@null"
-                    android:tint="@color/colorAccent"/>
+                    android:orientation="horizontal">
 
-                <ImageButton
-                    android:id="@+id/btnPlay"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_weight="1"
-                    android:text="Play/Pause"
-                    app:srcCompat="@drawable/ic_play_arrow_black_24dp"
-                    android:background="@null"
-                    android:tint="@color/colorAccent"
-                    />
+                    <ImageButton
+                        android:id="@+id/btnShuffle"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        app:srcCompat="@drawable/ic_shuffle_black_36dp"
+                        android:text="Shuffle" />
 
-                <ImageButton
-                    android:id="@+id/btnNext"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_weight="1"
-                    android:text="Next"
-                    app:srcCompat="@drawable/ic_skip_next_black_24dp"
-                    android:background="@null"
-                    android:tint="@color/colorAccent"/>
+                    <ImageButton
+                            android:id="@+id/btnPrev"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:text="prev"
+                            android:tint="@color/colorAccent"
+                            app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
 
-                <ImageButton
-                    android:id="@+id/btnShuffle"
-                    app:srcCompat="@drawable/ic_shuffle_black_36dp"
-                    android:background="@null"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_weight="1"
-                    android:text="Shuffle" />
+                    <ImageButton
+                            android:id="@+id/btnPlay"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:text="Play/Pause"
+                            android:tint="@color/colorAccent"
+                            app:srcCompat="@drawable/ic_play_arrow_black_24dp" />
+
+                    <ImageButton
+                            android:id="@+id/btnNext"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:text="Next"
+                            android:tint="@color/colorAccent"
+                            app:srcCompat="@drawable/ic_skip_next_black_24dp" />
+
+
+
+
+                </LinearLayout>
+
+
+
+
 
             </LinearLayout>
 
+
         </LinearLayout>
-
-    </LinearLayout>
-
-</LinearLayout>
 
 
 
