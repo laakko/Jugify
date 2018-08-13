@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 SpotifyApi api = new SpotifyApi();
                 api.setAccessToken(response.getAccessToken());
                 spotify = api.getService();
-                userAuthd = true;
+
                 //dialog.hide();
 
 
@@ -174,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
                                 Log.i("MainActivity", "Connected! Yay!");
 
                                 // Spotify auth finished -> close dialog -> update tabs
+                                userAuthd = true;
                                 dialog.hide();
                                 viewPager.getAdapter().notifyDataSetChanged();
 

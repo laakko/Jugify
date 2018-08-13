@@ -3,6 +3,7 @@ package com.jukka.jugify;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -83,9 +84,10 @@ public class ListenTab extends Fragment {
     TextView songduration, songposition;
     TextView songinformation;
     TrackProgressBar mTrackProgressBar;
-    LinearLayout bottomlayout;
+    LinearLayout bottomlayout, songcard;
     ProgressBar popularitybar, valencebar, dancebar, energybar, acousticbar;
     ImageView imageNowPlayingBig;
+    TextView txtpopularity,txtvalence,txtdance, txtenergy;
 
 
     @Override
@@ -116,6 +118,11 @@ public class ListenTab extends Fragment {
        // acousticbar = (ProgressBar) view.findViewById(R.id.acousticBar);
         txtTitle = (TextView) view.findViewById(R.id.txtTitle);
         imageNowPlayingBig = (ImageView) view.findViewById(R.id.imageArtistBig);
+        songcard = (LinearLayout) view.findViewById(R.id.songcard);
+        txtpopularity = (TextView) view.findViewById(R.id.txtPopularity);
+        txtvalence = (TextView) view.findViewById(R.id.txtValence);
+        txtenergy = (TextView) view.findViewById(R.id.txtEnergy);
+        txtdance = (TextView) view.findViewById(R.id.txtDanceability);
 
 
         final ScrollView scrollview = (ScrollView) view.findViewById(R.id.scrollview);
@@ -165,7 +172,7 @@ public class ListenTab extends Fragment {
                         trackArtist = track.artist.name;
                         txtNowPlaying.setText(trackName);
                         txtNowArtist.setText(trackArtist);
-                        txtNowArtist.setTextColor(Color.GRAY);
+                        //txtNowArtist.setTextColor(Color.GRAY);
                         txtTitle.setText(track.name + " by " + track.artist.name);
                         String duration = String.format("%d:%d",
                                 TimeUnit.MILLISECONDS.toMinutes(track.duration),
@@ -200,33 +207,26 @@ public class ListenTab extends Fragment {
 
 
                                         Palette p = Palette.from(bitmap).maximumColorCount(8).generate();
-                                        /*
-                                        bottomlayout.setBackgroundColor(p.getDominantColor(Color.BLACK));
-                                        playpause.setColorFilter(p.getVibrantColor(Color.WHITE));
-                                        prev.setColorFilter(p.getVibrantColor(Color.WHITE));
-                                        skip.setColorFilter(p.getVibrantColor(Color.WHITE));
-                                        txtNowPlaying.setTextColor(p.getVibrantColor(Color.WHITE));
-                                        txtNowArtist.setTextColor(p.getVibrantColor(Color.WHITE));
-
-                                        if(p.getVibrantColor(Color.BLACK) == p.getDominantColor(Color.BLACK)){
-                                            //bottomlayout.setBackgroundColor(p.getDarkMutedColor(Color.BLACK));
-                                            playpause.setColorFilter(p.getDarkMutedColor(Color.WHITE));
-                                            prev.setColorFilter(p.getDarkMutedColor(Color.WHITE));
-                                            skip.setColorFilter(p.getDarkMutedColor(Color.WHITE));
-                                            txtNowPlaying.setTextColor(p.getDarkMutedColor(Color.WHITE));
-                                            txtNowArtist.setTextColor(p.getDarkMutedColor(Color.WHITE));
-                                        }
-                                        */
-
                                         Palette.Swatch vibrant = p.getDominantSwatch();
-                                       // bottomlayout.setBackgroundColor(vibrant.getRgb());
-                                        //playpause.setColorFilter(vibrant.getBodyTextColor());
-                                        //prev.setColorFilter(vibrant.getBodyTextColor());
-                                        //skip.setColorFilter(vibrant.getBodyTextColor());
-                                        txtNowPlaying.setBackgroundColor(vibrant.getRgb());
-                                        txtNowArtist.setBackgroundColor(vibrant.getRgb());
-                                        txtNowPlaying.setTextColor(vibrant.getBodyTextColor());
-                                        txtNowArtist.setTextColor(vibrant.getTitleTextColor());
+
+                                        energybar.getProgressDrawable().setColorFilter(vibrant.getRgb(), PorterDuff.Mode.MULTIPLY);
+                                        valencebar.getProgressDrawable().setColorFilter(vibrant.getRgb(), PorterDuff.Mode.MULTIPLY);
+                                        dancebar.getProgressDrawable().setColorFilter(vibrant.getRgb(), PorterDuff.Mode.MULTIPLY);
+                                        popularitybar.getProgressDrawable().setColorFilter(vibrant.getRgb(), PorterDuff.Mode.MULTIPLY);
+                                        txtTitle.setTextColor(vibrant.getTitleTextColor());
+                                        songinformation.setTextColor(vibrant.getBodyTextColor());
+                                        txtdance.setTextColor(vibrant.getRgb());
+                                        txtvalence.setTextColor(vibrant.getRgb());
+                                        txtenergy.setTextColor(vibrant.getRgb());
+                                        txtpopularity.setTextColor(vibrant.getRgb());
+                                        GradientDrawable gd = new GradientDrawable(
+                                                GradientDrawable.Orientation.TOP_BOTTOM,
+                                                new int[] {vibrant.getRgb(), vibrant.getTitleTextColor()});
+                                        gd.setCornerRadius(0f);
+                                        songcard.setBackground(gd);
+
+                                       // songinformation.setTextColor(vibrant.getBodyTextColor());
+
                                         //songduration.setTextColor(vibrant.getTitleTextColor());
                                         //songposition.setTextColor(vibrant.getTitleTextColor());
                                         //seekbar.getThumb().setColorFilter(vibrant.getBodyTextColor(), PorterDuff.Mode.MULTIPLY);

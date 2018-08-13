@@ -40,7 +40,8 @@ public class MyAlbumsGridAdapter extends ArrayAdapter<SavedAlbum> {
         SavedAlbum sa = albumslist.get(position);
         ImageView albumImage = listItem.findViewById(R.id.imgArtist);
         TextView albumName = listItem.findViewById(R.id.txtArtistName);
-        String aname = sa.album.name + "\n" + sa.album.artists.get(0).name;
+        //String aname = sa.album.name + "\n" + sa.album.artists.get(0).name;
+        String aname = sa.album.name;
         albumName.setText(aname);
         String albumImageUrl = sa.album.images.get(0).url;
         ImageLoader imgloader = ImageLoader.getInstance();

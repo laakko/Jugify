@@ -4,6 +4,7 @@ package com.jukka.jugify;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,14 +38,16 @@ public class MyPlaylistsGridAdapter extends ArrayAdapter<PlaylistSimple> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View listItem = convertView;
         if (listItem == null)
-            listItem = LayoutInflater.from(mContext).inflate(R.layout.layout_top_artists, parent, false);
+            listItem = LayoutInflater.from(mContext).inflate(R.layout.layout_my_playlists, parent, false);
 
 
         PlaylistSimple plist = playlistslist.get(position);
         ImageView currentArtistImage = listItem.findViewById(R.id.imgArtist);
-        TextView currentArtistName = listItem.findViewById(R.id.txtArtistName);
-        String pname = plist.name + "\nOwner: " + plist.owner.id + "\n" + Integer.toString(plist.tracks.total) + " tracks";
-        currentArtistName.setText(pname);
+        TextView currentPname = listItem.findViewById(R.id.txtPlaylistName);
+
+        String pinfo = Integer.toString(plist.tracks.total) + " tracks";
+      //  currentPname.setText(pinfo);
+        currentPname.setText(Html.fromHtml(plist.name + "<br/>" +  "<i>" + pinfo + "</i>"));
         String artistImageUrl = plist.images.get(0).url;
         ImageLoader imgloader = ImageLoader.getInstance();
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()

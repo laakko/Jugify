@@ -50,11 +50,11 @@
         <GridView
             android:id="@+id/gridPlaylists"
             android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
+            android:layout_width="400dp"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="true"
-            android:gravity="center"
-            android:numColumns="3" />
+            android:layout_gravity="center"
+            android:numColumns="4" />
 
         <TextView
             android:id="@+id/textView6"
@@ -69,11 +69,11 @@
         <GridView
             android:id="@+id/gridAlbums"
             android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
+            android:layout_width="400dp"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="true"
-            android:gravity="center"
-            android:numColumns="3" />
+            android:layout_gravity="center"
+            android:numColumns="4" />
 
 
 
@@ -100,13 +100,14 @@
 
         <com.gigamole.navigationtabstrip.NavigationTabStrip
             android:id="@+id/datatimeline"
-            android:layout_width="match_parent"
+            android:layout_width="250dp"
+            android:layout_gravity="center"
             android:layout_height="45dp"
             app:nts_type="point"
             app:nts_active_color="@color/colorAccent"
             app:nts_color="@color/colorAccent"
             app:nts_inactive_color="#BDBDBD"
-            app:nts_weight="6dp"
+            app:nts_weight="7dp"
             android:layout_marginBottom="10dp"
             />
 
@@ -117,29 +118,6 @@
             android:layout_marginStart="30dp"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btnShort"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/colorAccent"
-                android:text="short" />
-
-            <Button
-                android:id="@+id/btnMedium"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/colorAccent"
-                android:text="medium" />
-
-            <Button
-                android:id="@+id/btnLong"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@color/colorAccent"
-                android:text="long" />
         </LinearLayout>
 
         <TextView
@@ -190,6 +168,13 @@
             android:textStyle="bold"
             android:textSize="18sp"
             android:text="Top Genres: " />
+
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/genrePie"
+            android:layout_gravity="center"
+            android:layout_width="400dp"
+            android:layout_height="400dp"></com.github.mikephil.charting.charts.PieChart>
+
 
         <TextView
             android:id="@+id/textView9"
