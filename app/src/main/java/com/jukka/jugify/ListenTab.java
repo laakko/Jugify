@@ -33,6 +33,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.ohoussein.playpause.PlayPauseView;
 import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.Image;
@@ -68,7 +69,7 @@ public class ListenTab extends Fragment {
     TextView txtNowPlaying;
     TextView txtNowArtist;
     TextView lyrics;
-    ImageButton playpause;
+    PlayPauseView playpause;
     ImageButton skip;
     ImageButton prev;
     ImageButton shuffle;
@@ -96,7 +97,7 @@ public class ListenTab extends Fragment {
 
         txtNowPlaying = (TextView) view.findViewById(R.id.txtNowPlaying);
         txtNowArtist = (TextView) view.findViewById(R.id.txtNowArtist);
-        playpause = (ImageButton) view.findViewById(R.id.btnPlay);
+        playpause = (PlayPauseView) view.findViewById(R.id.btnPlay);
         skip = (ImageButton) view.findViewById(R.id.btnNext);
         prev = (ImageButton) view.findViewById(R.id.btnPrev);
         shuffle = (ImageButton) view.findViewById(R.id.btnShuffle);
@@ -173,7 +174,7 @@ public class ListenTab extends Fragment {
                         txtNowPlaying.setText(trackName);
                         txtNowArtist.setText(trackArtist);
                         //txtNowArtist.setTextColor(Color.GRAY);
-                        txtTitle.setText(track.name + " by " + track.artist.name);
+                        txtTitle.setText(track.name + "\n by " + track.artist.name);
                         String duration = String.format("%d:%d",
                                 TimeUnit.MILLISECONDS.toMinutes(track.duration),
                                 TimeUnit.MILLISECONDS.toSeconds(track.duration) -
@@ -204,10 +205,10 @@ public class ListenTab extends Fragment {
                                     public void onResult(Bitmap bitmap) {
                                         imageNowPlayingBig.setImageBitmap(bitmap);
 
-
-
                                         Palette p = Palette.from(bitmap).maximumColorCount(8).generate();
                                         Palette.Swatch vibrant = p.getDominantSwatch();
+                                    /*
+
 
                                         energybar.getProgressDrawable().setColorFilter(vibrant.getRgb(), PorterDuff.Mode.MULTIPLY);
                                         valencebar.getProgressDrawable().setColorFilter(vibrant.getRgb(), PorterDuff.Mode.MULTIPLY);
@@ -224,13 +225,8 @@ public class ListenTab extends Fragment {
                                                 new int[] {vibrant.getRgb(), vibrant.getTitleTextColor()});
                                         gd.setCornerRadius(0f);
                                         songcard.setBackground(gd);
+                                        */
 
-                                       // songinformation.setTextColor(vibrant.getBodyTextColor());
-
-                                        //songduration.setTextColor(vibrant.getTitleTextColor());
-                                        //songposition.setTextColor(vibrant.getTitleTextColor());
-                                        //seekbar.getThumb().setColorFilter(vibrant.getBodyTextColor(), PorterDuff.Mode.MULTIPLY);
-                                        //seekbar.getProgressDrawable().setColorFilter(vibrant.getTitleTextColor(), PorterDuff.Mode.MULTIPLY);
 
                                     }
                                 });
@@ -248,9 +244,11 @@ public class ListenTab extends Fragment {
                 @Override
                 public void onClick(View view) {
                     if(isplaying){
+                        playpause.toggle(true);
                         mSpotifyAppRemote.getPlayerApi().pause();
                     } else {
                         mSpotifyAppRemote.getPlayerApi().resume();
+                        playpause.toggle(true);
                     }
                 }
             });

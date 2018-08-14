@@ -178,26 +178,26 @@ public class UserTab extends Fragment {
                 gridAlbums.setAdapter(albadapter);
             }
 
-            gridAlbums.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    // Play the clicked album
-                    mSpotifyAppRemote.getPlayerApi().play(albadapter.getItem(i).album.uri);
-                    toast("Now playing: "+albadapter.getItem(i).album.name, R.drawable.baseline_album_24, Color.BLACK);
-                }
-            });
-
             gridAlbums.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    // Play the clicked album
+                    mSpotifyAppRemote.getPlayerApi().play(albadapter.getItem(i).album.uri);
+                    toast("Now playing: "+albadapter.getItem(i).album.name, R.drawable.baseline_album_24, Color.BLACK);
+
+                    return true;
+                }
+            });
+
+            gridAlbums.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
                     LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
                     View layout = inflater.inflate(R.layout.popup_album,
                             (ViewGroup) view.findViewById(R.id.tab_layout_2));
 
                     popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
-                    popup.setTouchable(true);
-                    popup.setFocusable(true);
                     popup.showAtLocation(layout, Gravity.TOP, 0, 0);
 
                     SavedAlbum popupAlbum = albadapter.getItem(i);
@@ -226,10 +226,6 @@ public class UserTab extends Fragment {
                             toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
                         }
                     });
-
-
-                    // return false;
-                    return true;
                 }
             });
 

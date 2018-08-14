@@ -26,9 +26,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:textSize="18sp"
                 android:text="Atlas, Rise by Metallica"
                 android:textAlignment="center"
+                android:textSize="24sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -126,9 +126,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
-                android:textSize="18sp"
                 android:text="Musical information (estimations)"
                 android:textAlignment="center"
+                android:textSize="24sp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -142,14 +142,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
-                    android:text="Key: E major" />
+                    android:text="Key: E major"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/txtBPM"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
-                    android:text="Tempo: 120 BPM " />
+                    android:text="Tempo: 120 BPM "
+                    android:textSize="18sp" />
 
 
             </LinearLayout>
@@ -165,14 +167,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="20dp"
-                    android:text="Loudness: -12dB" />
+                    android:text="Loudness: -12dB"
+                    android:textSize="18sp" />
 
 
                 <TextView
                     android:id="@+id/txtTimeSignature"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Time Signature: 4" />
+                    android:text="Time Signature: 4"
+                    android:textSize="18sp" />
 
             </LinearLayout>
 
@@ -181,19 +185,20 @@
                 android:id="@+id/textView6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:text="Song Lyrics"
                 android:textAlignment="center"
-                android:textSize="18sp"
+                android:textSize="24sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/txtLyrics"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="Loading.."
                 android:textAlignment="center"
-                android:textStyle="italic"
-                android:text="Loading.."/>
+                android:textSize="18sp"
+                android:textStyle="italic" />
 
 
         </LinearLayout>
@@ -293,16 +298,15 @@
                             android:tint="@color/colorAccent"
                             app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
 
-                    <ImageButton
+                    <com.ohoussein.playpause.PlayPauseView
                             android:id="@+id/btnPlay"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_gravity="center_vertical"
-                            android:layout_weight="1"
-                            android:background="@null"
-                            android:text="Play/Pause"
-                            android:tint="@color/colorAccent"
-                            app:srcCompat="@drawable/ic_play_arrow_black_24dp" />
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:clickable="true"
+                            android:foreground="?android:selectableItemBackground"
+                            app:fill_color="@color/colorPrimary"
+                            app:pause_bg="@color/colorPrimaryDark"
+                            app:play_bg="@color/colorAccent" />
 
                     <ImageButton
                             android:id="@+id/btnNext"

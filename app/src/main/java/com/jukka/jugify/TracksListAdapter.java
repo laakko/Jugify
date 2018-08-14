@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,8 +17,11 @@ import com.nostra13.universalimageloader.core.assist.ImageSize;
 
 import java.util.ArrayList;
 
+import es.dmoral.toasty.Toasty;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
+
+import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 
 public class TracksListAdapter extends ArrayAdapter<TrackSimple> {
     private Context mContext;
@@ -36,14 +40,29 @@ public class TracksListAdapter extends ArrayAdapter<TrackSimple> {
         if (listItem == null)
             listItem = LayoutInflater.from(mContext).inflate(R.layout.layout_tracks, parent, false);
 
-        TrackSimple curTrack = trackslist.get(position);
+        final TrackSimple curTrack = trackslist.get(position);
         TextView curTrackName = listItem.findViewById(R.id.txtListTrack);
         curTrackName.setText(curTrack.name);
         curTrackName.setTextColor(Color.LTGRAY);
+
+        ImageButton queueBtn = listItem.findViewById(R.id.imgAddQueue);
+        queueBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSpotifyAppRemote.getPlayerApi().queue(curTrack.uri);
+                toast("'" + curTrack.name + "' added to queue.", R.drawable.ic_queue_black_36dp, Color.BLACK);
+            }
+        });
+
 
 
 
         return listItem;
 
+    }
+
+
+    public void toast(String message, int drawable, int tintcolor) {
+        Toasty.custom(getContext(), message, drawable, tintcolor, 700, true, true).show();
     }
 }
