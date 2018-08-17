@@ -2,12 +2,14 @@ package com.jukka.jugify;
 
 import android.app.ProgressDialog;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.graphics.drawable.TransitionDrawable;
 import android.support.v4.app.Fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -69,11 +71,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this).build();
         ImageLoader.getInstance().init(config);
 
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming", "user-top-read", "user-read-currently-playing", "user-library-read", "user-modify-playback-state", "app-remote-control"});
+        builder.setScopes(new String[]{"user-read-private", "streaming", "user-top-read", "user-read-currently-playing", "user-library-read", "user-modify-playback-state", "app-remote-control", "playlist-read-private", "playlist-read-collaborative"});
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);

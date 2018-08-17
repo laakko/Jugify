@@ -1,6 +1,7 @@
 package com.jukka.jugify;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.TransitionDrawable;
 import android.support.annotation.ColorInt;
@@ -8,6 +9,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -18,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -30,12 +33,22 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.spotify.sdk.android.player.Spotify;
 
 import java.sql.Array;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import es.dmoral.toasty.Toasty;
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -43,7 +56,9 @@ import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
+import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.SavedAlbum;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
@@ -82,6 +97,9 @@ public class UserTab extends Fragment {
     private PieData piedata;
     private PieDataSet piedataset;
     private PopupWindow popup;
+    public String userid;
+    ArrayList<AbstractMap.SimpleEntry<String, Double>> genreList = new ArrayList<AbstractMap.SimpleEntry<String, Double>>();
+
 
 
     @Override
@@ -93,7 +111,6 @@ public class UserTab extends Fragment {
         final ListView listTopTracks = (ListView) view.findViewById(R.id.listTopTracks);
         final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
         final GridView gridAlbums = (GridView) view.findViewById(R.id.gridAlbums);
-        final PieChart genrePie = (PieChart) view.findViewById(R.id.genrePie);
         Toasty.Config.getInstance().setTextColor(getResources().getColor(R.color.colorAccent)).apply();
 
         final NavigationTabStrip datatimeline = view.findViewById(R.id.datatimeline);
@@ -111,6 +128,7 @@ public class UserTab extends Fragment {
                 @Override
                 public void success(UserPrivate user, Response response) {
                     username.setText("Hello, " + user.id);
+                    userid = user.id;
                     username.setTextColor(Color.LTGRAY);
                 }
                 @Override
@@ -126,7 +144,7 @@ public class UserTab extends Fragment {
             if(!topartists_gotten){
                 options.put("time_range", "medium_term");
                 tagadapter = new TopArtistsGridAdapter(getContext().getApplicationContext(), topartistslist);
-                TopArtists(options, tagadapter, gridTopArtists, genrePie);
+                TopArtists(options, tagadapter, gridTopArtists);
 
             } else {
                 gridTopArtists.setAdapter(tagadapter);
@@ -162,12 +180,106 @@ public class UserTab extends Fragment {
                 gridPlaylists.setAdapter(padapter);
             }
 
-            gridPlaylists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            gridPlaylists.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                     // Play the clicked playlist
                     mSpotifyAppRemote.getPlayerApi().play(padapter.getItem(i).uri);
                     toast("Now playing: "+padapter.getItem(i).name, R.drawable.ic_playlist_play_black_36dp, Color.BLACK);
+                    return true;
+                }
+            });
+
+            gridPlaylists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                    LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+                    View layout = inflater.inflate(R.layout.popup_album,
+                            (ViewGroup) view.findViewById(R.id.tab_layout_2));
+
+                    popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
+                    popup.showAtLocation(layout, Gravity.TOP, 0, 0);
+
+                    // SavedAlbum popupAlbum = padapter.getItem(i);
+                    PlaylistSimple playlist = padapter.getItem(i);
+
+                    final String popupPlaylistInfo = playlist.name + "\n by " + playlist.owner.id;
+
+                    final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
+                    final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
+                    final TextView popupalbumname = layout.findViewById(R.id.txtPopupAlbumName);
+                    popupalbumname.setText(popupPlaylistInfo);
+                    final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
+                    popupinfo.setText(playlist.tracks.total + " tracks");
+
+                    final ListView popuplist = layout.findViewById(R.id.listPopupTracks);
+                    ImageLoader imgloader = ImageLoader.getInstance();
+
+                    DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                            .showStubImage(R.drawable.baseline_album_24).build();
+                    ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
+                    ImageSize targetSize = new ImageSize(200, 200); // result Bitmap will be fit to this size
+                    imgloader.loadImage(playlist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
+                        @Override
+                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            popupImg.setImageBitmap(loadedImage);
+
+                            Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
+                            Palette.Swatch vibrant;
+                            try {
+                                vibrant = p.getVibrantSwatch();
+                                popupbg.setBackgroundColor(vibrant.getRgb());
+                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                                popupinfo.setTextColor(vibrant.getBodyTextColor());
+                            } catch (NullPointerException e) {
+                                vibrant = p.getDominantSwatch();
+                                popupbg.setBackgroundColor(vibrant.getRgb());
+                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                                popupinfo.setTextColor(vibrant.getBodyTextColor());
+                            }
+
+
+                        }
+
+                    });
+
+                    final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>());
+                    popuptrackadapter.clear();
+
+                    spotify.getPlaylistTracks(userid, playlist.id, new Callback<Pager<PlaylistTrack>>() {
+                        @Override
+                        public void success(Pager<PlaylistTrack> pager, Response response) {
+
+
+                            for(PlaylistTrack p : pager.items){
+                                popuptrackadapter.add(p.track);
+                            }
+
+                            myplaylists_gotten = true;
+                            popuplist.setAdapter(popuptrackadapter);
+                            popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                    mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
+                                    // mSpotifyAppRemote.getPlayerApi().queue(trackadapter.getItem(i).uri);
+                                    toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.d("My playlists failure", error.toString());
+                        }
+                    });
+
+
+
+
+
+
+
                 }
             });
 
@@ -201,15 +313,51 @@ public class UserTab extends Fragment {
                     popup.showAtLocation(layout, Gravity.TOP, 0, 0);
 
                     SavedAlbum popupAlbum = albadapter.getItem(i);
-                    String popupAlbumInfo = popupAlbum.album.name + "\n by " + popupAlbum.album.artists.get(0).name;
-
+                    final String popupAlbumInfo = popupAlbum.album.name + "\n by " + popupAlbum.album.artists.get(0).name;
+                    final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
+                    final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
                     final TextView popupalbumname = layout.findViewById(R.id.txtPopupAlbumName);
                     popupalbumname.setText(popupAlbumInfo);
-
                     final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
                     popupinfo.setText("Released " + popupAlbum.album.release_date);
 
                     ListView popuplist = layout.findViewById(R.id.listPopupTracks);
+                    ImageLoader imgloader = ImageLoader.getInstance();
+
+
+                    DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                            .showStubImage(R.drawable.baseline_album_24).build();
+                    ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
+                    ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
+                    imgloader.loadImage(popupAlbum.album.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
+                        @Override
+                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            popupImg.setImageBitmap(loadedImage);
+
+                            Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
+                            Palette.Swatch vibrant;
+                            try {
+                                vibrant = p.getVibrantSwatch();
+                                popupbg.setBackgroundColor(vibrant.getRgb());
+                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                                popupinfo.setTextColor(vibrant.getBodyTextColor());
+                            } catch(NullPointerException e) {
+                                vibrant = p.getDominantSwatch();
+                                popupbg.setBackgroundColor(vibrant.getRgb());
+                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                                popupinfo.setTextColor(vibrant.getBodyTextColor());
+                            }
+
+
+
+
+
+
+                        }
+                    });
+
+
+
 
                     final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>());
                     popuptrackadapter.clear();
@@ -237,17 +385,17 @@ public class UserTab extends Fragment {
                     if(index == 0) {
                         options.clear();
                         options.put("time_range", "short_term");
-                        TopArtists(options, tagadapter, gridTopArtists, genrePie);
+                        TopArtists(options, tagadapter, gridTopArtists);
                         TopTracks(options, trackadapter, listTopTracks);
                     } else if(index == 1) {
                         options.clear();
                         options.put("time_range", "medium_term");
-                        TopArtists(options, tagadapter, gridTopArtists, genrePie);
+                        TopArtists(options, tagadapter, gridTopArtists);
                         TopTracks(options, trackadapter, listTopTracks);
                     } else if(index == 2) {
                         options.clear();
                         options.put("time_range", "long_term");
-                        TopArtists(options, tagadapter, gridTopArtists, genrePie);
+                        TopArtists(options, tagadapter, gridTopArtists);
                         TopTracks(options, trackadapter, listTopTracks);
                     }
                 }
@@ -264,46 +412,53 @@ public class UserTab extends Fragment {
     }
 
     // Helper functions for Spotify Web API queries
-    public void TopArtists( Map<String, Object> options, final TopArtistsGridAdapter adapter, final GridView grid, final PieChart piechart) {
+    public void TopArtists( Map<String, Object> options, final TopArtistsGridAdapter adapter, final GridView grid) {
 
         spotify.getTopArtists(options, new Callback<Pager<Artist>>() {
             @Override
             public void success(Pager<Artist> pager, Response response) {
 
                 adapter.clear();
-                pietitles.clear();
-                pientrys.clear();
+                genreList.clear();
                 int counter=0;
+
                 for(Artist a : pager.items){
                     counter++;
                     if(counter<10){
                         adapter.add(a);
                     }
-
-                    try{
-                        String temp = a.name + " " + a.genres.get(0) + " " + a.genres.get(1);
+                        String temp = a.name + " " + a.genres.get(0);
                         Log.i("Artist + genre:", temp);
-                        pietitles.add(a.genres.get(0));
-                        pientrys.add(new BarEntry(1.0f, counter));
-                        piedataset = new PieDataSet(pientrys, "");
-                        piedata = new PieData(pietitles, piedataset);
-                        piedataset.setColors(ColorTemplate.PASTEL_COLORS);
-                        piechart.setData(piedata);
-                        piechart.setDrawHoleEnabled(false);
-                        piechart.setEnabled(false);
-                        piechart.notifyDataSetChanged();
-                        piechart.setEnabled(true);
-                        piedata.notifyDataChanged();
-                        piedataset.notifyDataSetChanged();
 
+                        /*
+                        if(genreList.size() > 0) {
 
-                    } catch(IndexOutOfBoundsException e){
-                        e.printStackTrace();
-                    }
+                            Iterator<String, Double> iter = genreList.iterator();
+                            for(AbstractMap.SimpleEntry<String, Double> entry: genreList) {
+                                if(entry.getKey() == a.genres.get(0)){
+                                    double prev_value = entry.getValue();
+                                    entry.setValue(prev_value + 0.5 + ((1/counter)*2));
+                                }
+                                else {
+                                    genreList.add(new AbstractMap.SimpleEntry<String, Double>(a.genres.get(0), 0.5+((1.0/counter)*2.0)));
+                                }
+                            }
 
+                        } else {
+                            genreList.add(new AbstractMap.SimpleEntry<String, Double>(a.genres.get(0), 0.5+((1.0/counter)*2.0)));
 
+                        }
+                        */
 
+                        Log.i("Counter, value", Integer.toString(counter) + "," + Double.toString(0.5+((1.0/counter)*2.0)));
+                        genreList.add(new AbstractMap.SimpleEntry<String, Double>(a.genres.get(0), 0.5+((1.0/counter)*2.0)));
                 }
+                Log.i("Toimiiko", "saataha");
+
+                for(AbstractMap.SimpleEntry<String, Double> entry: genreList) {
+                    Log.i("Points, Genre", entry.getValue() + " " + entry.getKey());
+                }
+
 
                 topartists_gotten = true;
                 grid.setAdapter(adapter);
@@ -362,6 +517,7 @@ public class UserTab extends Fragment {
     }
 
     public void MyPlaylists(final MyPlaylistsGridAdapter adapter, final GridView grid) {
+
         spotify.getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
             @Override
             public void success(Pager<PlaylistSimple> pager, Response response) {
@@ -388,7 +544,8 @@ public class UserTab extends Fragment {
     }
 
 
-    public void topGenres() {
+    public void topGenres(ArrayList<AbstractMap.SimpleEntry<String, Double>> genreList) {
+
 
     }
 
