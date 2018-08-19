@@ -351,8 +351,11 @@ public class ListenTab extends Fragment {
                     keystr += " Major";
                 }
 
+                String tempoRounded = Float.toString((int)Math.round(aft.tempo));
+
+
                 key.setText("Key: "+keystr);
-                tempo.setText("Tempo: "+Integer.toString(Math.round(aft.tempo)) + " BPM");
+                tempo.setText("Tempo: "+ tempoRounded + " BPM");
                 loudness.setText("Loudness: "+Float.toString(aft.loudness) + "dB");
                 timesignature.setText("Time signature: " + Integer.toString(aft.time_signature));
 

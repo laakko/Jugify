@@ -55,6 +55,7 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
@@ -84,6 +85,7 @@ public class UserTab extends Fragment {
     public static boolean toptracks_gotten = false;
     public static boolean myplaylists_gotten = false;
     public static boolean myalbums_gotten = false;
+    public static boolean trackinfo_gotten = false;
     public ArrayList<Artist> topartistslist = new ArrayList<Artist>();
     public ArrayList<Track> toptrackslist = new ArrayList<>();
     public ArrayList<PlaylistSimple> myplaylistslist = new ArrayList<>();
@@ -98,6 +100,11 @@ public class UserTab extends Fragment {
     private PieDataSet piedataset;
     private PopupWindow popup;
     public String userid;
+    public int trackinfoCounter;
+    private float acousticnesAvg, danceabilityAvg, valencyAvg, energyAvg, tempoAvg, instruAvg;
+    private int durationAvg;
+    TextView txtAvgTempo;
+    TextView txtAvgDuration;
     ArrayList<AbstractMap.SimpleEntry<String, Double>> genreList = new ArrayList<AbstractMap.SimpleEntry<String, Double>>();
 
 
@@ -111,13 +118,14 @@ public class UserTab extends Fragment {
         final ListView listTopTracks = (ListView) view.findViewById(R.id.listTopTracks);
         final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
         final GridView gridAlbums = (GridView) view.findViewById(R.id.gridAlbums);
+        txtAvgTempo = (TextView) view.findViewById(R.id.avgTempo);
+        txtAvgDuration = (TextView) view.findViewById(R.id.avgDuration);
         Toasty.Config.getInstance().setTextColor(getResources().getColor(R.color.colorAccent)).apply();
 
         final NavigationTabStrip datatimeline = view.findViewById(R.id.datatimeline);
         datatimeline.setTitles("SHORT", "MEDIUM", "LONG");
         datatimeline.setAnimationDuration(300);
         datatimeline.setTabIndex(1);
-
 
 
 
@@ -151,8 +159,10 @@ public class UserTab extends Fragment {
             }
 
             if(!toptracks_gotten) {
+
                 trackadapter = new TopTracksListAdapter(getContext().getApplicationContext(), toptrackslist);
                 TopTracks(options, trackadapter, listTopTracks);
+
             } else {
                 listTopTracks.setAdapter(trackadapter);
             }
@@ -476,14 +486,17 @@ public class UserTab extends Fragment {
             @Override
             public void success(Pager<Track> pager, Response response) {
 
+                trackinfoCounter = 0;
+                acousticnesAvg = 0; danceabilityAvg = 0; valencyAvg = 0;
+                energyAvg = 0; tempoAvg = 0; instruAvg = 0; durationAvg = 0;
                 adapter.clear();
                 for(Track t : pager.items){
                     adapter.add(t);
+                    getAudioInfo(t.id);
                 }
 
                 toptracks_gotten = true;
                 list.setAdapter(adapter);
-
 
             }
 
@@ -541,6 +554,50 @@ public class UserTab extends Fragment {
 
     public void myDevices() {
 
+    }
+
+
+    public void getAudioInfo(String uri) {
+
+
+        spotify.getTrackAudioFeatures(uri, new Callback<AudioFeaturesTrack>() {
+
+            @Override
+            public void success(AudioFeaturesTrack aft, Response response){
+
+                acousticnesAvg += aft.acousticness;
+                danceabilityAvg += aft.danceability;
+                valencyAvg += aft.valence;
+                energyAvg += aft.energy;
+                instruAvg += aft.instrumentalness;
+                tempoAvg += aft.tempo;
+                durationAvg += aft.duration_ms;
+                trackinfoCounter += 1;
+
+                if(trackinfoCounter == 20) {
+                    tempoAvg = tempoAvg / 20;
+                    acousticnesAvg = acousticnesAvg / 20;
+                    danceabilityAvg = danceabilityAvg / 20;
+                    valencyAvg = valencyAvg / 20;
+                    energyAvg = energyAvg / 20;
+                    instruAvg = instruAvg / 20;
+                    durationAvg = durationAvg / 20;
+
+                    String tempoRounded = Float.toString((int)Math.round(tempoAvg));
+
+                    txtAvgTempo.setText(tempoRounded + " BPM");
+                    txtAvgDuration.setText(Integer.toString(durationAvg));
+
+
+                }
+
+            }
+
+            @Override
+            public void failure(RetrofitError error){
+                Log.d("Audio features failure", error.toString());
+            }
+        });
     }
 
 
