@@ -44,6 +44,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -148,15 +149,19 @@ public class ListenTab extends Fragment {
                     final Track track = playerState.track;
                     if(playerState.isPaused){
                         isplaying = false;
+                        playpause.change(true);
                     } else {
                         isplaying = true;
+                        playpause.change(false);
+
                     }
                     if(playerState.playbackOptions.isShuffling){
-                        shuffle.setColorFilter(Color.DKGRAY);
                         shuffling = true;
+                        shuffle.setColorFilter(Color.parseColor("#427DD1"));
                     } else {
                         shuffling = false;
-                        shuffle.setColorFilter(Color.parseColor("#427DD1"));
+                        shuffle.setColorFilter(Color.DKGRAY);
+
                     }
 
                     if(playerState.playbackSpeed > 0) {
@@ -244,11 +249,9 @@ public class ListenTab extends Fragment {
                 @Override
                 public void onClick(View view) {
                     if(isplaying){
-                        playpause.toggle(true);
                         mSpotifyAppRemote.getPlayerApi().pause();
                     } else {
                         mSpotifyAppRemote.getPlayerApi().resume();
-                        playpause.toggle(true);
                     }
                 }
             });
@@ -430,7 +433,7 @@ public class ListenTab extends Fragment {
         private final SeekBar.OnSeekBarChangeListener mSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                String position = String.format("%d:%d",
+                String position = String.format("%d:%02d",
                         TimeUnit.MILLISECONDS.toMinutes(seekBar.getProgress()),
                         TimeUnit.MILLISECONDS.toSeconds(seekBar.getProgress()) -
                                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seekBar.getProgress()))
@@ -454,7 +457,7 @@ public class ListenTab extends Fragment {
             public void run() {
                 int progress = mSeekBar.getProgress();
                 mSeekBar.setProgress(progress + LOOP_DURATION);
-                String position = String.format("%d:%d",
+                String position = String.format(Locale.US, "%d:%02d",
                         TimeUnit.MILLISECONDS.toMinutes(progress),
                         TimeUnit.MILLISECONDS.toSeconds(progress) -
                                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(progress))
@@ -475,7 +478,7 @@ public class ListenTab extends Fragment {
             mSeekBar.setMax((int) duration);
         }
 
-        private void update(long progress) {
+        private void update(long progress)   {
             mSeekBar.setProgress((int) progress);
         }
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,11 +27,13 @@ import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 public class TracksListAdapter extends ArrayAdapter<TrackSimple> {
     private Context mContext;
     private ArrayList<TrackSimple> trackslist = new ArrayList<TrackSimple>();
+    private Boolean trackInfo;
 
-    public TracksListAdapter(@NonNull Context context, ArrayList<TrackSimple> list) {
+    public TracksListAdapter(@NonNull Context context, ArrayList<TrackSimple> list, Boolean withInfo) {
         super(context, 0, list);
         mContext = context;
         trackslist = list;
+        trackInfo = withInfo;
     }
 
     @NonNull
@@ -42,8 +45,13 @@ public class TracksListAdapter extends ArrayAdapter<TrackSimple> {
 
         final TrackSimple curTrack = trackslist.get(position);
         TextView curTrackName = listItem.findViewById(R.id.txtListTrack);
-        curTrackName.setText(curTrack.name);
         curTrackName.setTextColor(Color.LTGRAY);
+
+        if(trackInfo){
+            curTrackName.setText(Html.fromHtml(curTrack.name + "<br/>" +  "<i>" + curTrack.artists.get(0).name + "</i>"));
+        } else {
+            curTrackName.setText(curTrack.name);
+        }
 
         ImageButton queueBtn = listItem.findViewById(R.id.imgAddQueue);
         queueBtn.setOnClickListener(new View.OnClickListener() {

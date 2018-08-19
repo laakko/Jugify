@@ -244,7 +244,7 @@ public class UserTab extends Fragment {
 
                     });
 
-                    final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>());
+                    final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>(), true);
                     popuptrackadapter.clear();
 
                     spotify.getPlaylistTracks(userid, playlist.id, new Callback<Pager<PlaylistTrack>>() {
@@ -359,7 +359,7 @@ public class UserTab extends Fragment {
 
 
 
-                    final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>());
+                    final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>(), false);
                     popuptrackadapter.clear();
                     for(TrackSimple track : popupAlbum.album.tracks.items) {
                         popuptrackadapter.add(track);
@@ -424,7 +424,7 @@ public class UserTab extends Fragment {
 
                 for(Artist a : pager.items){
                     counter++;
-                    if(counter<10){
+                    if(counter<13){
                         adapter.add(a);
                     }
                         String temp = a.name + " " + a.genres.get(0);

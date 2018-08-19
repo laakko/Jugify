@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.graphics.drawable.TransitionDrawable;
+import android.support.annotation.FontRes;
 import android.support.v4.app.Fragment;
 import android.app.Activity;
 import android.content.Intent;
@@ -103,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
         NavigationTabStrip tabLayout2 = findViewById(R.id.tab_layout_2);
         tabLayout2.setTitles("User", "Listen", "Explore");
         tabLayout2.setAnimationDuration(150);
+        tabLayout2.setTypeface(Typeface.DEFAULT_BOLD);
+
 
 
         dialog = new ProgressDialog(this);
