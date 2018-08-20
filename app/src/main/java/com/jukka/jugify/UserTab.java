@@ -24,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
@@ -47,8 +48,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import es.dmoral.toasty.Toasty;
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -101,10 +104,12 @@ public class UserTab extends Fragment {
     private PopupWindow popup;
     public String userid;
     public int trackinfoCounter;
-    private float acousticnesAvg, danceabilityAvg, valencyAvg, energyAvg, tempoAvg, instruAvg;
+    private float acousticnesAvg, danceabilityAvg, valencyAvg, energyAvg, tempoAvg, instruAvg, popularityAvg;
     private int durationAvg;
     TextView txtAvgTempo;
     TextView txtAvgDuration;
+    TextView txtTopGenres;
+    ProgressBar AvgValenceBar, AvgEnergyBar, AvgDanceBar, AvgInstruBar, AvgPopularityBar;
     ArrayList<AbstractMap.SimpleEntry<String, Double>> genreList = new ArrayList<AbstractMap.SimpleEntry<String, Double>>();
 
 
@@ -118,15 +123,20 @@ public class UserTab extends Fragment {
         final ListView listTopTracks = (ListView) view.findViewById(R.id.listTopTracks);
         final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
         final GridView gridAlbums = (GridView) view.findViewById(R.id.gridAlbums);
+        final TextView txtTopGenres = (TextView) view.findViewById(R.id.txtTopGenres);
         txtAvgTempo = (TextView) view.findViewById(R.id.avgTempo);
         txtAvgDuration = (TextView) view.findViewById(R.id.avgDuration);
+        AvgDanceBar = (ProgressBar) view.findViewById(R.id.avgDanceability);
+        AvgEnergyBar = (ProgressBar) view.findViewById(R.id.avgEnergy);
+        AvgValenceBar = (ProgressBar) view.findViewById(R.id.avgValence);
+        AvgInstruBar = (ProgressBar) view.findViewById(R.id.avgInstrumentalness);
+        AvgPopularityBar = (ProgressBar) view.findViewById(R.id.avgPopularity);
         Toasty.Config.getInstance().setTextColor(getResources().getColor(R.color.colorAccent)).apply();
 
         final NavigationTabStrip datatimeline = view.findViewById(R.id.datatimeline);
         datatimeline.setTitles("SHORT", "MEDIUM", "LONG");
         datatimeline.setAnimationDuration(300);
         datatimeline.setTabIndex(1);
-
 
 
         if(userAuthd) {
@@ -272,7 +282,6 @@ public class UserTab extends Fragment {
                                 @Override
                                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                                     mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
-                                    // mSpotifyAppRemote.getPlayerApi().queue(trackadapter.getItem(i).uri);
                                     toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
                                 }
                             });
@@ -380,7 +389,6 @@ public class UserTab extends Fragment {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                             mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
-                            // mSpotifyAppRemote.getPlayerApi().queue(trackadapter.getItem(i).uri);
                             toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
                         }
                     });
@@ -391,7 +399,6 @@ public class UserTab extends Fragment {
             datatimeline.setOnTabStripSelectedIndexListener(new NavigationTabStrip.OnTabStripSelectedIndexListener() {
                 @Override
                 public void onStartTabSelected(String title, int index) {
-                    Log.i("CLicked: " , Integer.toString(index));
                     if(index == 0) {
                         options.clear();
                         options.put("time_range", "short_term");
@@ -487,11 +494,12 @@ public class UserTab extends Fragment {
             public void success(Pager<Track> pager, Response response) {
 
                 trackinfoCounter = 0;
-                acousticnesAvg = 0; danceabilityAvg = 0; valencyAvg = 0;
+                acousticnesAvg = 0; danceabilityAvg = 0; valencyAvg = 0; popularityAvg = 0;
                 energyAvg = 0; tempoAvg = 0; instruAvg = 0; durationAvg = 0;
                 adapter.clear();
                 for(Track t : pager.items){
                     adapter.add(t);
+                    popularityAvg += t.popularity;
                     getAudioInfo(t.id);
                 }
 
@@ -582,11 +590,22 @@ public class UserTab extends Fragment {
                     energyAvg = energyAvg / 20;
                     instruAvg = instruAvg / 20;
                     durationAvg = durationAvg / 20;
+                    popularityAvg = popularityAvg / 20;
 
                     String tempoRounded = Float.toString((int)Math.round(tempoAvg));
+                    String duration = String.format(Locale.US, "%d:%02d",
+                            TimeUnit.MILLISECONDS.toMinutes(durationAvg),
+                            TimeUnit.MILLISECONDS.toSeconds(durationAvg) -
+                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(durationAvg)));
 
                     txtAvgTempo.setText(tempoRounded + " BPM");
-                    txtAvgDuration.setText(Integer.toString(durationAvg));
+                    txtAvgDuration.setText(duration);
+
+                    AvgEnergyBar.setProgress((int)Math.round(100*energyAvg));
+                    AvgValenceBar.setProgress((int)Math.round(100*valencyAvg));
+                    AvgDanceBar.setProgress((int)Math.round(100*danceabilityAvg));
+                    AvgInstruBar.setProgress((int)Math.round(100*instruAvg));
+                    AvgPopularityBar.setProgress((int)Math.round(popularityAvg));
 
 
                 }

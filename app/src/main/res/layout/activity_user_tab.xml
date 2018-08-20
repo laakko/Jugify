@@ -130,7 +130,7 @@
             android:fontFamily="@font/eczar"
             android:text="Top Artists:"
             android:textAlignment="center"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <GridView
@@ -151,10 +151,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:fontFamily="@font/gentium_basic_bold"
+            android:fontFamily="@font/eczar"
             android:text="Top tracks: "
             android:textAlignment="center"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <ListView
@@ -168,21 +168,27 @@
             android:id="@+id/textView8"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/gentium_basic_bold"
+            android:fontFamily="@font/eczar"
             android:text="Top Genres: "
             android:textAlignment="center"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtTopGenres"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading..." />
 
         <TextView
             android:id="@+id/textView9"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
-            android:fontFamily="@font/gentium_basic_bold"
+            android:fontFamily="@font/eczar"
             android:text="Extra statistics: "
             android:textAlignment="center"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <TextView

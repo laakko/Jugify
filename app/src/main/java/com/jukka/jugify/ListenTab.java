@@ -295,7 +295,7 @@ public class ListenTab extends Fragment {
             public void success(Album a, Response response) {
 
                 songinformation.setText("From " + '"' + a.name + '"' + "\nreleased " + a.release_date);
-                popularitybar.setProgress(a.popularity, true);
+                popularitybar.setProgress(a.popularity);
 
 
 
@@ -359,9 +359,10 @@ public class ListenTab extends Fragment {
                 loudness.setText("Loudness: "+Float.toString(aft.loudness) + "dB");
                 timesignature.setText("Time signature: " + Integer.toString(aft.time_signature));
 
-                energybar.setProgress(Math.round(aft.energy * 100));
-                dancebar.setProgress(Math.round(aft.danceability * 100));
-                valencebar.setProgress(Math.round(aft.valence * 100));
+                energybar.setProgress((int)Math.round(aft.energy * 100));
+                dancebar.setProgress((int)Math.round(aft.danceability * 100));
+                valencebar.setProgress((int)Math.round(aft.valence * 100));
+
                // acousticbar.setProgress(Math.round(aft.acousticness * 100));
                 instrumental = aft.instrumentalness;
 
