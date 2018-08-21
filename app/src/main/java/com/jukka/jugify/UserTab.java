@@ -45,13 +45,19 @@ import com.spotify.sdk.android.player.Spotify;
 import java.sql.Array;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import es.dmoral.toasty.Toasty;
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -75,6 +81,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.http.QueryMap;
 
+
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.jukka.jugify.MainActivity.atoken;
@@ -97,8 +104,6 @@ public class UserTab extends Fragment {
     public static TopTracksListAdapter trackadapter;
     public static MyPlaylistsGridAdapter padapter;
     public static MyAlbumsGridAdapter albadapter;
-    private static ArrayList<Entry> pientrys = new ArrayList<>();
-    private static ArrayList<String> pietitles = new ArrayList<String>();
     private PieData piedata;
     private PieDataSet piedataset;
     private PopupWindow popup;
@@ -110,7 +115,7 @@ public class UserTab extends Fragment {
     TextView txtAvgDuration;
     TextView txtTopGenres;
     ProgressBar AvgValenceBar, AvgEnergyBar, AvgDanceBar, AvgInstruBar, AvgPopularityBar;
-    ArrayList<AbstractMap.SimpleEntry<String, Double>> genreList = new ArrayList<AbstractMap.SimpleEntry<String, Double>>();
+    HashMap<String, Double> genreList = new HashMap<String, Double>();
 
 
 
@@ -123,7 +128,7 @@ public class UserTab extends Fragment {
         final ListView listTopTracks = (ListView) view.findViewById(R.id.listTopTracks);
         final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
         final GridView gridAlbums = (GridView) view.findViewById(R.id.gridAlbums);
-        final TextView txtTopGenres = (TextView) view.findViewById(R.id.txtTopGenres);
+        txtTopGenres = (TextView) view.findViewById(R.id.txtTopGenres);
         txtAvgTempo = (TextView) view.findViewById(R.id.avgTempo);
         txtAvgDuration = (TextView) view.findViewById(R.id.avgDuration);
         AvgDanceBar = (ProgressBar) view.findViewById(R.id.avgDanceability);
@@ -158,6 +163,7 @@ public class UserTab extends Fragment {
 
 
             final Map<String, Object> options = new HashMap<>();
+
 
             if(!topartists_gotten){
                 options.put("time_range", "medium_term");
@@ -441,40 +447,47 @@ public class UserTab extends Fragment {
 
                 for(Artist a : pager.items){
                     counter++;
-                    if(counter<13){
-                        adapter.add(a);
+
+                    // Add artist to GridView
+                    if(counter<13) { adapter.add(a); }
+
+
+                    String temp = a.name + " " + a.genres.get(0);
+                    Log.i("Artist + genre:", temp);
+
+
+
+                    // Get top genres based on artist rank + occurence
+                    if(genreList.containsKey(a.genres.get(0))) {
+                        Double prev_value = genreList.get(a.genres.get(0));
+                        genreList.put(a.genres.get(0), prev_value + 0.5+((1.0/counter)*2.0));
+                    } else {
+                        genreList.put(a.genres.get(0), 0.5+((1.0/counter)*2.0));
                     }
-                        String temp = a.name + " " + a.genres.get(0);
-                        Log.i("Artist + genre:", temp);
 
-                        /*
-                        if(genreList.size() > 0) {
-
-                            Iterator<String, Double> iter = genreList.iterator();
-                            for(AbstractMap.SimpleEntry<String, Double> entry: genreList) {
-                                if(entry.getKey() == a.genres.get(0)){
-                                    double prev_value = entry.getValue();
-                                    entry.setValue(prev_value + 0.5 + ((1/counter)*2));
-                                }
-                                else {
-                                    genreList.add(new AbstractMap.SimpleEntry<String, Double>(a.genres.get(0), 0.5+((1.0/counter)*2.0)));
-                                }
-                            }
-
-                        } else {
-                            genreList.add(new AbstractMap.SimpleEntry<String, Double>(a.genres.get(0), 0.5+((1.0/counter)*2.0)));
-
-                        }
-                        */
-
-                        Log.i("Counter, value", Integer.toString(counter) + "," + Double.toString(0.5+((1.0/counter)*2.0)));
-                        genreList.add(new AbstractMap.SimpleEntry<String, Double>(a.genres.get(0), 0.5+((1.0/counter)*2.0)));
                 }
-                Log.i("Toimiiko", "saataha");
 
-                for(AbstractMap.SimpleEntry<String, Double> entry: genreList) {
-                    Log.i("Points, Genre", entry.getValue() + " " + entry.getKey());
+                // Sort the genres
+                Object[] obj = genreList.entrySet().toArray();
+                Arrays.sort(obj, new Comparator() {
+                    public int compare(Object o1, Object o2) {
+                        return ((Map.Entry<String, Double>) o2).getValue()
+                                .compareTo(((Map.Entry<String, Double>) o1).getValue());
+                    }
+                });
+
+
+                String topgenres = ""; int genrecount = 1;
+                for(Object topgenre : obj){
+                    if(genrecount < 11) {
+                        topgenres += "#" + Integer.toString(genrecount) + " " + ((Map.Entry<String, Double>) topgenre).getKey() + "\n";
+                    }
+
+                    genrecount++;
                 }
+
+                txtTopGenres.setText(topgenres);
+
 
 
                 topartists_gotten = true;
