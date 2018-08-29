@@ -474,8 +474,8 @@ public class UserTab extends Fragment {
                             ie.printStackTrace();
                         }
                         
-                    } catch(NullPointerException npe) {
-                        npe.printStackTrace();
+                    } catch(IndexOutOfBoundsException ie) {
+                        ie.printStackTrace();
                     }
 
                 }
@@ -593,7 +593,9 @@ public class UserTab extends Fragment {
 
     public void getAudioInfo(String uri) {
 
+        // Get release year
 
+        // Get audio info
         spotify.getTrackAudioFeatures(uri, new Callback<AudioFeaturesTrack>() {
 
             @Override
@@ -659,19 +661,73 @@ public class UserTab extends Fragment {
 
         final TextView popupArtistName = layout.findViewById(R.id.txtPopupArtistName);
         final TextView popupArtistInfo = layout.findViewById(R.id.popupArtistInfo);
+        final TextView popupArtistInfo2 = layout.findViewById(R.id.popupArtistInfo2);
+        final TextView popupGenreText = layout.findViewById(R.id.popupGenreText);
         final ImageView popupArtistImage = layout.findViewById(R.id.popupArtistImg);
         final LinearLayout popupArtistBG = layout.findViewById(R.id.popupArtistBG);
+        final ListView listPopupArtistTopTracks = layout.findViewById(R.id.listPopupTopTracks);
+        final GridView gridPopupArtistAlbums = layout.findViewById(R.id.gridPopupAlbums);
         popupArtistName.setText(artist.name);
 
 
-        String popupArtistGenres = "Genres: ";
+        String popupArtistGenres = "";
         for(int i=0; i< artist.genres.size(); ++i){
-            popupArtistGenres += artist.genres.get(i);
+
+            if(i == artist.genres.size() - 1) {
+                popupArtistGenres += artist.genres.get(i);
+            } else {
+                popupArtistGenres += artist.genres.get(i) + ", ";
+            }
+
+
         }
 
-        popupArtistGenres += "\n" + artist.followers.total + " followers";
+
+        final TracksListAdapter popupTopTracksAdapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>(), false);
+        popupTopTracksAdapter.clear();
+
+        // Get Artist Top Tracks
+        spotify.getArtistTopTrack(artist.id, "fi", new Callback<Tracks>() {
+            @Override
+            public void success(Tracks tracks, Response response) {
+
+                for(TrackSimple t : tracks.tracks) {
+                    popupTopTracksAdapter.add(t);
+                }
+
+                listPopupArtistTopTracks.setAdapter(popupTopTracksAdapter);
+                listPopupArtistTopTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        mSpotifyAppRemote.getPlayerApi().play(popupTopTracksAdapter.getItem(i).uri);
+                        toast("Now playing: "+ popupTopTracksAdapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                    }
+                });
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("Artist toptracks fail", error.toString());
+            }
+        });
+
+        /*
+        // Get Artist Albums
+        spotify.getArtistAlbums(artist.id, new Callback<Pager<Album>>() {
+            @Override
+            public void success(Pager<Album> albumPager, Response response) {
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("Artist albums fail", error.toString());
+            }
+        });
+        */
 
         popupArtistInfo.setText(popupArtistGenres);
+        popupArtistInfo2.setText(artist.followers.total + " followers");
 
         ImageLoader imgloader = ImageLoader.getInstance();
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
@@ -689,45 +745,21 @@ public class UserTab extends Fragment {
                     vibrant = p.getVibrantSwatch();
                     popupArtistBG.setBackgroundColor(vibrant.getRgb());
                     popupArtistName.setTextColor(vibrant.getTitleTextColor());
+                    popupGenreText.setTextColor(vibrant.getTitleTextColor());
                     popupArtistInfo.setTextColor(vibrant.getBodyTextColor());
+                    popupArtistInfo2.setTextColor(vibrant.getBodyTextColor());
                 } catch(NullPointerException e) {
                     vibrant = p.getDominantSwatch();
                     popupArtistBG.setBackgroundColor(vibrant.getRgb());
                     popupArtistName.setTextColor(vibrant.getTitleTextColor());
+                    popupGenreText.setTextColor(vibrant.getTitleTextColor());
                     popupArtistInfo.setTextColor(vibrant.getBodyTextColor());
+                    popupArtistInfo2.setTextColor(vibrant.getBodyTextColor());
                 }
 
             }
         });
 
-
-
-        /*
-        spotify.getArtistTopTrack(artist.id, "finland", new Callback<Pager<Album>>() {
-            @Override
-            public void success(Pager<Album> pager, Response response) {
-
-
-                for(Album p : pager.items){
-                    popuptrackadapter.add(p);
-                }
-
-                popuplist.setAdapter(popuptrackadapter);
-                popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        // Play track
-                    }
-                });
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("My playlists failure", error.toString());
-            }
-        });
-
-        */
 
     };
 
