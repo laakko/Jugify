@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import es.dmoral.toasty.Toasty;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
-import me.grantland.widget.AutofitHelper;
+
 
 import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 

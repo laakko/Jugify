@@ -27,6 +27,11 @@ import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.BarEntry;
@@ -34,6 +39,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.gson.JsonObject;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -41,6 +47,10 @@ import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.spotify.sdk.android.player.Spotify;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.sql.Array;
 import java.util.AbstractMap;
@@ -110,10 +120,8 @@ public class UserTab extends Fragment {
     public String userid;
     public int trackinfoCounter;
     private float acousticnesAvg, danceabilityAvg, valencyAvg, energyAvg, tempoAvg, instruAvg, popularityAvg;
-    private int durationAvg;
-    TextView txtAvgTempo;
-    TextView txtAvgDuration;
-    TextView txtTopGenres;
+    private int durationAvg, releaseyAvg;
+    TextView txtAvgTempo, txtAvgDuration, txtAvgReleaseYear, txtTopGenres;
     ProgressBar AvgValenceBar, AvgEnergyBar, AvgDanceBar, AvgInstruBar, AvgPopularityBar;
     HashMap<String, Double> genreList = new HashMap<String, Double>();
 
@@ -131,6 +139,7 @@ public class UserTab extends Fragment {
         txtTopGenres = (TextView) view.findViewById(R.id.txtTopGenres);
         txtAvgTempo = (TextView) view.findViewById(R.id.avgTempo);
         txtAvgDuration = (TextView) view.findViewById(R.id.avgDuration);
+        txtAvgReleaseYear = (TextView) view.findViewById(R.id.avgReleaseYear);
         AvgDanceBar = (ProgressBar) view.findViewById(R.id.avgDanceability);
         AvgEnergyBar = (ProgressBar) view.findViewById(R.id.avgEnergy);
         AvgValenceBar = (ProgressBar) view.findViewById(R.id.avgValence);
@@ -245,7 +254,7 @@ public class UserTab extends Fragment {
                     ImageLoader imgloader = ImageLoader.getInstance();
 
                     DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                            .showStubImage(R.drawable.baseline_album_24).build();
+                            .showStubImage(R.drawable.baseline_album_24).cacheOnDisk(true).build();
                     ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
                     ImageSize targetSize = new ImageSize(200, 200); // result Bitmap will be fit to this size
                     imgloader.loadImage(playlist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
@@ -348,7 +357,7 @@ public class UserTab extends Fragment {
 
 
                     DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                            .showStubImage(R.drawable.baseline_album_24).build();
+                            .showStubImage(R.drawable.baseline_album_24).cacheInMemory(true).build();
                     ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
                     ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
                     imgloader.loadImage(popupAlbum.album.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
@@ -493,13 +502,14 @@ public class UserTab extends Fragment {
                 String topgenres = ""; int genrecount = 1;
                 for(Object topgenre : obj){
                     if(genrecount < 11) {
-                        topgenres += "#" + Integer.toString(genrecount) + " " + ((Map.Entry<String, Double>) topgenre).getKey() + "\n";
+                        topgenres += "#" + Integer.toString(genrecount) + "   " + ((Map.Entry<String, Double>) topgenre).getKey() + "\n";
                     }
 
                     genrecount++;
                 }
 
                 txtTopGenres.setText(topgenres);
+                txtTopGenres.setTextColor(Color.WHITE);
 
 
 
@@ -521,13 +531,15 @@ public class UserTab extends Fragment {
 
                 trackinfoCounter = 0;
                 acousticnesAvg = 0; danceabilityAvg = 0; valencyAvg = 0; popularityAvg = 0;
-                energyAvg = 0; tempoAvg = 0; instruAvg = 0; durationAvg = 0;
+                energyAvg = 0; tempoAvg = 0; instruAvg = 0; durationAvg = 0; releaseyAvg = 0;
                 adapter.clear();
+
                 for(Track t : pager.items){
                     adapter.add(t);
                     popularityAvg += t.popularity;
-                    getAudioInfo(t.id);
+                    getAudioInfo(t.id, t.album.id);
                 }
+
 
                 toptracks_gotten = true;
                 list.setAdapter(adapter);
@@ -587,13 +599,26 @@ public class UserTab extends Fragment {
 
 
     public void myDevices() {
-
+        // TODO
     }
 
 
-    public void getAudioInfo(String uri) {
 
-        // Get release year
+
+    public void getAudioInfo(String uri, String uri2) {
+
+        // Get AVG release year
+        spotify.getAlbum(uri2, new Callback<Album>() {
+            @Override
+            public void success(Album album, Response response) {
+                releaseyAvg += Integer.parseInt(album.release_date.substring(0,4));
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
 
         // Get audio info
         spotify.getTrackAudioFeatures(uri, new Callback<AudioFeaturesTrack>() {
@@ -609,7 +634,6 @@ public class UserTab extends Fragment {
                 tempoAvg += aft.tempo;
                 durationAvg += aft.duration_ms;
                 trackinfoCounter += 1;
-
                 if(trackinfoCounter == 20) {
                     tempoAvg = tempoAvg / 20;
                     acousticnesAvg = acousticnesAvg / 20;
@@ -619,6 +643,7 @@ public class UserTab extends Fragment {
                     instruAvg = instruAvg / 20;
                     durationAvg = durationAvg / 20;
                     popularityAvg = popularityAvg / 20;
+                    releaseyAvg = releaseyAvg / 20;
 
                     String tempoRounded = Float.toString((int)Math.round(tempoAvg));
                     String duration = String.format(Locale.US, "%d:%02d",
@@ -628,6 +653,7 @@ public class UserTab extends Fragment {
 
                     txtAvgTempo.setText(tempoRounded + " BPM");
                     txtAvgDuration.setText(duration);
+                    txtAvgReleaseYear.setText(Integer.toString(releaseyAvg));
 
                     AvgEnergyBar.setProgress((int)Math.round(100*energyAvg));
                     AvgValenceBar.setProgress((int)Math.round(100*valencyAvg));
@@ -662,15 +688,15 @@ public class UserTab extends Fragment {
         final TextView popupArtistName = layout.findViewById(R.id.txtPopupArtistName);
         final TextView popupArtistInfo = layout.findViewById(R.id.popupArtistInfo);
         final TextView popupArtistInfo2 = layout.findViewById(R.id.popupArtistInfo2);
-        final TextView popupGenreText = layout.findViewById(R.id.popupGenreText);
+        //final TextView popupGenreText = layout.findViewById(R.id.popupGenreText);
+        final TextView popupArtistBio = layout.findViewById(R.id.popupArtistBio);
         final ImageView popupArtistImage = layout.findViewById(R.id.popupArtistImg);
         final LinearLayout popupArtistBG = layout.findViewById(R.id.popupArtistBG);
         final ListView listPopupArtistTopTracks = layout.findViewById(R.id.listPopupTopTracks);
         final GridView gridPopupArtistAlbums = layout.findViewById(R.id.gridPopupAlbums);
         popupArtistName.setText(artist.name);
 
-
-        String popupArtistGenres = "";
+        String popupArtistGenres = "Genres: ";
         for(int i=0; i< artist.genres.size(); ++i){
 
             if(i == artist.genres.size() - 1) {
@@ -711,6 +737,9 @@ public class UserTab extends Fragment {
             }
         });
 
+        // Get Artist Bio
+        GetArtistBio(artist.name, popupArtistBio);
+
         /*
         // Get Artist Albums
         spotify.getArtistAlbums(artist.id, new Callback<Pager<Album>>() {
@@ -745,14 +774,14 @@ public class UserTab extends Fragment {
                     vibrant = p.getVibrantSwatch();
                     popupArtistBG.setBackgroundColor(vibrant.getRgb());
                     popupArtistName.setTextColor(vibrant.getTitleTextColor());
-                    popupGenreText.setTextColor(vibrant.getTitleTextColor());
+                  //  popupGenreText.setTextColor(vibrant.getTitleTextColor());
                     popupArtistInfo.setTextColor(vibrant.getBodyTextColor());
                     popupArtistInfo2.setTextColor(vibrant.getBodyTextColor());
                 } catch(NullPointerException e) {
                     vibrant = p.getDominantSwatch();
                     popupArtistBG.setBackgroundColor(vibrant.getRgb());
                     popupArtistName.setTextColor(vibrant.getTitleTextColor());
-                    popupGenreText.setTextColor(vibrant.getTitleTextColor());
+                  //  popupGenreText.setTextColor(vibrant.getTitleTextColor());
                     popupArtistInfo.setTextColor(vibrant.getBodyTextColor());
                     popupArtistInfo2.setTextColor(vibrant.getBodyTextColor());
                 }
@@ -764,6 +793,49 @@ public class UserTab extends Fragment {
     };
 
 
+    public void GetArtistBio(final String artistname, final TextView bio) {
+        // Fetch Artist Bio from Wikipedia
+        String query = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + artistname;
+
+        RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, query, null, new com.android.volley.Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try{
+                            JSONObject jobject = response.getJSONObject("query");
+                            String txtbio = jobject.getJSONObject("pages").toString();
+                            try{
+                                txtbio = txtbio.split("extract")[1];
+                                txtbio = txtbio.subSequence(2, txtbio.length()-2).toString();
+                                txtbio = txtbio.replaceAll("\\\\n", " ");
+                                txtbio = txtbio.replaceAll("\\\\", "");
+
+                                // Handle case where artist name refers to something else too
+                                if(txtbio.contains("may refer to:")){
+                                    GetArtistBio(artistname + " (band)", bio);
+                                }
+                                bio.setText(txtbio + "\n - Wikipedia \n");
+                            } catch(ArrayIndexOutOfBoundsException ae) {
+                                bio.setText("Artist Bio not found :( Check back later");
+                            }
+
+                        } catch(JSONException je) {
+                            je.printStackTrace();
+                        }
+
+                    }
+                }, new com.android.volley.Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        bio.setText("Couldn't contact Wikipedia :( Check back later");
+                    }
+                });
+
+        queue.add(jsonObjectRequest);
+
+
+    }
 
     public void toast(String message, int drawable, int tintcolor) {
         Toasty.custom(getContext(), message, drawable, tintcolor, 700, true, true).show();

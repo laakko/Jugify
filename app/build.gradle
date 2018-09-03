@@ -73,11 +73,8 @@ dependencies {
     // Cool play/pause button
     compile 'com.github.ohoussein.playpauseview:playpauseview:1.0.2'
 
-    // Autofit text
-    compile 'me.grantland:autofittextview:0.2.+'
-
-    // Parallax effect
-    compile 'com.fmsirvent:parallaxeverywhere:1.0.4'
+    // Knob slider
+    compile 'com.sdsmdg.harjot:croller:1.0.7'
 
 
 }

@@ -1,9 +1,12 @@
 package com.jukka.jugify;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.graphics.drawable.TransitionDrawable;
+import android.media.AudioManager;
 import android.support.annotation.FontRes;
 import android.support.v4.app.Fragment;
 import android.app.Activity;
@@ -14,6 +17,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Display;
@@ -22,6 +26,7 @@ import android.view.View;
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.spotify.protocol.client.CallResult;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -60,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     public static SpotifyAppRemote mSpotifyAppRemote;
     public static String atoken;
     static SpotifyService spotify;
+    public static int audioSessionId;
     public static boolean userAuthd = false;
     public static boolean updateTabs = true;
     public static String trackName;
@@ -166,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
                 // Authenticate Spotify App Remote
                 ConnectionParams connectionParams = new ConnectionParams.Builder(CLIENT_ID)
                         .setRedirectUri(REDIRECT_URI)
@@ -183,8 +190,12 @@ public class MainActivity extends AppCompatActivity {
                                 // Spotify auth finished -> close dialog -> update tabs
                                 userAuthd = true;
                                 dialog.hide();
-                                viewPager.getAdapter().notifyDataSetChanged();
 
+                                AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                                audioSessionId = audioManager.generateAudioSessionId();
+
+
+                                viewPager.getAdapter().notifyDataSetChanged();
                             }
 
                             public void onFailure(Throwable throwable) {
@@ -200,6 +211,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    /*
     @Override
     protected void onStop() {
         super.onStop();
@@ -239,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
                 });
         Log.i("Is remote connected?", Boolean.toString(mSpotifyAppRemote.isConnected()));
     }
+    */
 
     /*
     private void connected() {

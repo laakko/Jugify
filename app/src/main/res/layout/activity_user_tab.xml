@@ -54,7 +54,7 @@
             android:id="@+id/gridPlaylists"
             android:layout_marginTop="10dp"
             android:layout_width="400dp"
-            android:layout_height="wrap_content"
+            android:layout_height="300dp"
             android:nestedScrollingEnabled="true"
             android:layout_gravity="center"
             android:numColumns="4" />
@@ -74,7 +74,7 @@
             android:id="@+id/gridAlbums"
             android:layout_marginTop="10dp"
             android:layout_width="400dp"
-            android:layout_height="wrap_content"
+            android:layout_height="300dp"
             android:nestedScrollingEnabled="true"
             android:layout_gravity="center"
             android:numColumns="4" />
@@ -164,6 +164,7 @@
             android:layout_width="match_parent"
             android:layout_height="1500dp" />
 
+
         <TextView
             android:id="@+id/textView8"
             android:layout_width="match_parent"
@@ -174,15 +175,22 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/txtTopGenres"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Loading..."
-            android:layout_marginLeft="30dp"
 
-            android:textSize="16sp"
-            android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtTopGenres"
+                android:layout_width="match_parent"
+                android:layout_marginStart="110dp"
+                android:layout_height="wrap_content"
+                android:text="Loading..."
+                android:layout_marginLeft="30dp"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+
+
+
+
 
         <TextView
             android:id="@+id/textView9"

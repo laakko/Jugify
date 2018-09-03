@@ -282,12 +282,23 @@
                     android:orientation="horizontal">
 
                     <ImageButton
+                        android:id="@+id/btnEQ"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:background="@null"
+                        android:tint="@color/colorAccent"
+                        app:srcCompat="@drawable/ic_equalizer_black_36dp" />
+
+                    <ImageButton
                         android:id="@+id/btnShuffle"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_gravity="center_vertical"
                         android:layout_weight="1"
                         android:background="@null"
+                        android:tint="@color/colorPrimaryDark"
                         app:srcCompat="@drawable/ic_shuffle_black_36dp"
                         android:text="Shuffle" />
 

@@ -1,10 +1,20 @@
 package com.jukka.jugify;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.audiofx.AudioEffect;
+import android.media.audiofx.BassBoost;
+import android.media.audiofx.Equalizer;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -12,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +31,13 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -57,6 +71,12 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+import static android.app.Activity.RESULT_OK;
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.media.audiofx.AudioEffect.CONTENT_TYPE_MUSIC;
+import static android.media.audiofx.AudioEffect.EXTRA_PACKAGE_NAME;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.jukka.jugify.MainActivity.audioSessionId;
 import static com.jukka.jugify.MainActivity.displayheight;
 import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 import static com.jukka.jugify.MainActivity.spotify;
@@ -74,6 +94,7 @@ public class ListenTab extends Fragment {
     ImageButton skip;
     ImageButton prev;
     ImageButton shuffle;
+    ImageButton eq;
     Boolean isplaying = false;
     Boolean shuffling = false;
     Float instrumental;
@@ -90,6 +111,7 @@ public class ListenTab extends Fragment {
     ProgressBar popularitybar, valencebar, dancebar, energybar, acousticbar;
     ImageView imageNowPlayingBig;
     TextView txtpopularity,txtvalence,txtdance, txtenergy;
+    private PopupWindow EQpopup;
 
 
     @Override
@@ -125,6 +147,7 @@ public class ListenTab extends Fragment {
         txtvalence = (TextView) view.findViewById(R.id.txtValence);
         txtenergy = (TextView) view.findViewById(R.id.txtEnergy);
         txtdance = (TextView) view.findViewById(R.id.txtDanceability);
+        eq = (ImageButton) view.findViewById(R.id.btnEQ);
 
 
         final ScrollView scrollview = (ScrollView) view.findViewById(R.id.scrollview);
@@ -160,9 +183,11 @@ public class ListenTab extends Fragment {
                         shuffle.setColorFilter(Color.parseColor("#427DD1"));
                     } else {
                         shuffling = false;
-                        shuffle.setColorFilter(Color.DKGRAY);
+                        shuffle.setColorFilter(Color.parseColor("#232E6E"));
 
                     }
+
+
 
                     if(playerState.playbackSpeed > 0) {
                         mTrackProgressBar.unpause();
@@ -241,7 +266,49 @@ public class ListenTab extends Fragment {
                         seekbar.setEnabled(false);
                     }
                 }
+
             });
+
+
+
+
+
+            // EQ Button
+            eq.setOnClickListener(new View.OnClickListener() {
+
+
+
+                @Override
+                public void onClick(View view) {
+
+
+                    // TODO Open some EQ App / play store link
+
+                    /* Didn' work, no effect from built-in EQ
+                    Intent intent = new Intent(AudioEffect
+                            .ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
+
+
+                    intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, getActivity().getPackageName());
+                    intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, audioSessionId);
+                    intent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, CONTENT_TYPE_MUSIC);
+
+                    Equalizer equalizer = new Equalizer(0,audioSessionId);
+                    equalizer.setEnabled(true);
+
+
+
+                    if ((intent.resolveActivity(getContext().getPackageManager()) != null)) {
+                        getActivity().startActivityForResult(intent, 11145);
+                    } else {
+                        // No equalizer found :(
+                    }
+                    */
+
+
+                }
+            });
+
 
 
             // Play/Pause, Skip, Prev and shuffle buttons
@@ -296,6 +363,8 @@ public class ListenTab extends Fragment {
 
                 songinformation.setText("From " + '"' + a.name + '"' + "\nreleased " + a.release_date);
                 popularitybar.setProgress(a.popularity);
+
+                // TODO Add tracks to expandable listview
 
 
 
@@ -408,23 +477,16 @@ public class ListenTab extends Fragment {
     }
 
 
-
-    private void createAlbumColorPalette(Bitmap bitmap) {
-
-        Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
-            @Override
-            public void onGenerated(Palette palette) {
+    public void EQ(View layout) {
+        EQpopup = new PopupWindow(layout, MATCH_PARENT, 1300, true);
+        EQpopup.showAtLocation(layout, Gravity.TOP, 0, 0);
 
 
 
-
-
-
-
-
-            }
-        });
     }
+
+
+
 
 
     private class TrackProgressBar {
