@@ -23,11 +23,10 @@
             android:id="@+id/txtArtistName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/alegreya_sans_sc"
             android:text="artist name"
             android:textAlignment="center"
             android:textColor="@android:color/primary_text_dark"
-            android:textSize="15sp" />
+            android:textSize="13sp" />
     </LinearLayout>
 
 </LinearLayout>

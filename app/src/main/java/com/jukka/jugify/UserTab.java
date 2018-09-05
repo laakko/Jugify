@@ -336,72 +336,9 @@ public class UserTab extends Fragment {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
-                    View layout = inflater.inflate(R.layout.popup_album,
-                            (ViewGroup) view.findViewById(R.id.tab_layout_2));
+                    Album popupalbum = albadapter.getItem(i).album;
+                    AlbumPopup(popupalbum, view, false);
 
-                    popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
-                    popup.showAtLocation(layout, Gravity.TOP, 0, 0);
-
-                    SavedAlbum popupAlbum = albadapter.getItem(i);
-                    final String popupAlbumInfo = popupAlbum.album.name + "\n by " + popupAlbum.album.artists.get(0).name;
-                    final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
-                    final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
-                    final TextView popupalbumname = layout.findViewById(R.id.txtPopupAlbumName);
-                    popupalbumname.setText(popupAlbumInfo);
-                    final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
-                    popupinfo.setText("Released " + popupAlbum.album.release_date);
-
-                    ListView popuplist = layout.findViewById(R.id.listPopupTracks);
-                    ImageLoader imgloader = ImageLoader.getInstance();
-
-
-                    DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                            .showStubImage(R.drawable.baseline_album_24).cacheInMemory(true).build();
-                    ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
-                    ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
-                    imgloader.loadImage(popupAlbum.album.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
-                        @Override
-                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                            popupImg.setImageBitmap(loadedImage);
-
-                            Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
-                            Palette.Swatch vibrant;
-                            try {
-                                vibrant = p.getVibrantSwatch();
-                                popupbg.setBackgroundColor(vibrant.getRgb());
-                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
-                                popupinfo.setTextColor(vibrant.getBodyTextColor());
-                            } catch(NullPointerException e) {
-                                vibrant = p.getDominantSwatch();
-                                popupbg.setBackgroundColor(vibrant.getRgb());
-                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
-                                popupinfo.setTextColor(vibrant.getBodyTextColor());
-                            }
-
-
-
-
-
-
-                        }
-                    });
-
-
-                    final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>(), false);
-                    popuptrackadapter.clear();
-                    for(TrackSimple track : popupAlbum.album.tracks.items) {
-                        popuptrackadapter.add(track);
-                    }
-
-                    popuplist.setAdapter(popuptrackadapter);
-                    popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
-                            toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
-                        }
-                    });
                 }
             });
 
@@ -675,6 +612,97 @@ public class UserTab extends Fragment {
 
 
 
+    public void AlbumPopup(Album album, View view, Boolean throughArtist) {
+
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.popup_album,
+                (ViewGroup) view.findViewById(R.id.tab_layout_2));
+
+        popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
+        popup.showAtLocation(layout, Gravity.TOP, 0, 0);
+
+
+        final String popupAlbumInfo = album.name + "\n by " + album.artists.get(0).name;
+        final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
+        final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
+        final TextView popupalbumname = layout.findViewById(R.id.txtPopupAlbumName);
+        popupalbumname.setText(popupAlbumInfo);
+        final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
+        popupinfo.setText("Released " + album.release_date);
+
+        ListView popuplist = layout.findViewById(R.id.listPopupTracks);
+        ImageLoader imgloader = ImageLoader.getInstance();
+
+
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                .showStubImage(R.drawable.baseline_album_24).cacheInMemory(true).build();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
+        ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
+        imgloader.loadImage(album.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                popupImg.setImageBitmap(loadedImage);
+
+                Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
+                Palette.Swatch vibrant;
+                try {
+                    vibrant = p.getVibrantSwatch();
+                    popupbg.setBackgroundColor(vibrant.getRgb());
+                    popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                    popupinfo.setTextColor(vibrant.getBodyTextColor());
+                } catch(NullPointerException e) {
+                    vibrant = p.getDominantSwatch();
+                    popupbg.setBackgroundColor(vibrant.getRgb());
+                    popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                    popupinfo.setTextColor(vibrant.getBodyTextColor());
+                }
+            }
+        });
+
+
+        final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>(), false);
+        popuptrackadapter.clear();
+
+
+
+        if(!throughArtist) {
+            // Don't know why this won't work when calling PopupAlbum from PopupArtist
+            for(TrackSimple track : album.tracks.items) {
+                popuptrackadapter.add(track);
+            }
+        } else {
+            spotify.getAlbumTracks(album.id, new Callback<Pager<Track>>() {
+                @Override
+                public void success(Pager<Track> trackPager, Response response) {
+                    Log.i("Album track1", trackPager.items.get(0).name);
+
+                    for(TrackSimple track : trackPager.items) {
+                        popuptrackadapter.add(track);
+                    }
+
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("Album tracks failure", error.toString());
+                }
+            });
+        }
+
+
+        popuplist.setAdapter(popuptrackadapter);
+        popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
+                    toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                }
+            });
+
+
+    }
+
+
     public void ArtistPopup(Artist artist, View view){
 
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -683,7 +711,6 @@ public class UserTab extends Fragment {
 
         popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
         popup.showAtLocation(layout, Gravity.TOP, 0, 0);
-
 
         final TextView popupArtistName = layout.findViewById(R.id.txtPopupArtistName);
         final TextView popupArtistInfo = layout.findViewById(R.id.popupArtistInfo);
@@ -740,21 +767,6 @@ public class UserTab extends Fragment {
         // Get Artist Bio
         GetArtistBio(artist.name, popupArtistBio);
 
-        /*
-        // Get Artist Albums
-        spotify.getArtistAlbums(artist.id, new Callback<Pager<Album>>() {
-            @Override
-            public void success(Pager<Album> albumPager, Response response) {
-
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("Artist albums fail", error.toString());
-            }
-        });
-        */
-
         popupArtistInfo.setText(popupArtistGenres);
         popupArtistInfo2.setText(artist.followers.total + " followers");
 
@@ -788,6 +800,43 @@ public class UserTab extends Fragment {
 
             }
         });
+
+        final AlbumsGridAdapter albumadapter = new AlbumsGridAdapter(getContext().getApplicationContext(), new ArrayList<Album>());
+        albumadapter.clear();
+
+        // Get Artist Albums
+        spotify.getArtistAlbums(artist.id, new Callback<Pager<Album>>() {
+            @Override
+            public void success(Pager<Album> albumPager, Response response) {
+
+                for(Album a : albumPager.items) {
+                    albumadapter.add(a);
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("Artist albums fail", error.toString());
+            }
+        });
+
+        gridPopupArtistAlbums.setAdapter(albumadapter);
+        gridPopupArtistAlbums.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Album a = albumadapter.getItem(i);
+                AlbumPopup(a, view, true);
+            }
+        });
+        gridPopupArtistAlbums.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                mSpotifyAppRemote.getPlayerApi().play(albumadapter.getItem(i).uri);
+                toast("Now shuffling: "+ albumadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                return true;
+            }
+        });
+
 
 
     };

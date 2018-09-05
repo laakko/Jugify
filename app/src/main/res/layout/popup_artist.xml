@@ -67,12 +67,6 @@
                 </LinearLayout>
 
 
-
-
-
-
-
-
                 <TextView
                     android:id="@+id/textView10"
                     android:layout_width="match_parent"
@@ -103,7 +97,9 @@
                 <GridView
                     android:id="@+id/gridPopupAlbums"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" >
+                    android:layout_height="500dp"
+                    android:nestedScrollingEnabled="true"
+                    android:numColumns="4">
                 </GridView>
 
 
