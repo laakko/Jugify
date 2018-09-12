@@ -1,8 +1,11 @@
 package com.jukka.jugify;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.graphics.drawable.TransitionDrawable;
@@ -22,6 +25,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.animation.Animation;
 
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -78,8 +82,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this).build();
         ImageLoader.getInstance().init(config);
 
@@ -97,14 +99,6 @@ public class MainActivity extends AppCompatActivity {
         /* Uncomment to enable toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        */
-
-        /*
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("User"));
-        tabLayout.addTab(tabLayout.newTab().setText("Listen"));
-        tabLayout.addTab(tabLayout.newTab().setText("Explore"));
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         */
 
         NavigationTabStrip tabLayout2 = findViewById(R.id.tab_layout_2);
@@ -126,30 +120,41 @@ public class MainActivity extends AppCompatActivity {
                 (getSupportFragmentManager(), 3);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(1);
-        /*
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-            }
-        });
-        */
 
        // tabLayout2.setTabIndex(1, true);
         tabLayout2.setViewPager(viewPager);
-        /*
-        TransitionDrawable transition = (TransitionDrawable) MainActivity.viewPager.getBackground();
-        transition.startTransition(1000);
-        */
+
+       // int ColorFrom = Color.BLACK;
+        int ColorFrom = Color.parseColor("#090335");
+
+        int ColorTo = Color.parseColor("#1d1651");
+       // int ColorTo = Color.parseColor("#4C40AD");
+        ValueAnimator anim = ValueAnimator.ofObject(new ArgbEvaluator(),
+                ColorFrom, ColorTo);
+
+        anim.setDuration(4000);
+        anim.setRepeatCount(Animation.INFINITE);
+
+
+
+            anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+
+                    MainActivity.viewPager.setBackgroundColor((Integer) animation.getAnimatedValue());
+
+
+                }
+            });
+
+            anim.setRepeatMode(ValueAnimator.REVERSE);
+            anim.start();
+
+
+
+
     }
 
     @Override

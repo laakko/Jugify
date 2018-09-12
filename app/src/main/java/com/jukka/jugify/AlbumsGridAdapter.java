@@ -4,6 +4,7 @@ package com.jukka.jugify;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,8 +43,12 @@ public class AlbumsGridAdapter extends ArrayAdapter<Album> {
         Album album = albumslist.get(position);
         ImageView albumImage = listItem.findViewById(R.id.imgArtist);
         TextView albumName = listItem.findViewById(R.id.txtArtistName);
-        String aname = album.name;
-        albumName.setText(aname);
+
+      //  String aname = album.name;
+      //  albumName.setText(aname);
+
+        albumName.setText(Html.fromHtml(album.name + "<br/>" +  "<i>" + album.release_date.substring(0,4) + "</i>"));
+
         String albumImageUrl = album.images.get(0).url;
         ImageLoader imgloader = ImageLoader.getInstance();
         //imgloader.displayImage(albumImageUrl, albumImage, new ImageSize(100,100));
