@@ -180,11 +180,9 @@
             <TextView
                 android:id="@+id/txtTopGenres"
                 android:layout_width="match_parent"
-                android:layout_marginStart="110dp"
                 android:layout_height="wrap_content"
+                android:textAlignment="center"
                 android:text="Loading..."
-                android:layout_marginLeft="30dp"
-                android:textSize="16sp"
                 android:textStyle="bold" />
 
 

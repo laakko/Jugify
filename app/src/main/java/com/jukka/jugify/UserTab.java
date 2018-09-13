@@ -33,12 +33,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.gson.JsonObject;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -114,8 +108,6 @@ public class UserTab extends Fragment {
     public static TopTracksListAdapter trackadapter;
     public static MyPlaylistsGridAdapter padapter;
     public static MyAlbumsGridAdapter albadapter;
-    private PieData piedata;
-    private PieDataSet piedataset;
     private PopupWindow popup;
     public String userid;
     public int trackinfoCounter;
@@ -337,7 +329,7 @@ public class UserTab extends Fragment {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
                     Album popupalbum = albadapter.getItem(i).album;
-                    AlbumPopup(popupalbum, view, false);
+                    AlbumPopup(popupalbum, view, false, false);
 
                 }
             });
@@ -439,17 +431,14 @@ public class UserTab extends Fragment {
                 String topgenres = ""; int genrecount = 1;
                 for(Object topgenre : obj){
                     if(genrecount < 11) {
-                        topgenres += "#" + Integer.toString(genrecount) + "   " + ((Map.Entry<String, Double>) topgenre).getKey() + "\n";
+                        topgenres += ((Map.Entry<String, Double>) topgenre).getKey() + "\n";
                     }
 
                     genrecount++;
                 }
 
                 txtTopGenres.setText(topgenres);
-                txtTopGenres.setTextColor(Color.WHITE);
-
-
-
+               // txtTopGenres.setTextColor(Color.WHITE);
                 topartists_gotten = true;
                 grid.setAdapter(adapter);
             }
@@ -537,6 +526,7 @@ public class UserTab extends Fragment {
 
     public void myDevices() {
         // TODO
+
     }
 
 
@@ -612,16 +602,28 @@ public class UserTab extends Fragment {
 
 
 
-    public void AlbumPopup(Album album, View view, Boolean throughArtist) {
+    public void AlbumPopup(Album album, View view, Boolean throughArtist, final Boolean listentab) {
 
-        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+
+        Context ctx = getContext();
+        int height = MATCH_PARENT;
+        int y = 0;
+        if(listentab){
+            ctx = view.getContext();
+            height = 500;
+            y = 400;
+        }
+
+
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.popup_album,
                 (ViewGroup) view.findViewById(R.id.tab_layout_2));
 
-        popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
-        popup.showAtLocation(layout, Gravity.TOP, 0, 0);
 
+        popup = new PopupWindow(layout, MATCH_PARENT, height, true);
+        popup.showAtLocation(layout, Gravity.BOTTOM, 0, y);
 
+        final LinearLayout popupParent = layout.findViewById(R.id.popupParentLayout);
         final String popupAlbumInfo = album.name + "\n by " + album.artists.get(0).name;
         final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
         final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
@@ -631,36 +633,39 @@ public class UserTab extends Fragment {
         popupinfo.setText("Released " + album.release_date);
 
         ListView popuplist = layout.findViewById(R.id.listPopupTracks);
-        ImageLoader imgloader = ImageLoader.getInstance();
 
+        if(!listentab) {
+            ImageLoader imgloader = ImageLoader.getInstance();
+            DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                    .showStubImage(R.drawable.baseline_album_24).cacheInMemory(true).build();
+            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
+            ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
+            imgloader.loadImage(album.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    popupImg.setImageBitmap(loadedImage);
 
-        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .showStubImage(R.drawable.baseline_album_24).cacheInMemory(true).build();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
-        ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
-        imgloader.loadImage(album.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                popupImg.setImageBitmap(loadedImage);
-
-                Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
-                Palette.Swatch vibrant;
-                try {
-                    vibrant = p.getVibrantSwatch();
-                    popupbg.setBackgroundColor(vibrant.getRgb());
-                    popupalbumname.setTextColor(vibrant.getTitleTextColor());
-                    popupinfo.setTextColor(vibrant.getBodyTextColor());
-                } catch(NullPointerException e) {
-                    vibrant = p.getDominantSwatch();
-                    popupbg.setBackgroundColor(vibrant.getRgb());
-                    popupalbumname.setTextColor(vibrant.getTitleTextColor());
-                    popupinfo.setTextColor(vibrant.getBodyTextColor());
+                    Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
+                    Palette.Swatch vibrant;
+                    try {
+                        vibrant = p.getVibrantSwatch();
+                        popupbg.setBackgroundColor(vibrant.getRgb());
+                        popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                        popupinfo.setTextColor(vibrant.getBodyTextColor());
+                    } catch(NullPointerException e) {
+                        vibrant = p.getDominantSwatch();
+                        popupbg.setBackgroundColor(vibrant.getRgb());
+                        popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                        popupinfo.setTextColor(vibrant.getBodyTextColor());
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            popupParent.removeView(popupbg);
+        }
 
 
-        final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>(), false);
+        final TracksListAdapter popuptrackadapter = new TracksListAdapter(view.getContext().getApplicationContext(), new ArrayList<TrackSimple>(), false);
         popuptrackadapter.clear();
 
 
@@ -674,8 +679,6 @@ public class UserTab extends Fragment {
             spotify.getAlbumTracks(album.id, new Callback<Pager<Track>>() {
                 @Override
                 public void success(Pager<Track> trackPager, Response response) {
-                    Log.i("Album track1", trackPager.items.get(0).name);
-
                     for(TrackSimple track : trackPager.items) {
                         popuptrackadapter.add(track);
                     }
@@ -695,7 +698,10 @@ public class UserTab extends Fragment {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
-                    toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                    if(!listentab){
+                        toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                    }
+
                 }
             });
 
@@ -721,6 +727,7 @@ public class UserTab extends Fragment {
         final LinearLayout popupArtistBG = layout.findViewById(R.id.popupArtistBG);
         final ListView listPopupArtistTopTracks = layout.findViewById(R.id.listPopupTopTracks);
         final GridView gridPopupArtistAlbums = layout.findViewById(R.id.gridPopupAlbums);
+        final GridView gridPopupArtistSingles = layout.findViewById(R.id.gridPopupSingles);
         popupArtistName.setText(artist.name);
 
         String popupArtistGenres = "Genres: ";
@@ -803,6 +810,8 @@ public class UserTab extends Fragment {
 
         final AlbumsGridAdapter albumadapter = new AlbumsGridAdapter(getContext().getApplicationContext(), new ArrayList<Album>());
         albumadapter.clear();
+        final AlbumsGridAdapter singleadapter = new AlbumsGridAdapter(getContext().getApplicationContext(), new ArrayList<Album>());
+        singleadapter.clear();
 
         // Get Artist Albums
         spotify.getArtistAlbums(artist.id, new Callback<Pager<Album>>() {
@@ -810,7 +819,11 @@ public class UserTab extends Fragment {
             public void success(Pager<Album> albumPager, Response response) {
 
                 for(Album a : albumPager.items) {
-                    albumadapter.add(a);
+                    if(a.album_type.contains("single")) {
+                        singleadapter.add(a);
+                    } else if(a.album_type.contains("album")) {
+                        albumadapter.add(a);
+                    }
                 }
             }
 
@@ -825,7 +838,7 @@ public class UserTab extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Album a = albumadapter.getItem(i);
-                AlbumPopup(a, view, true);
+                AlbumPopup(a, view, true, false);
             }
         });
         gridPopupArtistAlbums.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -837,12 +850,18 @@ public class UserTab extends Fragment {
             }
         });
 
-
-
+        gridPopupArtistSingles.setAdapter(singleadapter);
+        gridPopupArtistSingles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                mSpotifyAppRemote.getPlayerApi().play(singleadapter.getItem(i).uri);
+                toast("Now playing: "+ singleadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+            }
+        });
     };
 
 
-    public void GetArtistBio(final String artistname, final TextView bio) {
+     public void GetArtistBio(final String artistname, final TextView bio) {
         // Fetch Artist Bio from Wikipedia
         String query = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + artistname;
 
@@ -887,7 +906,7 @@ public class UserTab extends Fragment {
     }
 
     public void toast(String message, int drawable, int tintcolor) {
-        Toasty.custom(getContext(), message, drawable, tintcolor, 700, true, true).show();
+        Toasty.custom(getView().getContext(), message, drawable, tintcolor, 700, true, true).show();
     }
 
 }

@@ -262,6 +262,27 @@ public class ListenTab extends Fragment {
                                 });
 
 
+                        imageNowPlayingBig.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                spotify.getAlbum(track.album.uri.substring(14), new Callback<Album>() {
+                                    @Override
+                                    public void success(Album album, Response response) {
+                                        UserTab usertab = new UserTab();
+                                        usertab.AlbumPopup(album , getView(), false, true);
+                                    }
+
+                                    @Override
+                                    public void failure(RetrofitError error) {
+                                        Log.d("Album failure", error.toString());
+                                    }
+                                });
+
+
+                            }
+                        });
+
+
                     } else {
                         seekbar.setEnabled(false);
                     }

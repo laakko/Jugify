@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Jugify.iml" filepath="$PROJECT_DIR$/Jugify.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/jugify.iml" filepath="$PROJECT_DIR$/jugify.iml" />
       <module fileurl="file://$PROJECT_DIR$/spotify-app-remote-release-0.4.0/spotify-app-remote-release-0.4.0.iml" filepath="$PROJECT_DIR$/spotify-app-remote-release-0.4.0/spotify-app-remote-release-0.4.0.iml" />
