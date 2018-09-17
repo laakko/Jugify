@@ -22,9 +22,9 @@ public class ExploreTab extends Fragment {
         View view = inflater.inflate(R.layout.activity_explore_tab, container, false);
 
 
+
         return view;
-
-
     }
 }
+
 

@@ -64,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
+import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
@@ -83,6 +84,7 @@ import static com.jukka.jugify.MainActivity.spotify;
 import static com.jukka.jugify.MainActivity.trackArtist;
 import static com.jukka.jugify.MainActivity.trackName;
 import static com.jukka.jugify.MainActivity.userAuthd;
+import static com.jukka.jugify.MainActivity.viewPager;
 
 public class ListenTab extends Fragment {
 
@@ -112,6 +114,7 @@ public class ListenTab extends Fragment {
     ImageView imageNowPlayingBig;
     TextView txtpopularity,txtvalence,txtdance, txtenergy;
     private PopupWindow EQpopup;
+    Album nowPlayingAlbum;
 
 
     @Override
@@ -226,7 +229,6 @@ public class ListenTab extends Fragment {
                         String requestURL = "https://api.lyrics.ovh/v1/" + track.artist.name + "/" + track.name;
                         lyricsApi(requestURL);
 
-
                         // Get Album Image
                         imguri = track.imageUri.raw;
                         mSpotifyAppRemote.getImagesApi().getImage(track.imageUri)
@@ -234,51 +236,31 @@ public class ListenTab extends Fragment {
                                     @Override
                                     public void onResult(Bitmap bitmap) {
                                         imageNowPlayingBig.setImageBitmap(bitmap);
-
-                                        Palette p = Palette.from(bitmap).maximumColorCount(8).generate();
-                                        Palette.Swatch vibrant = p.getDominantSwatch();
-                                    /*
-
-
-                                        energybar.getProgressDrawable().setColorFilter(vibrant.getRgb(), PorterDuff.Mode.MULTIPLY);
-                                        valencebar.getProgressDrawable().setColorFilter(vibrant.getRgb(), PorterDuff.Mode.MULTIPLY);
-                                        dancebar.getProgressDrawable().setColorFilter(vibrant.getRgb(), PorterDuff.Mode.MULTIPLY);
-                                        popularitybar.getProgressDrawable().setColorFilter(vibrant.getRgb(), PorterDuff.Mode.MULTIPLY);
-                                        txtTitle.setTextColor(vibrant.getTitleTextColor());
-                                        songinformation.setTextColor(vibrant.getBodyTextColor());
-                                        txtdance.setTextColor(vibrant.getRgb());
-                                        txtvalence.setTextColor(vibrant.getRgb());
-                                        txtenergy.setTextColor(vibrant.getRgb());
-                                        txtpopularity.setTextColor(vibrant.getRgb());
-                                        GradientDrawable gd = new GradientDrawable(
-                                                GradientDrawable.Orientation.TOP_BOTTOM,
-                                                new int[] {vibrant.getRgb(), vibrant.getTitleTextColor()});
-                                        gd.setCornerRadius(0f);
-                                        songcard.setBackground(gd);
-                                        */
-
-
                                     }
                                 });
 
+
+                        txtTitle.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                spotify.getArtist(track.artist.uri.substring(15), new Callback<Artist>() {
+                                    @Override
+                                    public void success(Artist artist, Response response) {
+                                        UserTab userTab = new UserTab();
+                                        userTab.ArtistPopup(artist, getView(), true);
+                                    }
+                                    @Override
+                                    public void failure(RetrofitError error) {
+                                    }
+                                });
+                            }
+                        });
 
                         imageNowPlayingBig.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                spotify.getAlbum(track.album.uri.substring(14), new Callback<Album>() {
-                                    @Override
-                                    public void success(Album album, Response response) {
-                                        UserTab usertab = new UserTab();
-                                        usertab.AlbumPopup(album , getView(), false, true);
-                                    }
-
-                                    @Override
-                                    public void failure(RetrofitError error) {
-                                        Log.d("Album failure", error.toString());
-                                    }
-                                });
-
-
+                                UserTab usertab = new UserTab();
+                                usertab.AlbumPopup(nowPlayingAlbum , getView(), false, true, (850+scrollview.getScrollY()));
                             }
                         });
 
@@ -381,14 +363,9 @@ public class ListenTab extends Fragment {
         spotify.getAlbum(uri, new Callback<Album>() {
             @Override
             public void success(Album a, Response response) {
-
                 songinformation.setText("From " + '"' + a.name + '"' + "\nreleased " + a.release_date);
                 popularitybar.setProgress(a.popularity);
-
-                // TODO Add tracks to expandable listview
-
-
-
+                nowPlayingAlbum = a;
             }
             @Override
             public void failure(RetrofitError error){
@@ -397,10 +374,6 @@ public class ListenTab extends Fragment {
         });
     }
 
-
-    public void getQueue() {
-
-    }
 
     public void getAudioFeatures(String uri) {
         spotify.getTrackAudioFeatures(uri, new Callback<AudioFeaturesTrack>() {
@@ -496,19 +469,6 @@ public class ListenTab extends Fragment {
         }
 
     }
-
-
-    public void EQ(View layout) {
-        EQpopup = new PopupWindow(layout, MATCH_PARENT, 1300, true);
-        EQpopup.showAtLocation(layout, Gravity.TOP, 0, 0);
-
-
-
-    }
-
-
-
-
 
     private class TrackProgressBar {
 

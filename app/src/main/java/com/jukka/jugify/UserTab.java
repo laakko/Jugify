@@ -190,14 +190,14 @@ public class UserTab extends Fragment {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                    mSpotifyAppRemote.getPlayerApi().play(trackadapter.getItem(i).uri);
                    // mSpotifyAppRemote.getPlayerApi().queue(trackadapter.getItem(i).uri);
-                    toast("Now playing: "+trackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                    toast("Now playing: "+trackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
                 }
             });
             listTopTracks.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                     mSpotifyAppRemote.getPlayerApi().queue(trackadapter.getItem(i).uri);
-                    toast("Added to queue: "+trackadapter.getItem(i).name, R.drawable.ic_queue_black_36dp, Color.BLACK);
+                    toast("Added to queue: "+trackadapter.getItem(i).name, R.drawable.ic_queue_black_36dp, Color.BLACK, getContext());
                     return true;
                 }
             });
@@ -214,7 +214,7 @@ public class UserTab extends Fragment {
                 public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                     // Play the clicked playlist
                     mSpotifyAppRemote.getPlayerApi().play(padapter.getItem(i).uri);
-                    toast("Now playing: "+padapter.getItem(i).name, R.drawable.ic_playlist_play_black_36dp, Color.BLACK);
+                    toast("Now playing: "+padapter.getItem(i).name, R.drawable.ic_playlist_play_black_36dp, Color.BLACK, getContext());
                     return true;
                 }
             });
@@ -291,7 +291,7 @@ public class UserTab extends Fragment {
                                 @Override
                                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                                     mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
-                                    toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                                    toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
                                 }
                             });
                         }
@@ -318,7 +318,7 @@ public class UserTab extends Fragment {
                 public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                     // Play the clicked album
                     mSpotifyAppRemote.getPlayerApi().play(albadapter.getItem(i).album.uri);
-                    toast("Now playing: "+albadapter.getItem(i).album.name, R.drawable.baseline_album_24, Color.BLACK);
+                    toast("Now playing: "+albadapter.getItem(i).album.name, R.drawable.baseline_album_24, Color.BLACK, getContext());
 
                     return true;
                 }
@@ -329,7 +329,7 @@ public class UserTab extends Fragment {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
                     Album popupalbum = albadapter.getItem(i).album;
-                    AlbumPopup(popupalbum, view, false, false);
+                    AlbumPopup(popupalbum, view, false, false, 0);
 
                 }
             });
@@ -337,7 +337,7 @@ public class UserTab extends Fragment {
             gridTopArtists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    ArtistPopup(tagadapter.getItem(i) ,view);
+                    ArtistPopup(tagadapter.getItem(i) ,view, false);
                 }
             });
 
@@ -602,16 +602,16 @@ public class UserTab extends Fragment {
 
 
 
-    public void AlbumPopup(Album album, View view, Boolean throughArtist, final Boolean listentab) {
+    public void AlbumPopup(Album album, View view, Boolean throughArtist, final Boolean listentab, int y) {
 
 
         Context ctx = getContext();
         int height = MATCH_PARENT;
-        int y = 0;
+        int width = MATCH_PARENT;
         if(listentab){
             ctx = view.getContext();
-            height = 500;
-            y = 400;
+            height = 600;
+            width = 600;
         }
 
 
@@ -620,7 +620,7 @@ public class UserTab extends Fragment {
                 (ViewGroup) view.findViewById(R.id.tab_layout_2));
 
 
-        popup = new PopupWindow(layout, MATCH_PARENT, height, true);
+        popup = new PopupWindow(layout, width, height, true);
         popup.showAtLocation(layout, Gravity.BOTTOM, 0, y);
 
         final LinearLayout popupParent = layout.findViewById(R.id.popupParentLayout);
@@ -692,14 +692,13 @@ public class UserTab extends Fragment {
             });
         }
 
-
         popuplist.setAdapter(popuptrackadapter);
         popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
                     if(!listentab){
-                        toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                        toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
                     }
 
                 }
@@ -709,9 +708,13 @@ public class UserTab extends Fragment {
     }
 
 
-    public void ArtistPopup(Artist artist, View view){
+    public void ArtistPopup(Artist artist, View view, final boolean listentab){
 
-        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+        Context ctx = getContext();
+        if(listentab) {
+            ctx = view.getContext();
+        }
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.popup_artist,
                 (ViewGroup) view.findViewById(R.id.tab_layout_2));
 
@@ -743,7 +746,7 @@ public class UserTab extends Fragment {
         }
 
 
-        final TracksListAdapter popupTopTracksAdapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>(), false);
+        final TracksListAdapter popupTopTracksAdapter = new TracksListAdapter(ctx, new ArrayList<TrackSimple>(), false);
         popupTopTracksAdapter.clear();
 
         // Get Artist Top Tracks
@@ -760,7 +763,12 @@ public class UserTab extends Fragment {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         mSpotifyAppRemote.getPlayerApi().play(popupTopTracksAdapter.getItem(i).uri);
-                        toast("Now playing: "+ popupTopTracksAdapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                        if(listentab){
+                            toast("Now playing: "+ popupTopTracksAdapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, view.getContext());
+                        } else {
+                            toast("Now playing: "+ popupTopTracksAdapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
+                        }
+
                     }
                 });
             }
@@ -772,7 +780,7 @@ public class UserTab extends Fragment {
         });
 
         // Get Artist Bio
-        GetArtistBio(artist.name, popupArtistBio);
+        GetArtistBio(artist.name, popupArtistBio, ctx);
 
         popupArtistInfo.setText(popupArtistGenres);
         popupArtistInfo2.setText(artist.followers.total + " followers");
@@ -780,7 +788,7 @@ public class UserTab extends Fragment {
         ImageLoader imgloader = ImageLoader.getInstance();
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                 .showStubImage(R.drawable.baseline_album_24).build();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(ctx).defaultDisplayImageOptions(defaultOptions).build();
         ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
         imgloader.loadImage(artist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
             @Override
@@ -808,9 +816,9 @@ public class UserTab extends Fragment {
             }
         });
 
-        final AlbumsGridAdapter albumadapter = new AlbumsGridAdapter(getContext().getApplicationContext(), new ArrayList<Album>());
+        final AlbumsGridAdapter albumadapter = new AlbumsGridAdapter(ctx, new ArrayList<Album>());
         albumadapter.clear();
-        final AlbumsGridAdapter singleadapter = new AlbumsGridAdapter(getContext().getApplicationContext(), new ArrayList<Album>());
+        final AlbumsGridAdapter singleadapter = new AlbumsGridAdapter(ctx, new ArrayList<Album>());
         singleadapter.clear();
 
         // Get Artist Albums
@@ -838,14 +846,19 @@ public class UserTab extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Album a = albumadapter.getItem(i);
-                AlbumPopup(a, view, true, false);
+                AlbumPopup(a, view, true, false, 0);
             }
         });
         gridPopupArtistAlbums.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 mSpotifyAppRemote.getPlayerApi().play(albumadapter.getItem(i).uri);
-                toast("Now shuffling: "+ albumadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                if(listentab){
+                    toast("Now shuffling: "+ albumadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, view.getContext());
+                } else {
+                    toast("Now shuffling: "+ albumadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
+                }
+
                 return true;
             }
         });
@@ -855,17 +868,22 @@ public class UserTab extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 mSpotifyAppRemote.getPlayerApi().play(singleadapter.getItem(i).uri);
-                toast("Now playing: "+ singleadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK);
+                if(listentab){
+                    toast("Now playing: "+ singleadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, view.getContext());
+                } else {
+                    toast("Now playing: "+ singleadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
+                }
+
             }
         });
     };
 
 
-     public void GetArtistBio(final String artistname, final TextView bio) {
+     public void GetArtistBio(final String artistname, final TextView bio, final Context ctx) {
         // Fetch Artist Bio from Wikipedia
         String query = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + artistname;
 
-        RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+        RequestQueue queue = Volley.newRequestQueue(ctx);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, query, null, new com.android.volley.Response.Listener<JSONObject>() {
                     @Override
@@ -881,7 +899,7 @@ public class UserTab extends Fragment {
 
                                 // Handle case where artist name refers to something else too
                                 if(txtbio.contains("may refer to:")){
-                                    GetArtistBio(artistname + " (band)", bio);
+                                    GetArtistBio(artistname + " (band)", bio, ctx);
                                 }
                                 bio.setText(txtbio + "\n - Wikipedia \n");
                             } catch(ArrayIndexOutOfBoundsException ae) {
@@ -905,8 +923,8 @@ public class UserTab extends Fragment {
 
     }
 
-    public void toast(String message, int drawable, int tintcolor) {
-        Toasty.custom(getView().getContext(), message, drawable, tintcolor, 700, true, true).show();
+    public void toast(String message, int drawable, int tintcolor, Context ctx) {
+        Toasty.custom(ctx, message, drawable, tintcolor, 700, true, true).show();
     }
 
 }

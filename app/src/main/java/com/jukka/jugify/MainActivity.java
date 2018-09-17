@@ -195,18 +195,11 @@ public class MainActivity extends AppCompatActivity {
                                 // Spotify auth finished -> close dialog -> update tabs
                                 userAuthd = true;
                                 dialog.hide();
-
-                                AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                                audioSessionId = audioManager.generateAudioSessionId();
-
-
                                 viewPager.getAdapter().notifyDataSetChanged();
                             }
 
                             public void onFailure(Throwable throwable) {
-                                Log.i("MyActivity", throwable.getMessage(), throwable);
-
-                                // Something went wrong when attempting to connect! Handle errors here
+                                Log.e("MyActivity", throwable.getMessage(), throwable);
                             }
                         });
 
@@ -255,25 +248,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         Log.i("Is remote connected?", Boolean.toString(mSpotifyAppRemote.isConnected()));
-    }
-    */
-
-    /*
-    private void connected() {
-
-
-        // Subscribe to PlayerState
-        mSpotifyAppRemote.getPlayerApi()
-                .subscribeToPlayerState().setEventCallback(new Subscription.EventCallback<PlayerState>() {
-
-            public void onEvent(PlayerState playerState) {
-                final Track track = playerState.track;
-                if (track != null) {
-                    trackName = track.name + " by " + track.artist.name;
-                }
-            }
-        });
-
     }
     */
 }
