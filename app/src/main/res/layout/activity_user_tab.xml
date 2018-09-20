@@ -27,23 +27,11 @@
             tools:layout_editor_absoluteY="16dp" />
 
         <TextView
-            android:id="@+id/textDevices"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:fontFamily="@font/gentium_basic_bold"
-            android:text="Available devices:"
-            android:textAlignment="center"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-
-        <TextView
             android:id="@+id/textView5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:fontFamily="@font/gentium_basic_bold"
+            android:fontFamily="@font/eczar"
             android:text="Saved playlists:"
             android:textAlignment="center"
             android:textSize="18sp"
@@ -64,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:fontFamily="@font/gentium_basic_bold"
+            android:fontFamily="@font/eczar"
             android:text="Saved Albums:"
             android:textAlignment="center"
             android:textSize="18sp"

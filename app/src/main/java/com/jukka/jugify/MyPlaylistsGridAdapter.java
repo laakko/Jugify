@@ -51,7 +51,7 @@ public class MyPlaylistsGridAdapter extends ArrayAdapter<PlaylistSimple> {
         String artistImageUrl = plist.images.get(0).url;
         ImageLoader imgloader = ImageLoader.getInstance();
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .showStubImage(R.drawable.baseline_album_24).cacheInMemory(true).build();
+                .showStubImage(R.drawable.baseline_album_24).cacheOnDisk(true).build();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
         //imgloader.displayImage(artistImageUrl, currentArtistImage, new ImageSize(100,100));
         imgloader.displayImage(artistImageUrl, currentArtistImage, defaultOptions);

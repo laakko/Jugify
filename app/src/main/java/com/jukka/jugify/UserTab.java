@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.graphics.Palette;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -68,6 +69,7 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.Artists;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
@@ -207,6 +209,7 @@ public class UserTab extends Fragment {
                 MyPlaylists(padapter, gridPlaylists);
             } else {
                 gridPlaylists.setAdapter(padapter);
+                expandGridView(gridPlaylists);
             }
 
             gridPlaylists.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -311,6 +314,7 @@ public class UserTab extends Fragment {
                 MyAlbums(optionsAlbum, albadapter, gridAlbums);
             } else {
                 gridAlbums.setAdapter(albadapter);
+                expandGridView(gridAlbums);
             }
 
             gridAlbums.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -492,6 +496,7 @@ public class UserTab extends Fragment {
 
                 myalbums_gotten = true;
                 grid.setAdapter(adapter);
+                expandGridView(grid);
             }
 
             @Override
@@ -514,6 +519,7 @@ public class UserTab extends Fragment {
 
                 myplaylists_gotten = true;
                 grid.setAdapter(adapter);
+                expandGridView(grid);
             }
 
             @Override
@@ -731,6 +737,7 @@ public class UserTab extends Fragment {
         final ListView listPopupArtistTopTracks = layout.findViewById(R.id.listPopupTopTracks);
         final GridView gridPopupArtistAlbums = layout.findViewById(R.id.gridPopupAlbums);
         final GridView gridPopupArtistSingles = layout.findViewById(R.id.gridPopupSingles);
+        final GridView gridPopupSimilarArtists = layout.findViewById(R.id.gridSimilarArtists);
         popupArtistName.setText(artist.name);
 
         String popupArtistGenres = "Genres: ";
@@ -816,23 +823,80 @@ public class UserTab extends Fragment {
             }
         });
 
+        // Get similar artists
+        final TopArtistsGridAdapter similaradapter = new TopArtistsGridAdapter(ctx, new ArrayList<Artist>());
+        similaradapter.clear();
+
+
+        spotify.getRelatedArtists(artist.id, new Callback<Artists>() {
+            @Override
+            public void success(Artists artists, Response response) {
+                int tempHeight = 0;
+                for(Artist a : artists.artists) {
+                    Log.i("Similar: ", a.name);
+                    similaradapter.add(a);
+                    tempHeight += 164;
+                }
+
+               ViewGroup.LayoutParams params = gridPopupSimilarArtists.getLayoutParams();
+               params.height = tempHeight / 2;
+               gridPopupSimilarArtists.setLayoutParams(params);
+
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+
+        gridPopupSimilarArtists.setAdapter(similaradapter);
+
+
+        gridPopupSimilarArtists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ArtistPopup(similaradapter.getItem(i), view, false);
+            }
+        });
+
+
+        // Get Artist Albums
         final AlbumsGridAdapter albumadapter = new AlbumsGridAdapter(ctx, new ArrayList<Album>());
         albumadapter.clear();
         final AlbumsGridAdapter singleadapter = new AlbumsGridAdapter(ctx, new ArrayList<Album>());
         singleadapter.clear();
 
-        // Get Artist Albums
         spotify.getArtistAlbums(artist.id, new Callback<Pager<Album>>() {
             @Override
             public void success(Pager<Album> albumPager, Response response) {
-
+                int singlesHeight = 0;
+                int albumsHeight = 0;
                 for(Album a : albumPager.items) {
                     if(a.album_type.contains("single")) {
                         singleadapter.add(a);
+                        singlesHeight += 164;
                     } else if(a.album_type.contains("album")) {
                         albumadapter.add(a);
+                        albumsHeight += 164;
                     }
                 }
+
+                Log.i("albumsheight", Integer.toString(albumsHeight));
+
+                if(albumsHeight > 656) {
+                    final ViewGroup.LayoutParams params = gridPopupArtistAlbums.getLayoutParams();
+                    params.height = albumsHeight;
+                    gridPopupArtistAlbums.setLayoutParams(params);
+                }
+                if(singlesHeight > 656) {
+                    ViewGroup.LayoutParams params2 = gridPopupArtistSingles.getLayoutParams();
+                    params2.height = singlesHeight;
+                    gridPopupArtistSingles.setLayoutParams(params2);
+                }
+
+
             }
 
             @Override
@@ -842,6 +906,7 @@ public class UserTab extends Fragment {
         });
 
         gridPopupArtistAlbums.setAdapter(albumadapter);
+        //gridPopupArtistAlbums.setLayoutParams(new LinearLayout.LayoutParams(200, 1000));
         gridPopupArtistAlbums.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -926,5 +991,37 @@ public class UserTab extends Fragment {
     public void toast(String message, int drawable, int tintcolor, Context ctx) {
         Toasty.custom(ctx, message, drawable, tintcolor, 700, true, true).show();
     }
+
+
+
+    public void expandGridView(GridView gridView) {
+        int columns = 4;
+        ListAdapter listAdapter = gridView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        int items = listAdapter.getCount();
+        int rows = 0;
+
+        View listItem = listAdapter.getView(0, null, gridView);
+        listItem.measure(0, 0);
+        totalHeight = listItem.getMeasuredHeight();
+
+        float x = 1;
+        if( items > columns ){
+            x = items/columns;
+            rows = (int) (x + 1);
+            totalHeight *= rows;
+        }
+
+        ViewGroup.LayoutParams params = gridView.getLayoutParams();
+        params.height = totalHeight;
+        gridView.setLayoutParams(params);
+
+    }
+
 
 }

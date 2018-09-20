@@ -47,7 +47,7 @@ public class MyAlbumsGridAdapter extends ArrayAdapter<SavedAlbum> {
         ImageLoader imgloader = ImageLoader.getInstance();
         //imgloader.displayImage(albumImageUrl, albumImage, new ImageSize(100,100));
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .showStubImage(R.drawable.baseline_album_24).cacheInMemory(true).build();
+                .showStubImage(R.drawable.baseline_album_24).cacheOnDisk(true).build();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
         imgloader.displayImage(albumImageUrl, albumImage, defaultOptions);
 
