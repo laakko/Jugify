@@ -151,7 +151,7 @@ public class ListenTab extends Fragment {
         txtenergy = (TextView) view.findViewById(R.id.txtEnergy);
         txtdance = (TextView) view.findViewById(R.id.txtDanceability);
         eq = (ImageButton) view.findViewById(R.id.btnEQ);
-
+        final UserTab userTab = new UserTab();
 
         final ScrollView scrollview = (ScrollView) view.findViewById(R.id.scrollview);
 
@@ -246,7 +246,7 @@ public class ListenTab extends Fragment {
                                 spotify.getArtist(track.artist.uri.substring(15), new Callback<Artist>() {
                                     @Override
                                     public void success(Artist artist, Response response) {
-                                        UserTab userTab = new UserTab();
+
                                         userTab.ArtistPopup(artist, getView(), true);
                                     }
                                     @Override

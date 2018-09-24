@@ -3,6 +3,7 @@ package com.jukka.jugify;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.TransitionDrawable;
 import android.support.annotation.ColorInt;
 import android.support.design.widget.TabLayout;
@@ -18,8 +19,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -130,6 +133,8 @@ public class UserTab extends Fragment {
         final ListView listTopTracks = (ListView) view.findViewById(R.id.listTopTracks);
         final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
         final GridView gridAlbums = (GridView) view.findViewById(R.id.gridAlbums);
+        ImageButton btnAbout = (ImageButton) view.findViewById(R.id.btnAbout);
+        ImageButton btnPinnedArtists = (ImageButton) view.findViewById(R.id.btnPinnedArtists);
         txtTopGenres = (TextView) view.findViewById(R.id.txtTopGenres);
         txtAvgTempo = (TextView) view.findViewById(R.id.avgTempo);
         txtAvgDuration = (TextView) view.findViewById(R.id.avgDuration);
@@ -145,7 +150,6 @@ public class UserTab extends Fragment {
         datatimeline.setTitles("SHORT", "MEDIUM", "LONG");
         datatimeline.setAnimationDuration(300);
         datatimeline.setTabIndex(1);
-
 
         if(userAuthd) {
 
@@ -370,6 +374,20 @@ public class UserTab extends Fragment {
                 @Override
                 public void onEndTabSelected(String title, int index) {
 
+                }
+            });
+
+            btnAbout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AboutPopup(view);
+                }
+            });
+
+            btnPinnedArtists.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PinnedArtistsPopup(view);
                 }
             });
 
@@ -738,7 +756,10 @@ public class UserTab extends Fragment {
         final GridView gridPopupArtistAlbums = layout.findViewById(R.id.gridPopupAlbums);
         final GridView gridPopupArtistSingles = layout.findViewById(R.id.gridPopupSingles);
         final GridView gridPopupSimilarArtists = layout.findViewById(R.id.gridSimilarArtists);
+        final ImageButton btnPinArtist = layout.findViewById(R.id.btnPinArtist);
         popupArtistName.setText(artist.name);
+        final String artistID = artist.id;
+        final String artistName = artist.name;
 
         String popupArtistGenres = "Genres: ";
         for(int i=0; i< artist.genres.size(); ++i){
@@ -941,6 +962,41 @@ public class UserTab extends Fragment {
 
             }
         });
+
+        if(FileService.fileContainsString(ctx, "artistlist.txt", artistID)) {
+            btnPinArtist.setColorFilter(Color.parseColor("#427DD1"));
+        } else {
+            btnPinArtist.setColorFilter(Color.parseColor( "#4C40AD"));
+        }
+
+        btnPinArtist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Context ctx;
+                if(listentab){
+                    ctx = view.getContext();
+
+                } else {
+                   ctx = getContext();
+                }
+
+                if(FileService.fileContainsString(ctx, "artistlist.txt", artistID)) {
+                    FileService.removeItem(ctx, "artistlist.txt", artistID);
+                    toast("Artist unpinned", R.drawable.ic_person_pin_black_36dp, Color.BLACK, ctx);
+                    btnPinArtist.setColorFilter(Color.parseColor( "#4C40AD"));
+
+                } else {
+                    FileService.writeFile(ctx, "artistlist.txt", artistID + "-");
+                    toast("Artist pinned", R.drawable.ic_person_pin_black_36dp, Color.BLACK, ctx);
+                    btnPinArtist.setColorFilter(Color.parseColor("#427DD1"));
+
+                }
+
+            }
+        });
+
+
     };
 
 
@@ -986,6 +1042,40 @@ public class UserTab extends Fragment {
         queue.add(jsonObjectRequest);
 
 
+    }
+
+    public void PinnedArtistsPopup(View view) {
+
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.popup_pinnedartists,
+                (ViewGroup) view.findViewById(R.id.tab_layout_2));
+
+        popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
+        popup.showAtLocation(layout, Gravity.TOP, 0, 0);
+
+        TextView pinnedTemp = layout.findViewById(R.id.tempPinned);
+        ListView listPinnedArtists = layout.findViewById(R.id.listPinnedArtists);
+
+        String artistString = FileService.readFile(getContext(), "artistlist.txt");
+        String[] artistList = artistString.split("-");
+
+        ArrayAdapter adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1,artistList);
+        listPinnedArtists.setAdapter(adapter);
+
+
+
+
+       // pinnedTemp.setText(artists);
+
+    }
+
+    public void AboutPopup(View view) {
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.popup_about,
+                (ViewGroup) view.findViewById(R.id.tab_layout_2));
+
+        popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
+        popup.showAtLocation(layout, Gravity.TOP, 0, 0);
     }
 
     public void toast(String message, int drawable, int tintcolor, Context ctx) {
