@@ -808,7 +808,7 @@ public class UserTab extends Fragment {
         });
 
         // Get Artist Bio
-        GetArtistBio(artist.name, popupArtistBio, ctx);
+        GetArtistBio(artist.name, popupArtistBio, ctx, false);
 
         popupArtistInfo.setText(popupArtistGenres);
         popupArtistInfo2.setText(artist.followers.total + " followers");
@@ -1000,9 +1000,14 @@ public class UserTab extends Fragment {
     };
 
 
-     public void GetArtistBio(final String artistname, final TextView bio, final Context ctx) {
+     public void GetArtistBio(final String artistname, final TextView bio, final Context ctx, final boolean isClicked) {
         // Fetch Artist Bio from Wikipedia
-        String query = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + artistname;
+
+         String query = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + artistname;
+         if(isClicked) {
+           query =   "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exlimit&explaintext&redirects=1&titles=" + artistname;
+         }
+
 
         RequestQueue queue = Volley.newRequestQueue(ctx);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -1018,11 +1023,34 @@ public class UserTab extends Fragment {
                                 txtbio = txtbio.replaceAll("\\\\n", " ");
                                 txtbio = txtbio.replaceAll("\\\\", "");
 
+                                if(txtbio.contains("==")){
+                                    txtbio = txtbio.replaceAll("==", "\n\n");
+                                }
+
                                 // Handle case where artist name refers to something else too
                                 if(txtbio.contains("may refer to:")){
-                                    GetArtistBio(artistname + " (band)", bio, ctx);
+
+                                    if(isClicked) {
+                                        GetArtistBio( artistname + " (band)", bio, ctx, true);
+                                    } else {
+                                        GetArtistBio( artistname + " (band)", bio, ctx, false);
+                                    }
+
                                 }
                                 bio.setText(txtbio + "\n - Wikipedia \n");
+
+                                bio.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        // View more or view less
+                                        if(!isClicked) {
+                                            GetArtistBio( artistname, bio, ctx, true);
+                                        } else {
+                                            GetArtistBio( artistname, bio, ctx, false);
+                                        }
+                                    }
+                                });
+
                             } catch(ArrayIndexOutOfBoundsException ae) {
                                 bio.setText("Artist Bio not found :( Check back later");
                             }
@@ -1040,6 +1068,7 @@ public class UserTab extends Fragment {
                 });
 
         queue.add(jsonObjectRequest);
+
 
 
     }
@@ -1061,6 +1090,14 @@ public class UserTab extends Fragment {
 
         ArrayAdapter adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1,artistList);
         listPinnedArtists.setAdapter(adapter);
+
+
+        listPinnedArtists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+            }
+        });
 
 
 
