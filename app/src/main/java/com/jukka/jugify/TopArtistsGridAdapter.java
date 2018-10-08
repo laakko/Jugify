@@ -42,10 +42,15 @@ public class TopArtistsGridAdapter extends ArrayAdapter<Artist> {
         ImageView currentArtistImage = listItem.findViewById(R.id.imgArtist);
         TextView currentArtistName = listItem.findViewById(R.id.txtArtistName);
         currentArtistName.setText(currentArtist.name);
-        String artistImageUrl = currentArtist.images.get(0).url;
-        ImageLoader imgloader = ImageLoader.getInstance();
-       // imgloader.displayImage(artistImageUrl, currentArtistImage);
-        imgloader.displayImage(artistImageUrl, currentArtistImage, new ImageSize(100,100));
+        try{
+            String artistImageUrl = currentArtist.images.get(0).url;
+            ImageLoader imgloader = ImageLoader.getInstance();
+            // imgloader.displayImage(artistImageUrl, currentArtistImage);
+            imgloader.displayImage(artistImageUrl, currentArtistImage, new ImageSize(100,100));
+
+        } catch(IndexOutOfBoundsException e) {
+
+        }
 
         return listItem;
 

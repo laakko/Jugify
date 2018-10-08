@@ -627,7 +627,7 @@ public class UserTab extends Fragment {
 
 
 
-    public void AlbumPopup(Album album, View view, Boolean throughArtist, final Boolean listentab, int y) {
+    public void AlbumPopup(final Album album, View view, Boolean throughArtist, final Boolean listentab, int y) {
 
 
         Context ctx = getContext();
@@ -660,6 +660,26 @@ public class UserTab extends Fragment {
         ListView popuplist = layout.findViewById(R.id.listPopupTracks);
 
         if(!listentab) {
+
+
+            popupalbumname.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(final View view) {
+                        spotify.getArtist(album.artists.get(0).id, new Callback<Artist>() {
+                            @Override
+                            public void success(Artist artist, Response response) {
+                                ArtistPopup(artist, view, false);
+                            }
+                            @Override
+                            public void failure(RetrofitError error) {
+
+                            }
+                        });
+
+                    }
+            });
+
+
             ImageLoader imgloader = ImageLoader.getInstance();
             DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                     .showStubImage(R.drawable.baseline_album_24).cacheInMemory(true).build();
