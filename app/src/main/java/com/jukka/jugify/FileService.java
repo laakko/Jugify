@@ -1,6 +1,8 @@
 package com.jukka.jugify;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -12,6 +14,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+
+import kaaes.spotify.webapi.android.models.Artist;
 
 public class FileService {
 

@@ -1,353 +1,348 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.jukka.jugify.UserTab">
+    android:orientation="vertical">
 
     <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical">
+        android:layout_height="580dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/txtUsername"
+                android:id="@+id/textView5"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_marginTop="20dp"
                 android:fontFamily="@font/eczar"
-                android:text="Hello"
+                android:text="Saved playlists:"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+
+            <GridView
+                android:id="@+id/gridPlaylists"
+                android:layout_width="400dp"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:nestedScrollingEnabled="true"
+                android:numColumns="4" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/eczar"
+                android:text="Saved Albums:"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <GridView
+                android:id="@+id/gridAlbums"
+                android:layout_width="400dp"
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:nestedScrollingEnabled="true"
+                android:numColumns="4" />
+
+
+            <TextView
+                android:id="@+id/txtdata"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/eczar"
+                android:text="Data and Stats"
                 android:textAlignment="center"
                 android:textSize="30sp"
-                android:textStyle="bold"
-                android:layout_marginLeft="80dp"/>
+                android:textStyle="bold" />
 
-            <ImageButton
-                android:id="@+id/btnPinnedArtists"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/txtview"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="5dp"
-                android:layout_weight="0"
-                android:background="@null"
-                android:src="@drawable/ic_person_pin_black_36dp"
-                android:tint="@color/colorPrimary" />
+                android:layout_marginBottom="5dp"
+                android:text="Choose timeline:"
+                android:textAlignment="center" />
 
-            <ImageButton
-                android:id="@+id/btnAbout"
-                android:layout_width="wrap_content"
+            <com.gigamole.navigationtabstrip.NavigationTabStrip
+                android:id="@+id/datatimeline"
+                android:layout_width="250dp"
+                android:layout_height="45dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
+                app:nts_active_color="@color/colorAccent"
+                app:nts_color="@color/colorAccent"
+                app:nts_inactive_color="#BDBDBD"
+                app:nts_type="point"
+                app:nts_weight="7dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="30dp"
+                android:layout_marginStart="30dp"
+                android:orientation="horizontal">
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="0"
-                android:background="@null"
-                android:src="@drawable/ic_info_black_36dp"
-                android:tint="@color/colorPrimary" />
-        </LinearLayout>
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/eczar"
+                android:text="Top Artists:"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:fontFamily="@font/eczar"
-            android:text="Saved playlists:"
-            android:textAlignment="center"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-
-        <GridView
-            android:id="@+id/gridPlaylists"
-            android:layout_marginTop="10dp"
-            android:layout_width="400dp"
-            android:layout_height="300dp"
-            android:nestedScrollingEnabled="true"
-            android:layout_gravity="center"
-            android:numColumns="4" />
-
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:fontFamily="@font/eczar"
-            android:text="Saved Albums:"
-            android:textAlignment="center"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <GridView
-            android:id="@+id/gridAlbums"
-            android:layout_marginTop="10dp"
-            android:layout_width="400dp"
-            android:layout_height="300dp"
-            android:nestedScrollingEnabled="true"
-            android:layout_gravity="center"
-            android:numColumns="4" />
+            <GridView
+                android:id="@+id/gridTopArtists"
+                android:layout_width="400dp"
+                android:layout_height="500dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="15dp"
+                android:gravity="center"
+                android:horizontalSpacing="0dp"
+                android:numColumns="4"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="0dp" />
 
 
-        <TextView
-            android:id="@+id/txtdata"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="20dp"
-            android:fontFamily="@font/eczar"
-            android:text="Data and Stats"
-            android:textAlignment="center"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/eczar"
+                android:text="Top tracks: "
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/txtview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:text="Choose timeline:"
-            android:textAlignment="center" />
-
-        <com.gigamole.navigationtabstrip.NavigationTabStrip
-            android:id="@+id/datatimeline"
-            android:layout_width="250dp"
-            android:layout_gravity="center"
-            android:layout_height="45dp"
-            app:nts_type="point"
-            app:nts_active_color="@color/colorAccent"
-            app:nts_color="@color/colorAccent"
-            app:nts_inactive_color="#BDBDBD"
-            app:nts_weight="7dp"
-            android:layout_marginBottom="10dp"
-            />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="30dp"
-            android:layout_marginStart="30dp"
-            android:orientation="horizontal">
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:fontFamily="@font/eczar"
-            android:text="Top Artists:"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <GridView
-            android:id="@+id/gridTopArtists"
-            android:layout_marginTop="15dp"
-            android:layout_width="400dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:stretchMode="columnWidth"
-            android:verticalSpacing="0dp"
-            android:horizontalSpacing="0dp"
-            android:layout_height="500dp"
-            android:numColumns="4"/>
+            <ListView
+                android:id="@+id/listTopTracks"
+                android:layout_width="match_parent"
+                android:layout_height="1500dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp" />
 
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:fontFamily="@font/eczar"
-            android:text="Top tracks: "
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <ListView
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="10dp"
-            android:id="@+id/listTopTracks"
-            android:layout_width="match_parent"
-            android:layout_height="1500dp" />
-
-
-        <TextView
-            android:id="@+id/textView8"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/eczar"
-            android:text="Top Genres: "
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/eczar"
+                android:text="Top Genres: "
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
 
             <TextView
                 android:id="@+id/txtTopGenres"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
                 android:text="Loading..."
+                android:textAlignment="center"
                 android:textStyle="bold" />
 
 
+            <TextView
+                android:id="@+id/textView9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="@font/eczar"
+                android:text="Extra statistics: "
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Avg. Tempo"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/avgTempo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="130 bpm"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Avg. Duration"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/avgDuration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="3:15"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Avg. Release Year"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/avgReleaseYear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="2010"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Avg. Popularity"
+                android:textAlignment="center" />
+
+            <ProgressBar
+                android:id="@+id/avgPopularity"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:max="100"
+                android:progress="50"
+                android:scaleY="3" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Avg. Valence"
+                android:textAlignment="center" />
+
+            <ProgressBar
+                android:id="@+id/avgValence"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:max="100"
+                android:progress="50"
+                android:scaleY="3" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Avg. Energy"
+                android:textAlignment="center" />
+
+            <ProgressBar
+                android:id="@+id/avgEnergy"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:max="100"
+                android:progress="50"
+                android:scaleY="3" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Avg. Danceability"
+                android:textAlignment="center" />
+
+            <ProgressBar
+                android:id="@+id/avgDanceability"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:max="100"
+                android:progress="50"
+                android:scaleY="3" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Avg. Instrumentalness"
+                android:textAlignment="center" />
+
+            <ProgressBar
+                android:id="@+id/avgInstrumentalness"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:max="100"
+                android:progress="50"
+                android:scaleY="3" />
 
 
-
-
-        <TextView
-            android:id="@+id/textView9"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:fontFamily="@font/eczar"
-            android:text="Extra statistics: "
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:text="Avg. Tempo"/>
-
-        <TextView
-            android:id="@+id/avgTempo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textStyle="bold"
-            android:text="130 bpm"
-            android:layout_marginBottom="5dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Avg. Duration"/>
-
-        <TextView
-            android:id="@+id/avgDuration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textStyle="bold"
-            android:text="3:15"
-            android:layout_marginBottom="5dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Avg. Release Year"/>
-
-        <TextView
-            android:id="@+id/avgReleaseYear"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textStyle="bold"
-            android:text="2010"
-            android:layout_marginBottom="5dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Avg. Popularity"/>
-
-        <ProgressBar
-            android:id="@+id/avgPopularity"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:max="100"
-            android:progress="50"
-            android:scaleY="3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Avg. Valence"/>
-
-        <ProgressBar
-            android:id="@+id/avgValence"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:max="100"
-            android:progress="50"
-            android:scaleY="3"
-            android:layout_marginBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:text="Avg. Energy"/>
-
-        <ProgressBar
-            android:id="@+id/avgEnergy"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:max="100"
-            android:progress="50"
-            android:scaleY="3"
-            android:layout_marginBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Avg. Danceability"/>
-
-        <ProgressBar
-            android:id="@+id/avgDanceability"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:max="100"
-            android:progress="50"
-            android:scaleY="3"
-            android:layout_marginBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:text="Avg. Instrumentalness"/>
-
-        <ProgressBar
-            android:id="@+id/avgInstrumentalness"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:max="100"
-            android:progress="50"
-            android:scaleY="3"
-            android:layout_marginBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-
-
-
-    </LinearLayout>
+        </LinearLayout>
 
     </ScrollView>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="bottom"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal">
 
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/txtUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="80dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/eczar"
+            android:text="Hello"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnPinnedArtists"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="5dp"
+            android:layout_weight="0"
+            android:background="@null"
+            android:src="@drawable/ic_person_pin_black_36dp"
+            android:tint="@color/colorPrimaryDark" />
+
+        <ImageButton
+            android:id="@+id/btnAbout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="0"
+            android:background="@null"
+            android:src="@drawable/ic_info_black_36dp"
+            android:tint="@color/colorPrimaryDark" />
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -114,6 +114,7 @@ public class UserTab extends Fragment {
     public static MyPlaylistsGridAdapter padapter;
     public static MyAlbumsGridAdapter albadapter;
     private PopupWindow popup;
+    private PopupWindow pinnedartistsPopup;
     public String userid;
     public int trackinfoCounter;
     private float acousticnesAvg, danceabilityAvg, valencyAvg, energyAvg, tempoAvg, instruAvg, popularityAvg;
@@ -159,7 +160,7 @@ public class UserTab extends Fragment {
                 public void success(UserPrivate user, Response response) {
                     username.setText("Hello, " + user.id);
                     userid = user.id;
-                    username.setTextColor(Color.LTGRAY);
+                    //username.setTextColor(Color.LTGRAY);
                 }
                 @Override
                 public void failure(RetrofitError error) {
@@ -758,8 +759,7 @@ public class UserTab extends Fragment {
         final GridView gridPopupSimilarArtists = layout.findViewById(R.id.gridSimilarArtists);
         final ImageButton btnPinArtist = layout.findViewById(R.id.btnPinArtist);
         popupArtistName.setText(artist.name);
-        final String artistID = artist.id;
-        final String artistName = artist.name;
+        final String artistString = artist.id + "." + artist.name;
 
         String popupArtistGenres = "Genres: ";
         for(int i=0; i< artist.genres.size(); ++i){
@@ -963,7 +963,7 @@ public class UserTab extends Fragment {
             }
         });
 
-        if(FileService.fileContainsString(ctx, "artistlist.txt", artistID)) {
+        if(FileService.fileContainsString(ctx, "artistlist.txt", artistString)) {
             btnPinArtist.setColorFilter(Color.parseColor("#427DD1"));
         } else {
             btnPinArtist.setColorFilter(Color.parseColor( "#4C40AD"));
@@ -981,13 +981,13 @@ public class UserTab extends Fragment {
                    ctx = getContext();
                 }
 
-                if(FileService.fileContainsString(ctx, "artistlist.txt", artistID)) {
-                    FileService.removeItem(ctx, "artistlist.txt", artistID);
+                if(FileService.fileContainsString(ctx, "artistlist.txt", artistString)) {
+                    FileService.removeItem(ctx, "artistlist.txt", artistString);
                     toast("Artist unpinned", R.drawable.ic_person_pin_black_36dp, Color.BLACK, ctx);
                     btnPinArtist.setColorFilter(Color.parseColor( "#4C40AD"));
 
                 } else {
-                    FileService.writeFile(ctx, "artistlist.txt", artistID + "-");
+                    FileService.writeFile(ctx, "artistlist.txt", artistString + "-");
                     toast("Artist pinned", R.drawable.ic_person_pin_black_36dp, Color.BLACK, ctx);
                     btnPinArtist.setColorFilter(Color.parseColor("#427DD1"));
 
@@ -1020,7 +1020,7 @@ public class UserTab extends Fragment {
                             try{
                                 txtbio = txtbio.split("extract")[1];
                                 txtbio = txtbio.subSequence(2, txtbio.length()-2).toString();
-                                txtbio = txtbio.replaceAll("\\\\n", " ");
+                                txtbio = txtbio.replaceAll("\\\\n", "\n");
                                 txtbio = txtbio.replaceAll("\\\\", "");
 
                                 if(txtbio.contains("==")){
@@ -1079,30 +1079,47 @@ public class UserTab extends Fragment {
         View layout = inflater.inflate(R.layout.popup_pinnedartists,
                 (ViewGroup) view.findViewById(R.id.tab_layout_2));
 
-        popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
-        popup.showAtLocation(layout, Gravity.TOP, 0, 0);
+        pinnedartistsPopup = new PopupWindow(layout, MATCH_PARENT, 600, true);
+        pinnedartistsPopup.showAtLocation(layout, Gravity.BOTTOM, 0, 0);
 
         TextView pinnedTemp = layout.findViewById(R.id.tempPinned);
         ListView listPinnedArtists = layout.findViewById(R.id.listPinnedArtists);
 
         String artistString = FileService.readFile(getContext(), "artistlist.txt");
-        String[] artistList = artistString.split("-");
+        final String[] artistListTemp = artistString.split("-");
 
-        ArrayAdapter adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1,artistList);
+
+        ArrayAdapter adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1);
+        try{
+            for(String artist : artistListTemp) {
+                adapter.add(artist.split("\\.")[1]);
+            }
+        } catch(ArrayIndexOutOfBoundsException aio) {
+
+        }
+
+
+
         listPinnedArtists.setAdapter(adapter);
-
 
         listPinnedArtists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(AdapterView<?> adapterView, final View view, int i, long l) {
 
+                spotify.getArtist(artistListTemp[i].split("\\.")[0].trim(), new Callback<Artist>() {
+                    @Override
+                    public void success(Artist artist, Response response) {
+                        ArtistPopup(artist, view, false);
+                        pinnedartistsPopup.dismiss();
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.d("Pinned artist fail", error.toString());
+                    }
+                });
             }
         });
-
-
-
-
-       // pinnedTemp.setText(artists);
 
     }
 
