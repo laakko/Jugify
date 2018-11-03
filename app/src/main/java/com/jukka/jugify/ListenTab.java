@@ -224,10 +224,6 @@ public class ListenTab extends Fragment {
                         // Get track information
                         getNowPlayingInformation(track.album.uri.substring(14));
 
-                        // Get audio features
-                        getAudioFeatures(track.uri.substring(14));
-                        String requestURL = "https://api.lyrics.ovh/v1/" + track.artist.name + "/" + track.name;
-                        lyricsApi(requestURL);
 
                         // Get Album Image
                         imguri = track.imageUri.raw;
@@ -238,6 +234,14 @@ public class ListenTab extends Fragment {
                                         imageNowPlayingBig.setImageBitmap(bitmap);
                                     }
                                 });
+
+
+
+                        // Get audio features
+                        getAudioFeatures(track.uri.substring(14));
+                        String requestURL = "https://api.lyrics.ovh/v1/" + track.artist.name + "/" + track.name;
+                        lyricsApi(requestURL);
+
 
 
                         txtTitle.setOnClickListener(new View.OnClickListener() {

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.jukka.jugify.SearchTab">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView17"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Results:"
+            android:textAlignment="center" />
+
+        <ListView
+            android:id="@+id/listResults"
+            android:layout_width="match_parent"
+            android:layout_height="200dp" />
+
+        <com.gigamole.navigationtabstrip.NavigationTabStrip
+            android:id="@+id/searchFilter"
+            android:layout_width="350dp"
+            android:layout_height="45dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            app:nts_active_color="@color/colorAccent"
+            app:nts_color="@color/colorAccent"
+            app:nts_inactive_color="#BDBDBD"
+            app:nts_type="point"
+            app:nts_weight="7dp" />
+
+        <SearchView
+            android:id="@+id/searchView"
+            android:gravity="bottom"
+            android:layout_gravity="bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

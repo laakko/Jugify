@@ -73,5 +73,8 @@ dependencies {
     // Knob slider
     compile 'com.sdsmdg.harjot:croller:1.0.7'
 
+    // Multi-selection spinner
+    compile 'com.github.pratikbutani:MultiSelectSpinner:08d324c987'
+
 
 }

@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.animation.Animation;
+import android.widget.ImageView;
 
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         */
 
         NavigationTabStrip tabLayout2 = findViewById(R.id.tab_layout_2);
-        tabLayout2.setTitles("User", "Listen", "Explore");
+        tabLayout2.setTitles("User", "Listen", "Explore", "Search");
         tabLayout2.setAnimationDuration(150);
         tabLayout2.setTypeface(Typeface.DEFAULT_BOLD);
 
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.pager);
 
         final PagerAdapter adapter = new PageAdapter
-                (getSupportFragmentManager(), 3);
+                (getSupportFragmentManager(), 4);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(1);
 
@@ -195,6 +196,8 @@ public class MainActivity extends AppCompatActivity {
                                 // Spotify auth finished -> close dialog -> update tabs
                                 userAuthd = true;
                                 dialog.hide();
+
+
                                 viewPager.getAdapter().notifyDataSetChanged();
                             }
 

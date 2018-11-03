@@ -1067,6 +1067,7 @@ public class UserTab extends Fragment {
                                             GetArtistBio( artistname, bio, ctx, true);
                                         } else {
                                             GetArtistBio( artistname, bio, ctx, false);
+                                            GetArtistBio( artistname, bio, ctx, false);
                                         }
                                     }
                                 });

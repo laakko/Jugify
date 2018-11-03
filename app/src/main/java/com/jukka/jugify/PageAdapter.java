@@ -28,6 +28,9 @@ public class PageAdapter extends FragmentStatePagerAdapter {
             case 2:
                 ExploreTab exploreTab = new ExploreTab();
                 return exploreTab;
+            case 3:
+                SearchTab searchTab = new SearchTab();
+                return searchTab;
             default:
                 return null;
         }
