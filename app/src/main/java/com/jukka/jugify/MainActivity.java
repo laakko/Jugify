@@ -97,17 +97,10 @@ public class MainActivity extends AppCompatActivity {
         displayheight = size.y;
 
 
-        /* Uncomment to enable toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        */
-
         NavigationTabStrip tabLayout2 = findViewById(R.id.tab_layout_2);
         tabLayout2.setTitles("User", "Listen", "Explore", "Search");
         tabLayout2.setAnimationDuration(150);
         tabLayout2.setTypeface(Typeface.DEFAULT_BOLD);
-
-
 
         dialog = new ProgressDialog(this);
         dialog.setMessage("Waiting for Spotify authentication..");
@@ -122,12 +115,11 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(1);
 
-
        // tabLayout2.setTabIndex(1, true);
         tabLayout2.setViewPager(viewPager);
 
-       // int ColorFrom = Color.BLACK;
-        int ColorFrom = Color.parseColor("#090335");
+        int ColorFrom = Color.BLACK;
+       // int ColorFrom = Color.parseColor("#090335");
 
         int ColorTo = Color.parseColor("#1d1651");
        // int ColorTo = Color.parseColor("#4C40AD");
@@ -143,7 +135,6 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-
                     MainActivity.viewPager.setBackgroundColor((Integer) animation.getAnimatedValue());
 
 
@@ -196,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
                                 // Spotify auth finished -> close dialog -> update tabs
                                 userAuthd = true;
                                 dialog.hide();
-
 
                                 viewPager.getAdapter().notifyDataSetChanged();
                             }

@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -66,9 +68,6 @@ public class SearchTab extends Fragment {
         search.setIconifiedByDefault(false);
         search.setQueryHint("Search for " + chosen_tab);
         search.setFocusable(true);
-        search.requestFocusFromTouch();
-
-
 
         names = new ArrayList<String>();
         ids = new ArrayList<String>();
@@ -141,6 +140,7 @@ public class SearchTab extends Fragment {
                     spotify.getAlbum(albums.get(i).id, new Callback<Album>() {
                         @Override
                         public void success(Album album, Response response) {
+                            search.clearFocus();
                             usertab.AlbumPopup(album, view, true, false, true, 0);
                         }
 
@@ -149,6 +149,7 @@ public class SearchTab extends Fragment {
                         }
                     });
                 } else if(chosen_tab == "artists") {
+                    search.clearFocus();
                     usertab.ArtistPopup(artists.get(i), view, true);
                 }
             }
@@ -229,6 +230,14 @@ public class SearchTab extends Fragment {
 
         }
 
+    }
+
+
+    private void showInputMethod(View view) {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.showSoftInput(view, 0);
+        }
     }
 
     public void toast(String message, int drawable, int tintcolor, Context ctx) {

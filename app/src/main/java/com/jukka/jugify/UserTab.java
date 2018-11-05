@@ -124,7 +124,6 @@ public class UserTab extends Fragment {
     HashMap<String, Double> genreList = new HashMap<String, Double>();
 
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -460,8 +459,11 @@ public class UserTab extends Fragment {
                     genrecount++;
                 }
 
+
                 txtTopGenres.setText(topgenres);
-               // txtTopGenres.setTextColor(Color.WHITE);
+
+
+
                 topartists_gotten = true;
                 grid.setAdapter(adapter);
             }
@@ -867,9 +869,8 @@ public class UserTab extends Fragment {
                 }
             });
         } catch (IndexOutOfBoundsException ioe) {
-            
-        }
 
+        }
 
         // Get similar artists
         final TopArtistsGridAdapter similaradapter = new TopArtistsGridAdapter(ctx, new ArrayList<Artist>());

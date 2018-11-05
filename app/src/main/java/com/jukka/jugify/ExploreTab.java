@@ -119,10 +119,6 @@ public class ExploreTab extends Fragment {
                 }
             });
 
-
-
-
-
         }
         return view;
     }

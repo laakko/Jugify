@@ -288,7 +288,6 @@ public class ListenTab extends Fragment {
                 @Override
                 public void onClick(View view) {
 
-
                     // TODO Open some EQ App / play store link
 
                     /* Didn' work, no effect from built-in EQ
