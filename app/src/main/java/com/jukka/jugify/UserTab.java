@@ -338,7 +338,7 @@ public class UserTab extends Fragment {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
                     Album popupalbum = albadapter.getItem(i).album;
-                    AlbumPopup(popupalbum, view, false, false, 0);
+                    AlbumPopup(popupalbum, view, false, false, false, 0);
 
                 }
             });
@@ -627,7 +627,7 @@ public class UserTab extends Fragment {
 
 
 
-    public void AlbumPopup(final Album album, View view, Boolean throughArtist, final Boolean listentab, int y) {
+    public void AlbumPopup(final Album album, View view, Boolean throughArtist, final Boolean listentab, final Boolean searchtab, int y) {
 
 
         Context ctx = getContext();
@@ -637,6 +637,9 @@ public class UserTab extends Fragment {
             ctx = view.getContext();
             height = 600;
             width = 600;
+        }
+        if(searchtab){
+            ctx = view.getContext();
         }
 
 
@@ -683,7 +686,7 @@ public class UserTab extends Fragment {
             ImageLoader imgloader = ImageLoader.getInstance();
             DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                     .showStubImage(R.drawable.baseline_album_24).cacheInMemory(true).build();
-            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
+            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(ctx).defaultDisplayImageOptions(defaultOptions).build();
             ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
             imgloader.loadImage(album.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
                 @Override
@@ -742,10 +745,9 @@ public class UserTab extends Fragment {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
-                    if(!listentab){
+                    if(!listentab && !searchtab){
                         toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
                     }
-
                 }
             });
 
@@ -838,31 +840,36 @@ public class UserTab extends Fragment {
                 .showStubImage(R.drawable.baseline_album_24).build();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(ctx).defaultDisplayImageOptions(defaultOptions).build();
         ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
-        imgloader.loadImage(artist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                popupArtistImage.setImageBitmap(loadedImage);
+        try{
+            imgloader.loadImage(artist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    popupArtistImage.setImageBitmap(loadedImage);
 
-                Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
-                Palette.Swatch vibrant;
-                try {
-                    vibrant = p.getVibrantSwatch();
-                    popupArtistBG.setBackgroundColor(vibrant.getRgb());
-                    popupArtistName.setTextColor(vibrant.getTitleTextColor());
-                  //  popupGenreText.setTextColor(vibrant.getTitleTextColor());
-                    popupArtistInfo.setTextColor(vibrant.getBodyTextColor());
-                    popupArtistInfo2.setTextColor(vibrant.getBodyTextColor());
-                } catch(NullPointerException e) {
-                    vibrant = p.getDominantSwatch();
-                    popupArtistBG.setBackgroundColor(vibrant.getRgb());
-                    popupArtistName.setTextColor(vibrant.getTitleTextColor());
-                  //  popupGenreText.setTextColor(vibrant.getTitleTextColor());
-                    popupArtistInfo.setTextColor(vibrant.getBodyTextColor());
-                    popupArtistInfo2.setTextColor(vibrant.getBodyTextColor());
+                    Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
+                    Palette.Swatch vibrant;
+                    try {
+                        vibrant = p.getVibrantSwatch();
+                        popupArtistBG.setBackgroundColor(vibrant.getRgb());
+                        popupArtistName.setTextColor(vibrant.getTitleTextColor());
+                        //  popupGenreText.setTextColor(vibrant.getTitleTextColor());
+                        popupArtistInfo.setTextColor(vibrant.getBodyTextColor());
+                        popupArtistInfo2.setTextColor(vibrant.getBodyTextColor());
+                    } catch(NullPointerException e) {
+                        vibrant = p.getDominantSwatch();
+                        popupArtistBG.setBackgroundColor(vibrant.getRgb());
+                        popupArtistName.setTextColor(vibrant.getTitleTextColor());
+                        //  popupGenreText.setTextColor(vibrant.getTitleTextColor());
+                        popupArtistInfo.setTextColor(vibrant.getBodyTextColor());
+                        popupArtistInfo2.setTextColor(vibrant.getBodyTextColor());
+                    }
+
                 }
+            });
+        } catch (IndexOutOfBoundsException ioe) {
+            
+        }
 
-            }
-        });
 
         // Get similar artists
         final TopArtistsGridAdapter similaradapter = new TopArtistsGridAdapter(ctx, new ArrayList<Artist>());
@@ -952,7 +959,7 @@ public class UserTab extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Album a = albumadapter.getItem(i);
-                AlbumPopup(a, view, true, false, 0);
+                AlbumPopup(a, view, true, false, false, 0);
             }
         });
         gridPopupArtistAlbums.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {

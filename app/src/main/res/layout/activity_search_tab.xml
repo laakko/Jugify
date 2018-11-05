@@ -15,8 +15,11 @@
             android:id="@+id/textView17"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/eczar"
             android:text="Results:"
-            android:textAlignment="center" />
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <ListView
             android:id="@+id/listResults"
@@ -39,6 +42,8 @@
             android:id="@+id/searchView"
             android:gravity="bottom"
             android:layout_gravity="bottom"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>

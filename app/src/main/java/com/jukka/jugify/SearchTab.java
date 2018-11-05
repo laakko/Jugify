@@ -1,5 +1,6 @@
 package com.jukka.jugify;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v4.app.Fragment;
@@ -36,6 +37,7 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+import static android.content.Context.SEARCH_SERVICE;
 import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 import static com.jukka.jugify.MainActivity.spotify;
 
@@ -44,28 +46,34 @@ public class SearchTab extends Fragment {
     String chosen_tab;
     ArrayList<String> names;
     ArrayList<String> ids;
+    ArrayList<Artist> artists;
+    ArrayList<AlbumSimple> albums;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_search_tab, container, false);
 
-
         final UserTab usertab = new UserTab();
         final SearchView search = (SearchView) view.findViewById(R.id.searchView);
         ListView listResults = (ListView) view.findViewById(R.id.listResults);
         final NavigationTabStrip datatimeline = view.findViewById(R.id.searchFilter);
-        datatimeline.setTitles("Artists", "Albums", "Tracks", "Playlists");
+        datatimeline.setTitles("Artists", "Albums", "Tracks");
         datatimeline.setAnimationDuration(50);
         datatimeline.setTabIndex(0);
         chosen_tab = "artists";
 
+        final SearchManager searchManager = (SearchManager) view.getContext().getSystemService(SEARCH_SERVICE);
         search.setIconifiedByDefault(false);
         search.setQueryHint("Search for " + chosen_tab);
+        search.setFocusable(true);
+        search.requestFocusFromTouch();
 
 
 
         names = new ArrayList<String>();
         ids = new ArrayList<String>();
+        artists = new ArrayList<Artist>();
+        albums = new ArrayList<AlbumSimple>();
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, names);
 
         datatimeline.setOnTabStripSelectedIndexListener(new NavigationTabStrip.OnTabStripSelectedIndexListener() {
@@ -80,10 +88,6 @@ public class SearchTab extends Fragment {
                 } else if(index == 2) {
                     chosen_tab = "tracks";
                     search.setQueryHint("Search for " + chosen_tab);
-                } else if(index == 3) {
-                    chosen_tab = "playlists";
-                    search.setQueryHint("Search for " + chosen_tab);
-
                 }
             }
 
@@ -101,6 +105,8 @@ public class SearchTab extends Fragment {
 
                 names.clear();
                 ids.clear();
+                artists.clear();
+                albums.clear();
                 adapter.notifyDataSetChanged();
                 spotifySearch(s, chosen_tab, adapter);
 
@@ -113,6 +119,8 @@ public class SearchTab extends Fragment {
 
                 names.clear();
                 ids.clear();
+                artists.clear();
+                albums.clear();
                 adapter.notifyDataSetChanged();
                 spotifySearch(s, chosen_tab, adapter);
 
@@ -121,17 +129,27 @@ public class SearchTab extends Fragment {
             }
         });
 
-
-
         listResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(AdapterView<?> adapterView, final View view, int i, long l) {
                 if(chosen_tab == "tracks") {
                     mSpotifyAppRemote.getPlayerApi().play(ids.get(i));
                     toast("Now playing: "+ adapter.getItem(i), R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
                 }
-                if(chosen_tab == "albums") {
-                   // usertab.AlbumPopup(ids.get(i), false, false, 0);
+                else if(chosen_tab == "albums") {
+
+                    spotify.getAlbum(albums.get(i).id, new Callback<Album>() {
+                        @Override
+                        public void success(Album album, Response response) {
+                            usertab.AlbumPopup(album, view, true, false, true, 0);
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                        }
+                    });
+                } else if(chosen_tab == "artists") {
+                    usertab.ArtistPopup(artists.get(i), view, true);
                 }
             }
         });
@@ -153,10 +171,10 @@ public class SearchTab extends Fragment {
                 @Override
                 public void success(ArtistsPager artistsPager, Response response) {
                     names.clear();
-                    ids.clear();
+                    artists.clear();
                     for(Artist a : artistsPager.artists.items) {
                         names.add(a.name);
-                        ids.add(a.id);
+                        artists.add(a);
                     }
                     adapter.notifyDataSetChanged();
                 }
@@ -169,14 +187,15 @@ public class SearchTab extends Fragment {
 
         } else if(type == "albums") {
 
+
             spotify.searchAlbums(query, options, new Callback<AlbumsPager>() {
                 @Override
                 public void success(AlbumsPager albumsPager, Response response) {
                     names.clear();
-                    ids.clear();
+                    albums.clear();
                     for(AlbumSimple a : albumsPager.albums.items) {
                         names.add(a.name);
-                        ids.add(a.id);
+                        albums.add(a);
                     }
                     adapter.notifyDataSetChanged();
                 }
@@ -195,7 +214,6 @@ public class SearchTab extends Fragment {
                     names.clear();
                     ids.clear();
                     for(Track t : tracksPager.tracks.items) {
-
                         names.add(t.name + " - " + t.artists.get(0).name);
                         ids.add(t.uri);
                     }
@@ -209,27 +227,7 @@ public class SearchTab extends Fragment {
                 }
             });
 
-        } else if(type == "playlists") {
-            spotify.searchPlaylists(query, options, new Callback<PlaylistsPager>() {
-                @Override
-                public void success(PlaylistsPager playlistsPager, Response response) {
-                    names.clear();
-                    ids.clear();
-                    for(PlaylistSimple p : playlistsPager.playlists.items) {
-                        names.add(p.name);
-                    }
-                    adapter.notifyDataSetChanged();
-                }
-
-                @Override
-                public void failure(RetrofitError error) {
-
-                }
-            });
-
         }
-
-
 
     }
 

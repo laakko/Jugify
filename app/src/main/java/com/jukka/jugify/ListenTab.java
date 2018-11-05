@@ -264,7 +264,7 @@ public class ListenTab extends Fragment {
                             @Override
                             public void onClick(View view) {
                                 UserTab usertab = new UserTab();
-                                usertab.AlbumPopup(nowPlayingAlbum , getView(), false, true, (850+scrollview.getScrollY()));
+                                usertab.AlbumPopup(nowPlayingAlbum , getView(), false, true, false, (850+scrollview.getScrollY()));
                             }
                         });
 
