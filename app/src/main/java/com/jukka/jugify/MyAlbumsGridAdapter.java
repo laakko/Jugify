@@ -16,6 +16,9 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 import kaaes.spotify.webapi.android.models.SavedAlbum;
 
 public class MyAlbumsGridAdapter extends ArrayAdapter<SavedAlbum> {
@@ -38,6 +41,13 @@ public class MyAlbumsGridAdapter extends ArrayAdapter<SavedAlbum> {
 
 
         SavedAlbum sa = albumslist.get(position);
+        Collections.sort(albumslist, new Comparator<SavedAlbum>() {
+            @Override
+            public int compare(SavedAlbum savedAlbum, SavedAlbum t1) {
+                return savedAlbum.album.name.compareTo(t1.album.name);
+            }
+        });
+
         ImageView albumImage = listItem.findViewById(R.id.imgArtist);
         TextView albumName = listItem.findViewById(R.id.txtArtistName);
         //String aname = sa.album.name + "\n" + sa.album.artists.get(0).name;
