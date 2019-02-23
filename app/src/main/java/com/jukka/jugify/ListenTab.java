@@ -287,7 +287,7 @@ public class ListenTab extends Fragment {
                         playlistAdd.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                addToPlaylist(track, view);
+                                addToPlaylist(track, view, atoken);
                             }
                         });
 
@@ -298,8 +298,6 @@ public class ListenTab extends Fragment {
                 }
 
             });
-
-
 
 
             // Play/Pause, Skip, Prev and shuffle buttons
@@ -465,8 +463,8 @@ public class ListenTab extends Fragment {
     }
 
 
-    public void addToPlaylist(final Track song, View view) {
-        PopupWindow playlistpopup;
+    public void addToPlaylist(final Track song, View view, final String token) {
+        final PopupWindow playlistpopup;
 
         LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.popup_addtoplaylist,
@@ -497,20 +495,46 @@ public class ListenTab extends Fragment {
                 gridPopupPlaylists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        final Map<String, Object> options = new HashMap<>();
-                        options.put("uris", song.uri);
-                        cm.toast("Playlist adding not yet implemented", R.drawable.ic_playlist_add_black_36dp, R.color.colorAccent, view.getContext());
+
+
+                        String url = "https://api.spotify.com/v1/playlists/" + pladapter.getItem(i).id + "/tracks?uris=" + song.uri;
+                        Log.d("URLPERK", url);
+                        RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                                (Request.Method.POST, url, null, new com.android.volley.Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+
+
+                                    }
+                                }, new com.android.volley.Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                    }
+                                })
+                        {
+                            @Override
+                            public Map getHeaders() throws AuthFailureError {
+                                HashMap headers = new HashMap();
+                                headers.put("Authorization", "Bearer " + token);
+                                return headers;
+                            }
+                        };
+
+
+                        queue.add(jsonObjectRequest);
+                        cm.toast(song.name + " added to " + pladapter.getItem(i).name, R.drawable.ic_playlist_add_black_36dp, R.color.colorAccent, view.getContext());
+                        playlistpopup.dismiss();
+
                     }
                 });
 
-
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("My playlists failure", error.toString());
-            }
-        });
+                }
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("My playlists failure", error.toString());
+                }
+            });
 
     }
 

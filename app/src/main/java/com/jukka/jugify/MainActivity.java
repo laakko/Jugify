@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.getInstance().init(config);
 
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming", "user-top-read", "user-read-currently-playing", "user-library-read", "user-modify-playback-state", "user-read-playback-state", "app-remote-control", "playlist-read-private", "playlist-read-collaborative"});
+        builder.setScopes(new String[]{"user-read-private", "streaming", "user-top-read", "user-read-currently-playing", "user-library-read", "user-modify-playback-state", "user-read-playback-state", "app-remote-control", "playlist-read-private", "playlist-modify-public", "playlist-modify-private", "playlist-read-collaborative"});
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
