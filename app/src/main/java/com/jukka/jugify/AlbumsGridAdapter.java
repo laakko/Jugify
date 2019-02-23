@@ -37,7 +37,7 @@ public class AlbumsGridAdapter extends ArrayAdapter<Album> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View listItem = convertView;
         if (listItem == null)
-            listItem = LayoutInflater.from(mContext).inflate(R.layout.layout_top_artists, parent, false);
+            listItem = LayoutInflater.from(mContext).inflate(R.layout.layout_my_albums, parent, false);
 
 
         Album album = albumslist.get(position);

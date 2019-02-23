@@ -1,15 +1,27 @@
 package com.jukka.jugify;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -20,102 +32,227 @@ import com.androidbuts.multispinnerfilter.MultiSpinnerListener;
 import com.androidbuts.multispinnerfilter.MultiSpinnerSearch;
 import com.androidbuts.multispinnerfilter.SpinnerListener;
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
+import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
+import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Recommendations;
+import kaaes.spotify.webapi.android.models.SavedAlbum;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackSimple;
+import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 import static android.content.ContentValues.TAG;
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 import static com.jukka.jugify.MainActivity.spotify;
 import static com.jukka.jugify.MainActivity.userAuthd;
 
 
+
+
+
 public class ExploreTab extends Fragment {
 
-    public String top5artists_short;
-    public String top5artists_long;
-    public String top5tracks_long;
-    public String top5tracks_short;
-    public boolean top5artists_gotten = false;
-    public boolean top5tracks_gotten = false;
-    String seed_genres = "";
+    public static boolean myplaylists_gotten = false;
+    public static boolean myalbums_gotten = false;
+    public String userid;
+    public static MyPlaylistsGridAdapter padapter;
+    public static MyAlbumsGridAdapter albadapter;
+    public ArrayList<PlaylistSimple> myplaylistslist = new ArrayList<>();
+    public ArrayList<SavedAlbum> myalbumslist = new ArrayList<>();
+    private PopupWindow popup;
+    private PopupWindow pinnedartistsPopup;
+    Common cm = new Common();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_explore_tab, container, false);
-
-        GridView gridRecommendations = (GridView) view.findViewById(R.id.gridRecommendations);
-        TextView debug = (TextView) view.findViewById(R.id.debugTextView);
-
-        MultiSpinnerSearch searchSpinner = (MultiSpinnerSearch) view.findViewById(R.id.genreSpinner);
+        final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
+        final GridView gridAlbums = (GridView) view.findViewById(R.id.gridAlbums);
+        ImageButton btnAbout = (ImageButton) view.findViewById(R.id.btnAbout);
+        ImageButton btnPinnedArtists = (ImageButton) view.findViewById(R.id.btnPinnedArtists);
 
         if(userAuthd) {
 
-
-            // Recommendations
-            if(!top5tracks_gotten) {
-                getTop5Tracks();
-
-            }
-
-            getRecommendations(getTop5Artists());
-
-
-            if(top5tracks_gotten) {
-                debug.setText(top5artists_short);
-            }
-
-
-
-
-
-
-
-            // Custom Exploration
-            final Map<String, Object> customExploreOptions = new HashMap<>();
-
-            // Genre multispinner
-            String[] genreseeds = getGenreSeeds();
-            final List<KeyPairBoolData> listArray = new ArrayList<KeyPairBoolData>();
-            for(int i=0; i<genreseeds.length; i++) {
-                KeyPairBoolData h = new KeyPairBoolData();
-                h.setId(i+1);
-                h.setName(genreseeds[i]);
-                h.setSelected(false);
-                listArray.add(h);
-            }
-
-            searchSpinner.setItems(listArray, -1, new SpinnerListener() {
+            spotify.getMe(new Callback<UserPrivate>() {
                 @Override
-                public void onItemsSelected(List<KeyPairBoolData> items) {
+                public void success(UserPrivate user, Response response) {
+                    userid = user.id;
+                }
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("User failure", error.toString());
+                }
+            });
 
-                    seed_genres = "";
-                    for (int i = 0; i < items.size(); i++) {
-                        if (items.get(i).isSelected()) {
-                            seed_genres += items.get(i).getName() + ",";
+            if(!myplaylists_gotten){
+                padapter = new MyPlaylistsGridAdapter(getContext().getApplicationContext(), myplaylistslist);
+                MyPlaylists(padapter, gridPlaylists);
+            } else {
+                gridPlaylists.setAdapter(padapter);
+                cm.expandGridView(gridPlaylists, 2);
+            }
+
+            gridPlaylists.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    // Play the clicked playlist
+                    mSpotifyAppRemote.getPlayerApi().play(padapter.getItem(i).uri);
+                    cm.toast("Now playing: "+padapter.getItem(i).name, R.drawable.ic_playlist_play_black_36dp, Color.BLACK, getContext());
+                    return true;
+                }
+            });
+
+            gridPlaylists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                    LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+                    View layout = inflater.inflate(R.layout.popup_album,
+                            (ViewGroup) view.findViewById(R.id.tab_layout_2));
+
+                    popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
+                    popup.showAtLocation(layout, Gravity.TOP, 0, 0);
+
+                    // SavedAlbum popupAlbum = padapter.getItem(i);
+                    PlaylistSimple playlist = padapter.getItem(i);
+
+                    final String popupPlaylistInfo = playlist.name + "\n by " + playlist.owner.id;
+
+                    final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
+                    final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
+                    final TextView popupalbumname = layout.findViewById(R.id.txtPopupAlbumName);
+                    popupalbumname.setText(popupPlaylistInfo);
+                    final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
+                    popupinfo.setText(playlist.tracks.total + " tracks");
+
+                    final ListView popuplist = layout.findViewById(R.id.listPopupTracks);
+                    ImageLoader imgloader = ImageLoader.getInstance();
+
+                    DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                            .showStubImage(R.drawable.baseline_album_24).cacheOnDisk(true).build();
+                    ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
+                    ImageSize targetSize = new ImageSize(200, 200); // result Bitmap will be fit to this size
+                    imgloader.loadImage(playlist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
+                        @Override
+                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            popupImg.setImageBitmap(loadedImage);
+
+                            Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
+                            Palette.Swatch vibrant;
+                            try {
+                                vibrant = p.getVibrantSwatch();
+                                popupbg.setBackgroundColor(vibrant.getRgb());
+                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                                popupinfo.setTextColor(vibrant.getBodyTextColor());
+                            } catch (NullPointerException e) {
+                                vibrant = p.getDominantSwatch();
+                                popupbg.setBackgroundColor(vibrant.getRgb());
+                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                                popupinfo.setTextColor(vibrant.getBodyTextColor());
+                            }
+
+
                         }
-                    }
 
-                    seed_genres = seed_genres.substring(0, seed_genres.length()-1);
-                    customExploreOptions.put("seed_genres", seed_genres);
+                    });
+
+                    final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>(), true);
+                    popuptrackadapter.clear();
+
+                    spotify.getPlaylistTracks(userid, playlist.id, new Callback<Pager<PlaylistTrack>>() {
+                        @Override
+                        public void success(Pager<PlaylistTrack> pager, Response response) {
+
+
+                            for(PlaylistTrack p : pager.items){
+                                popuptrackadapter.add(p.track);
+                            }
+
+                            myplaylists_gotten = true;
+                            popuplist.setAdapter(popuptrackadapter);
+                            popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                    mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
+                                    cm.toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.d("My playlists failure", error.toString());
+                        }
+                    });
+
 
                 }
             });
-            searchSpinner.setLimit(5, new MultiSpinnerSearch.LimitExceedListener() {
+
+            final Map<String, Object> optionsAlbum = new HashMap<>();
+            optionsAlbum.put("limit", "50");
+
+            if(!myalbums_gotten){
+                albadapter = new MyAlbumsGridAdapter(getContext().getApplicationContext(), myalbumslist);
+                MyAlbums(optionsAlbum, albadapter, gridAlbums);
+            } else {
+                gridAlbums.setAdapter(albadapter);
+                cm.expandGridView(gridAlbums, 2);
+            }
+
+            gridAlbums.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
-                public void onLimitListener(KeyPairBoolData data) {
-                    Toast.makeText(getContext(),
-                            "Limit exceed ", Toast.LENGTH_LONG).show();
+                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    // Play the clicked album
+                    mSpotifyAppRemote.getPlayerApi().play(albadapter.getItem(i).album.uri);
+                    cm.toast("Now playing: "+albadapter.getItem(i).album.name, R.drawable.baseline_album_24, Color.BLACK, getContext());
+
+                    return true;
+                }
+            });
+
+            gridAlbums.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                    Album popupalbum = albadapter.getItem(i).album;
+                    cm.AlbumPopup(popupalbum, getContext(), view, false, false, false, 0);
+
+                }
+            });
+
+
+            btnAbout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AboutPopup(view);
+                }
+            });
+
+            btnPinnedArtists.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PinnedArtistsPopup(view);
                 }
             });
 
@@ -124,246 +261,114 @@ public class ExploreTab extends Fragment {
     }
 
 
-    public ArrayList<Track> getRecommendations(String seeds) {
-        final Map<String, Object> options = new HashMap<>();
-        options.put("seed_artists", seeds);
-        final ArrayList<Track> trackslist = new ArrayList<Track>();
+    public void MyPlaylists(final MyPlaylistsGridAdapter adapter, final GridView grid) {
 
-        spotify.getRecommendations(options, new Callback<Recommendations>() {
+        spotify.getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
             @Override
-            public void success(Recommendations recommendations, Response response) {
-                for(Track track : recommendations.tracks){
-                    trackslist.add(track);
+            public void success(Pager<PlaylistSimple> pager, Response response) {
+
+                adapter.clear();
+                for(PlaylistSimple p : pager.items){
+                    adapter.add(p);
                 }
+
+                myplaylists_gotten = true;
+                grid.setAdapter(adapter);
+                cm.expandGridView(grid, 2);
             }
 
             @Override
             public void failure(RetrofitError error) {
-
+                Log.d("My playlists failure", error.toString());
             }
         });
-        return trackslist;
     }
 
-    public String getTop5Artists() {
-        Map<String, Object> options = new HashMap<>();
-        options.put("limit", "5");
-        options.put("time_range", "short_term");
+    public void MyAlbums(Map<String, Object> options, final MyAlbumsGridAdapter adapter, final GridView grid) {
 
-        Map<String, Object> options2 = new HashMap<>();
-        options2.put("limit", "5");
-        options2.put("time_range", "long_term");
-
-
-
-        spotify.getTopArtists(options, new Callback<Pager<Artist>>() {
+        spotify.getMySavedAlbums(options, new Callback<Pager<SavedAlbum>>() {
             @Override
-            public void success(Pager<Artist> artistPager, Response response) {
-                top5artists_short = "";
-                for(Artist a: artistPager.items) {
-                    top5artists_short += a.id + ",";
+            public void success(Pager<SavedAlbum> savedAlbumPager, Response response) {
+
+                adapter.clear();
+                for(SavedAlbum sa : savedAlbumPager.items){
+                    adapter.add(sa);
                 }
+
+                myalbums_gotten = true;
+                grid.setAdapter(adapter);
+                cm.expandGridView(grid, 2);
+
             }
+
+
 
             @Override
             public void failure(RetrofitError error) {
-
+                Log.d("My albums failure", error.toString());
             }
         });
+    }
 
-        spotify.getTopArtists(options2, new Callback<Pager<Artist>>() {
-            @Override
-            public void success(Pager<Artist> artistPager, Response response) {
-                top5artists_long = "";
-                for(Artist a: artistPager.items) {
-                    top5artists_long += a.id + ",";
-                }
+    public void PinnedArtistsPopup(View view) {
+
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.popup_pinnedartists,
+                (ViewGroup) view.findViewById(R.id.tab_layout_2));
+
+        pinnedartistsPopup = new PopupWindow(layout, MATCH_PARENT, 600, true);
+        pinnedartistsPopup.showAtLocation(layout, Gravity.BOTTOM, 0, 0);
+
+        TextView pinnedTemp = layout.findViewById(R.id.tempPinned);
+        ListView listPinnedArtists = layout.findViewById(R.id.listPinnedArtists);
+
+        String artistString = FileService.readFile(getContext(), "artistlist.txt");
+        final String[] artistListTemp = artistString.split("-");
+
+
+        ArrayAdapter adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1);
+        try{
+            for(String artist : artistListTemp) {
+                adapter.add(artist.split("\\.")[1]);
             }
+        } catch(ArrayIndexOutOfBoundsException aio) {
 
+        }
+
+
+
+        listPinnedArtists.setAdapter(adapter);
+
+        listPinnedArtists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void failure(RetrofitError error) {
+            public void onItemClick(AdapterView<?> adapterView, final View view, int i, long l) {
+
+                spotify.getArtist(artistListTemp[i].split("\\.")[0].trim(), new Callback<Artist>() {
+                    @Override
+                    public void success(Artist artist, Response response) {
+                        cm.ArtistPopup(artist, view, false, getContext());
+                        pinnedartistsPopup.dismiss();
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.d("Pinned artist fail", error.toString());
+                    }
+                });
             }
         });
-
-        top5artists_gotten = true;
-        return top5artists_short;
 
     }
 
-    public void getTop5Tracks() {
-        Map<String, Object> options = new HashMap<>();
-        options.put("limit", "5");
-        options.put("time_range", "short_term");
+    public void AboutPopup(View view) {
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.popup_about,
+                (ViewGroup) view.findViewById(R.id.tab_layout_2));
 
-        Map<String, Object> options2 = new HashMap<>();
-        options2.put("limit", "5");
-        options2.put("time_range", "long_term");
-
-        spotify.getTopTracks(options, new Callback<Pager<Track>>() {
-            @Override
-            public void success(Pager<Track> trackPager, Response response) {
-                top5tracks_short = "";
-                for(Track t : trackPager.items) {
-                    top5tracks_short += t.id + ",";
-                }
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
-
-        spotify.getTopTracks(options2, new Callback<Pager<Track>>() {
-            @Override
-            public void success(Pager<Track> trackPager, Response response) {
-                top5tracks_long = "";
-                for(Track t : trackPager.items) {
-                    top5tracks_long += t.id + ",";
-                }
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
-
-        top5tracks_gotten = true;
+        popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
+        popup.showAtLocation(layout, Gravity.TOP, 0, 0);
     }
 
-    public String[] getGenreSeeds(){
-
-        String[] genreSeeds =   {
-                "acoustic",
-                "afrobeat",
-                "alt-rock",
-                "alternative",
-                "ambient",
-                "anime",
-                "black-metal",
-                "bluegrass",
-                "blues",
-                "bossanova",
-                "brazil",
-                "breakbeat",
-                "british",
-                "cantopop",
-                "chicago-house",
-                "children",
-                "chill",
-                "classical",
-                "club",
-                "comedy",
-                "country",
-                "dance",
-                "dancehall",
-                "death-metal",
-                "deep-house",
-                "detroit-techno",
-                "disco",
-                "disney",
-                "drum-and-bass",
-                "dub",
-                "dubstep",
-                "edm",
-                "electro",
-                "electronic",
-                "emo",
-                "folk",
-                "forro",
-                "french",
-                "funk",
-                "garage",
-                "german",
-                "gospel",
-                "goth",
-                "grindcore",
-                "groove",
-                "grunge",
-                "guitar",
-                "happy",
-                "hard-rock",
-                "hardcore",
-                "hardstyle",
-                "heavy-metal",
-                "hip-hop",
-                "holidays",
-                "honky-tonk",
-                "house",
-                "idm",
-                "indian",
-                "indie",
-                "indie-pop",
-                "industrial",
-                "iranian",
-                "j-dance",
-                "j-idol",
-                "j-pop",
-                "j-rock",
-                "jazz",
-                "k-pop",
-                "kids",
-                "latin",
-                "latino",
-                "malay",
-                "mandopop",
-                "metal",
-                "metal-misc",
-                "metalcore",
-                "minimal-techno",
-                "movies",
-                "mpb",
-                "new-age",
-                "new-release",
-                "opera",
-                "pagode",
-                "party",
-                "philippines-opm",
-                "piano",
-                "pop",
-                "pop-film",
-                "post-dubstep",
-                "power-pop",
-                "progressive-house",
-                "psych-rock",
-                "punk",
-                "punk-rock",
-                "r-n-b",
-                "rainy-day",
-                "reggae",
-                "reggaeton",
-                "road-trip",
-                "rock",
-                "rock-n-roll",
-                "rockabilly",
-                "romance",
-                "sad",
-                "salsa",
-                "samba",
-                "sertanejo",
-                "show-tunes",
-                "singer-songwriter",
-                "ska",
-                "sleep",
-                "songwriter",
-                "soul",
-                "soundtracks",
-                "spanish",
-                "study",
-                "summer",
-                "swedish",
-                "synth-pop",
-                "tango",
-                "techno",
-                "trance",
-                "trip-hop",
-                "turkish",
-                "work-out",
-                "world-music"   };
-
-        return genreSeeds;
-    }
 
 }
 

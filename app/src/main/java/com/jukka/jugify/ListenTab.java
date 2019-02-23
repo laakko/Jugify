@@ -27,7 +27,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -57,8 +59,11 @@ import com.spotify.protocol.types.Track;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -96,7 +101,7 @@ public class ListenTab extends Fragment {
     ImageButton skip;
     ImageButton prev;
     ImageButton shuffle;
-    ImageButton eq;
+    ImageButton playlistAdd;
     Boolean isplaying = false;
     Boolean shuffling = false;
     Float instrumental;
@@ -115,6 +120,7 @@ public class ListenTab extends Fragment {
     TextView txtpopularity,txtvalence,txtdance, txtenergy;
     private PopupWindow EQpopup;
     Album nowPlayingAlbum;
+    Common cm = new Common();
 
 
     @Override
@@ -150,7 +156,7 @@ public class ListenTab extends Fragment {
         txtvalence = (TextView) view.findViewById(R.id.txtValence);
         txtenergy = (TextView) view.findViewById(R.id.txtEnergy);
         txtdance = (TextView) view.findViewById(R.id.txtDanceability);
-        eq = (ImageButton) view.findViewById(R.id.btnEQ);
+        playlistAdd = (ImageButton) view.findViewById(R.id.btnPlaylistAdd);
         final UserTab userTab = new UserTab();
 
         final ScrollView scrollview = (ScrollView) view.findViewById(R.id.scrollview);
@@ -206,6 +212,7 @@ public class ListenTab extends Fragment {
                         trackArtist = track.artist.name;
                         txtNowPlaying.setText(trackName);
                         txtNowArtist.setText(trackArtist);
+
                         //txtNowArtist.setTextColor(Color.GRAY);
                         txtTitle.setText(track.name + "\n by " + track.artist.name);
                         String duration = String.format("%d:%d",
@@ -250,8 +257,7 @@ public class ListenTab extends Fragment {
                                 spotify.getArtist(track.artist.uri.substring(15), new Callback<Artist>() {
                                     @Override
                                     public void success(Artist artist, Response response) {
-
-                                        userTab.ArtistPopup(artist, getView(), true);
+                                        cm.ArtistPopup(artist, getView(), true, getView().getContext());
                                     }
                                     @Override
                                     public void failure(RetrofitError error) {
@@ -263,8 +269,16 @@ public class ListenTab extends Fragment {
                         imageNowPlayingBig.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                UserTab usertab = new UserTab();
-                                usertab.AlbumPopup(nowPlayingAlbum , getView(), false, true, false, (850+scrollview.getScrollY()));
+                                cm.AlbumPopup(nowPlayingAlbum , view.getContext(), getView(), false, true, false, (850+scrollview.getScrollY()));
+                            }
+                        });
+
+
+
+                        playlistAdd.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                addToPlaylist(track, view);
                             }
                         });
 
@@ -276,44 +290,6 @@ public class ListenTab extends Fragment {
 
             });
 
-
-
-
-
-            // EQ Button
-            eq.setOnClickListener(new View.OnClickListener() {
-
-
-
-                @Override
-                public void onClick(View view) {
-
-                    // TODO Open some EQ App / play store link
-
-                    /* Didn' work, no effect from built-in EQ
-                    Intent intent = new Intent(AudioEffect
-                            .ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
-
-
-                    intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, getActivity().getPackageName());
-                    intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION, audioSessionId);
-                    intent.putExtra(AudioEffect.EXTRA_CONTENT_TYPE, CONTENT_TYPE_MUSIC);
-
-                    Equalizer equalizer = new Equalizer(0,audioSessionId);
-                    equalizer.setEnabled(true);
-
-
-
-                    if ((intent.resolveActivity(getContext().getPackageManager()) != null)) {
-                        getActivity().startActivityForResult(intent, 11145);
-                    } else {
-                        // No equalizer found :(
-                    }
-                    */
-
-
-                }
-            });
 
 
 
@@ -356,6 +332,7 @@ public class ListenTab extends Fragment {
 
                 }
             });
+
 
         }
         return view;
@@ -444,15 +421,13 @@ public class ListenTab extends Fragment {
     public void lyricsApi(String url) {
 
         // API: https://lyricsovh.docs.apiary.io
-        if(instrumental > 0.8) {
-            lyrics.setText("This track is instrumental!");
-        } else {
-            RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
+        RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
                             try{
+                                Log.d("RESPONSSISSA", "OLLAAN");
                                 String txtlyrics = response.getString("lyrics");
                                 lyrics.setText("\n" + txtlyrics + "\n");
                             } catch(JSONException je) {
@@ -463,15 +438,64 @@ public class ListenTab extends Fragment {
                     }, new com.android.volley.Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            lyrics.setText("Lyrics not found for the song :( \n Check back later");
+                            lyrics.setText(" There are no lyrics for this track yet \n (or it's instrumental) \n ");
 
                         }
                     });
 
             queue.add(jsonObjectRequest);
-        }
+    }
+
+
+    public void addToPlaylist(final Track song, View view) {
+        PopupWindow playlistpopup;
+
+        LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.popup_addtoplaylist,
+                (ViewGroup) view.findViewById(R.id.tab_layout_2));
+
+        playlistpopup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
+        playlistpopup.showAtLocation(layout, Gravity.TOP, 0, 0);
+
+        final MyPlaylistsGridAdapter pladapter;
+        final ArrayList<PlaylistSimple> myplaylistslist = new ArrayList<>();
+
+        final GridView gridPopupPlaylists = (GridView) layout.findViewById(R.id.gridPopupPlaylists);
+
+        pladapter = new MyPlaylistsGridAdapter(getContext().getApplicationContext(), myplaylistslist);
+
+        spotify.getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
+            @Override
+            public void success(Pager<PlaylistSimple> pager, Response response) {
+
+                pladapter.clear();
+                for(PlaylistSimple p : pager.items){
+                    pladapter.add(p);
+                }
+
+                gridPopupPlaylists.setAdapter(pladapter);
+
+                // Add songs to playlist
+                gridPopupPlaylists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        final Map<String, Object> options = new HashMap<>();
+                        options.put("uris", song.uri);
+                        cm.toast("Playlist adding not yet implemented", R.drawable.ic_playlist_add_black_36dp, R.color.colorAccent, view.getContext());
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("My playlists failure", error.toString());
+            }
+        });
 
     }
+
 
     private class TrackProgressBar {
 

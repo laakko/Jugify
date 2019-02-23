@@ -50,12 +50,12 @@ public class SearchTab extends Fragment {
     ArrayList<String> ids;
     ArrayList<Artist> artists;
     ArrayList<AlbumSimple> albums;
+    Common cm = new Common();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_search_tab, container, false);
 
-        final UserTab usertab = new UserTab();
         final SearchView search = (SearchView) view.findViewById(R.id.searchView);
         ListView listResults = (ListView) view.findViewById(R.id.listResults);
         final NavigationTabStrip datatimeline = view.findViewById(R.id.searchFilter);
@@ -97,6 +97,16 @@ public class SearchTab extends Fragment {
 
 
         listResults.setAdapter(adapter);
+
+        search.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (hasFocus) {
+                    showInputMethod(view.findFocus());
+                }
+            }
+        });
+
 
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -141,7 +151,7 @@ public class SearchTab extends Fragment {
                         @Override
                         public void success(Album album, Response response) {
                             search.clearFocus();
-                            usertab.AlbumPopup(album, view, true, false, true, 0);
+                            cm.AlbumPopup(album, getContext(), view, true, false, true, 0);
                         }
 
                         @Override
@@ -150,11 +160,10 @@ public class SearchTab extends Fragment {
                     });
                 } else if(chosen_tab == "artists") {
                     search.clearFocus();
-                    usertab.ArtistPopup(artists.get(i), view, true);
+                    cm.ArtistPopup(artists.get(i), view, true, getContext());
                 }
             }
         });
-
 
         return view;
     }

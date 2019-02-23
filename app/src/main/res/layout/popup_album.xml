@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,23 +10,23 @@
         android:id="@+id/popupParentLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/colorPrimaryDark">
+        android:background="@color/colorPrimaryDark"
+        android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/popupBG"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/colorAccent">
+            android:background="@color/colorAccent"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/txtPopupAlbumName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:fontFamily="@font/eczar"
                 android:elegantTextHeight="true"
+                android:fontFamily="@font/eczar"
                 android:text="... Hardwired to self-destruct by Metallica"
                 android:textAlignment="center"
                 android:textSize="24sp"
@@ -35,24 +36,33 @@
                 android:id="@+id/txtPopupInfo2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:text="TextView"
-                android:layout_marginBottom="20dp"
                 android:textAlignment="center" />
 
             <ImageView
                 android:id="@+id/imgPopupAlbumImg"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:layout_width="240dp"
+                android:layout_height="240dp"
                 android:layout_gravity="center"
-                android:layout_marginBottom="20dp"
+                android:layout_marginBottom="10dp"
                 app:srcCompat="@drawable/baseline_album_24" />
+
+            <TextView
+                android:id="@+id/txtPopupInfo3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text=""
+                android:textAlignment="center" />
+
         </LinearLayout>
 
         <ListView
-            android:layout_marginTop="40dp"
             android:id="@+id/listPopupTracks"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="40dp" />
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

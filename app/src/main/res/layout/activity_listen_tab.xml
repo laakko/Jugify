@@ -27,6 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:text="Atlas, Rise by Metallica"
+                android:textColor="@color/colorAccent"
                 android:textAlignment="center"
                 android:elegantTextHeight="true"
                 android:textSize="24sp"
@@ -37,17 +38,16 @@
                 android:id="@+id/txtSongInformation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:text="from Hardwired to self destruct, released 2016"
-                android:layout_marginBottom="10dp"/>
+                android:layout_marginBottom="10dp"
+                android:textAlignment="center" />
 
             <ImageView
                 android:id="@+id/imageArtistBig"
-                android:layout_width="224dp"
-                android:layout_height="224dp"
+                android:layout_width="275dp"
+                android:layout_height="275dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
                 android:scaleType="fitXY"
                 app:srcCompat="@drawable/baseline_album_24" />
 
@@ -282,14 +282,14 @@
                     android:orientation="horizontal">
 
                     <ImageButton
-                        android:id="@+id/btnEQ"
+                        android:id="@+id/btnPlaylistAdd"
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:layout_gravity="center_vertical"
                         android:layout_weight="1"
                         android:background="@null"
                         android:tint="@color/colorAccent"
-                        app:srcCompat="@drawable/ic_equalizer_black_36dp" />
+                        app:srcCompat="@drawable/ic_playlist_add_black_36dp" />
 
                     <ImageButton
                         android:id="@+id/btnShuffle"
@@ -320,7 +320,7 @@
                             android:clickable="true"
                             android:foreground="?android:selectableItemBackground"
                             app:fill_color="@color/colorPrimary"
-                            app:pause_bg="@color/colorPrimaryDark"
+                            app:pause_bg="@color/colorAccent"
                             app:play_bg="@color/colorAccent" />
 
                     <ImageButton

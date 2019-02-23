@@ -46,6 +46,8 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
+import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.Pager;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -58,6 +60,8 @@ import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -71,12 +75,12 @@ public class MainActivity extends AppCompatActivity {
     public static String atoken;
     static SpotifyService spotify;
     public static int audioSessionId;
-    public static boolean userAuthd = false;
-    public static boolean updateTabs = true;
+
     public static String trackName;
     public static String trackArtist;
     public static ViewPager viewPager;
     public static ProgressDialog dialog;
+    public static boolean userAuthd = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,14 +102,16 @@ public class MainActivity extends AppCompatActivity {
 
 
         NavigationTabStrip tabLayout2 = findViewById(R.id.tab_layout_2);
-        tabLayout2.setTitles("User", "Listen", "Explore", "Search");
+        tabLayout2.setTitles("Stats", "Listen", "Library", "Search");
         tabLayout2.setAnimationDuration(150);
         tabLayout2.setTypeface(Typeface.DEFAULT_BOLD);
+
+
 
         dialog = new ProgressDialog(this);
         dialog.setMessage("Waiting for Spotify authentication..");
         dialog.setCancelable(false);
-        dialog.setInverseBackgroundForced(false);
+        dialog.setInverseBackgroundForced(true);
         dialog.show();
 
         viewPager = findViewById(R.id.pager);
@@ -118,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
        // tabLayout2.setTabIndex(1, true);
         tabLayout2.setViewPager(viewPager);
 
+
+        /*  ANIMATION
         int ColorFrom = Color.BLACK;
        // int ColorFrom = Color.parseColor("#090335");
 
@@ -143,9 +151,7 @@ public class MainActivity extends AppCompatActivity {
 
             anim.setRepeatMode(ValueAnimator.REVERSE);
             anim.start();
-
-
-
+           */
 
     }
 
@@ -162,12 +168,6 @@ public class MainActivity extends AppCompatActivity {
                 SpotifyApi api = new SpotifyApi();
                 api.setAccessToken(response.getAccessToken());
                 spotify = api.getService();
-
-                //dialog.hide();
-
-
-
-
 
 
                 // Authenticate Spotify App Remote
@@ -186,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 // Spotify auth finished -> close dialog -> update tabs
                                 userAuthd = true;
+
                                 dialog.hide();
 
                                 viewPager.getAdapter().notifyDataSetChanged();
@@ -243,4 +244,11 @@ public class MainActivity extends AppCompatActivity {
         Log.i("Is remote connected?", Boolean.toString(mSpotifyAppRemote.isConnected()));
     }
     */
+
+
+
+
+
+
+
 }

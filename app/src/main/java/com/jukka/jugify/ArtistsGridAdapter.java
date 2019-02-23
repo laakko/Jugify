@@ -16,17 +16,19 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 
 import java.util.ArrayList;
+
+import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.SavedAlbum;
 
-public class MyAlbumsGridAdapter extends ArrayAdapter<SavedAlbum> {
+public class ArtistsGridAdapter extends ArrayAdapter<Artist> {
 
     private Context mContext;
-    private ArrayList<SavedAlbum> albumslist = new ArrayList<SavedAlbum>();
+    private ArrayList<Artist> artistslist = new ArrayList<Artist>();
 
-    public MyAlbumsGridAdapter(@NonNull Context context, ArrayList<SavedAlbum> list) {
+    public ArtistsGridAdapter(@NonNull Context context, ArrayList<Artist> list) {
         super(context, 0, list);
         mContext = context;
-        albumslist = list;
+        artistslist = list;
     }
 
     @NonNull
@@ -36,14 +38,12 @@ public class MyAlbumsGridAdapter extends ArrayAdapter<SavedAlbum> {
         if (listItem == null)
             listItem = LayoutInflater.from(mContext).inflate(R.layout.layout_my_albums, parent, false);
 
-
-        SavedAlbum sa = albumslist.get(position);
+        Artist a = artistslist.get(position);
         ImageView albumImage = listItem.findViewById(R.id.imgArtist);
         TextView albumName = listItem.findViewById(R.id.txtArtistName);
-        //String aname = sa.album.name + "\n" + sa.album.artists.get(0).name;
-        String aname = sa.album.name;
-        albumName.setText(aname);
-        String albumImageUrl = sa.album.images.get(0).url;
+
+        albumName.setText(a.name);
+        String albumImageUrl = a.images.get(0).url;
         ImageLoader imgloader = ImageLoader.getInstance();
         //imgloader.displayImage(albumImageUrl, albumImage, new ImageSize(100,100));
         DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()

@@ -17,6 +17,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import es.dmoral.toasty.Toasty;
 import kaaes.spotify.webapi.android.models.Track;
@@ -46,12 +48,23 @@ public class TracksListAdapter extends ArrayAdapter<TrackSimple> {
 
         final TrackSimple curTrack = trackslist.get(position);
         TextView curTrackName = listItem.findViewById(R.id.txtListTrack);
+        TextView curTrackDuration = listItem.findViewById(R.id.txtListDuration);
+
         curTrackName.setTextColor(Color.LTGRAY);
+        curTrackDuration.setTextColor(Color.DKGRAY);
+
+        String duration = String.format(Locale.US, "%d:%02d",
+                TimeUnit.MILLISECONDS.toMinutes(curTrack.duration_ms),
+                TimeUnit.MILLISECONDS.toSeconds(curTrack.duration_ms) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(curTrack.duration_ms))
+        );
 
         if(trackInfo){
             curTrackName.setText(Html.fromHtml(curTrack.name + "<br/>" +  "<i>" + curTrack.artists.get(0).name + "</i>"));
+            curTrackDuration.setText(duration);
         } else {
             curTrackName.setText(curTrack.name);
+            curTrackDuration.setText(duration);
         }
 
 

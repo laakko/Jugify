@@ -121,13 +121,11 @@
                     android:id="@+id/gridPopupAlbums"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="true"
-                    android:numColumns="4">
+                    android:numColumns="2">
                 </GridView>
 
                 <TextView
                     android:id="@+id/textView111"
-                    android:layout_marginTop="20dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/eczar"
@@ -140,13 +138,11 @@
                     android:id="@+id/gridPopupSingles"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="true"
-                    android:numColumns="4">
+                    android:numColumns="2">
                 </GridView>
 
                 <TextView
                     android:id="@+id/textView22"
-                    android:layout_marginTop="20dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/eczar"
@@ -184,7 +180,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="100dp"
                     android:layout_marginBottom="20dp"
-                    android:numColumns="4">
+                    android:numColumns="2">
                 </GridView>
 
 

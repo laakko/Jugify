@@ -1,6 +1,7 @@
 package com.jukka.jugify;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -36,12 +37,21 @@ public class TopArtistsGridAdapter extends ArrayAdapter<Artist> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View listItem = convertView;
         if (listItem == null)
-            listItem = LayoutInflater.from(mContext).inflate(R.layout.layout_top_artists, parent, false);
+            listItem = LayoutInflater.from(mContext).inflate(R.layout.layout_top_tracks, parent, false);
 
         Artist currentArtist = artistslist.get(position);
-        ImageView currentArtistImage = listItem.findViewById(R.id.imgArtist);
-        TextView currentArtistName = listItem.findViewById(R.id.txtArtistName);
+        ImageView currentArtistImage = listItem.findViewById(R.id.imgTopTrack);
+        TextView currentArtistName = listItem.findViewById(R.id.txtTopTrack);
+        TextView currentArtistInfo = listItem.findViewById(R.id.txtTopTrackInfo);
+        TextView currentArtistRanking = listItem.findViewById(R.id.txtTrackRank);
+
+        currentArtistInfo.setText("Popularity: " + currentArtist.popularity + "/100 ");
+
+        currentArtistInfo.setTextColor(Color.LTGRAY);
+        currentArtistRanking.setText(" #" + Integer.toString(position+1));
         currentArtistName.setText(currentArtist.name);
+        currentArtistName.setTextColor(Color.WHITE);
+
         try{
             String artistImageUrl = currentArtist.images.get(0).url;
             ImageLoader imgloader = ImageLoader.getInstance();

@@ -102,39 +102,35 @@ public class UserTab extends Fragment {
 
     public static boolean topartists_gotten = false;
     public static boolean toptracks_gotten = false;
-    public static boolean myplaylists_gotten = false;
-    public static boolean myalbums_gotten = false;
+
     public static boolean trackinfo_gotten = false;
     public ArrayList<Artist> topartistslist = new ArrayList<Artist>();
     public ArrayList<Track> toptrackslist = new ArrayList<>();
-    public ArrayList<PlaylistSimple> myplaylistslist = new ArrayList<>();
-    public ArrayList<SavedAlbum> myalbumslist = new ArrayList<>();
+
     public static TopArtistsGridAdapter tagadapter;
     public static TopTracksListAdapter trackadapter;
-    public static MyPlaylistsGridAdapter padapter;
-    public static MyAlbumsGridAdapter albadapter;
-    private PopupWindow popup;
-    private PopupWindow pinnedartistsPopup;
-    public String userid;
+
+
+
     public int trackinfoCounter;
-    private float acousticnesAvg, danceabilityAvg, valencyAvg, energyAvg, tempoAvg, instruAvg, popularityAvg;
+    public static boolean targetsGotten = false;
+    public static float acousticnesAvg, danceabilityAvg, valencyAvg, energyAvg, tempoAvg, instruAvg, popularityAvg;
     private int durationAvg, releaseyAvg;
     TextView txtAvgTempo, txtAvgDuration, txtAvgReleaseYear, txtTopGenres;
     ProgressBar AvgValenceBar, AvgEnergyBar, AvgDanceBar, AvgInstruBar, AvgPopularityBar;
     HashMap<String, Double> genreList = new HashMap<String, Double>();
-
+    Common cm = new Common();
+    String topgenres = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.activity_user_tab, container, false);
-        final TextView username = (TextView) view.findViewById(R.id.txtUsername);
-        final GridView gridTopArtists = (GridView) view.findViewById(R.id.gridTopArtists);
+       // final GridView gridTopArtists = (GridView) view.findViewById(R.id.gridTopArtists);
         final ListView listTopTracks = (ListView) view.findViewById(R.id.listTopTracks);
-        final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
-        final GridView gridAlbums = (GridView) view.findViewById(R.id.gridAlbums);
-        ImageButton btnAbout = (ImageButton) view.findViewById(R.id.btnAbout);
-        ImageButton btnPinnedArtists = (ImageButton) view.findViewById(R.id.btnPinnedArtists);
+        final ListView listTopArtists = (ListView) view.findViewById(R.id.listTopArtists);
+
+
         txtTopGenres = (TextView) view.findViewById(R.id.txtTopGenres);
         txtAvgTempo = (TextView) view.findViewById(R.id.avgTempo);
         txtAvgDuration = (TextView) view.findViewById(R.id.avgDuration);
@@ -154,200 +150,47 @@ public class UserTab extends Fragment {
         if(userAuthd) {
 
 
-            spotify.getMe(new Callback<UserPrivate>() {
+            final Map<String, Object> options = new HashMap<>();
+            options.put("time_range", "medium_term");
+            if(!topartists_gotten){
+                tagadapter = new TopArtistsGridAdapter(getContext().getApplicationContext(), topartistslist);
+                TopArtists(options, tagadapter, listTopArtists);
+            } else {
+                TopArtists(options, tagadapter, listTopArtists);
+            }
+
+            listTopArtists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void success(UserPrivate user, Response response) {
-                    username.setText("Hello, " + user.id);
-                    userid = user.id;
-                    //username.setTextColor(Color.LTGRAY);
-                }
-                @Override
-                public void failure(RetrofitError error) {
-                    Log.d("User failure", error.toString());
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    cm.ArtistPopup(tagadapter.getItem(i) ,view, false, getContext());
                 }
             });
 
 
-
-            final Map<String, Object> options = new HashMap<>();
-            final Map<String, Object> optionsAlbum = new HashMap<>();
-            optionsAlbum.put("limit", "50");
-
-
-            if(!topartists_gotten){
-                options.put("time_range", "medium_term");
-                tagadapter = new TopArtistsGridAdapter(getContext().getApplicationContext(), topartistslist);
-                TopArtists(options, tagadapter, gridTopArtists);
-
-            } else {
-                gridTopArtists.setAdapter(tagadapter);
-            }
-
             if(!toptracks_gotten) {
-
                 trackadapter = new TopTracksListAdapter(getContext().getApplicationContext(), toptrackslist);
                 TopTracks(options, trackadapter, listTopTracks);
-
             } else {
-                listTopTracks.setAdapter(trackadapter);
+                TopTracks(options, trackadapter, listTopTracks);
             }
+
             listTopTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                    mSpotifyAppRemote.getPlayerApi().play(trackadapter.getItem(i).uri);
-                   // mSpotifyAppRemote.getPlayerApi().queue(trackadapter.getItem(i).uri);
-                    toast("Now playing: "+trackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
+                   cm.toast("Now playing: "+trackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
                 }
             });
             listTopTracks.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                     mSpotifyAppRemote.getPlayerApi().queue(trackadapter.getItem(i).uri);
-                    toast("Added to queue: "+trackadapter.getItem(i).name, R.drawable.ic_queue_black_36dp, Color.BLACK, getContext());
+                    cm.toast("Added to queue: "+trackadapter.getItem(i).name, R.drawable.ic_queue_black_36dp, Color.BLACK, getContext());
                     return true;
                 }
             });
 
-            if(!myplaylists_gotten){
-                padapter = new MyPlaylistsGridAdapter(getContext().getApplicationContext(), myplaylistslist);
-                MyPlaylists(padapter, gridPlaylists);
-            } else {
-                gridPlaylists.setAdapter(padapter);
-                expandGridView(gridPlaylists);
-            }
 
-            gridPlaylists.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    // Play the clicked playlist
-                    mSpotifyAppRemote.getPlayerApi().play(padapter.getItem(i).uri);
-                    toast("Now playing: "+padapter.getItem(i).name, R.drawable.ic_playlist_play_black_36dp, Color.BLACK, getContext());
-                    return true;
-                }
-            });
-
-            gridPlaylists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
-                    View layout = inflater.inflate(R.layout.popup_album,
-                            (ViewGroup) view.findViewById(R.id.tab_layout_2));
-
-                    popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
-                    popup.showAtLocation(layout, Gravity.TOP, 0, 0);
-
-                    // SavedAlbum popupAlbum = padapter.getItem(i);
-                    PlaylistSimple playlist = padapter.getItem(i);
-
-                    final String popupPlaylistInfo = playlist.name + "\n by " + playlist.owner.id;
-
-                    final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
-                    final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
-                    final TextView popupalbumname = layout.findViewById(R.id.txtPopupAlbumName);
-                    popupalbumname.setText(popupPlaylistInfo);
-                    final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
-                    popupinfo.setText(playlist.tracks.total + " tracks");
-
-                    final ListView popuplist = layout.findViewById(R.id.listPopupTracks);
-                    ImageLoader imgloader = ImageLoader.getInstance();
-
-                    DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                            .showStubImage(R.drawable.baseline_album_24).cacheOnDisk(true).build();
-                    ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
-                    ImageSize targetSize = new ImageSize(200, 200); // result Bitmap will be fit to this size
-                    imgloader.loadImage(playlist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
-                        @Override
-                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                            popupImg.setImageBitmap(loadedImage);
-
-                            Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
-                            Palette.Swatch vibrant;
-                            try {
-                                vibrant = p.getVibrantSwatch();
-                                popupbg.setBackgroundColor(vibrant.getRgb());
-                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
-                                popupinfo.setTextColor(vibrant.getBodyTextColor());
-                            } catch (NullPointerException e) {
-                                vibrant = p.getDominantSwatch();
-                                popupbg.setBackgroundColor(vibrant.getRgb());
-                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
-                                popupinfo.setTextColor(vibrant.getBodyTextColor());
-                            }
-
-
-                        }
-
-                    });
-
-                    final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>(), true);
-                    popuptrackadapter.clear();
-
-                    spotify.getPlaylistTracks(userid, playlist.id, new Callback<Pager<PlaylistTrack>>() {
-                        @Override
-                        public void success(Pager<PlaylistTrack> pager, Response response) {
-
-
-                            for(PlaylistTrack p : pager.items){
-                                popuptrackadapter.add(p.track);
-                            }
-
-                            myplaylists_gotten = true;
-                            popuplist.setAdapter(popuptrackadapter);
-                            popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                    mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
-                                    toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void failure(RetrofitError error) {
-                            Log.d("My playlists failure", error.toString());
-                        }
-                    });
-
-
-                }
-            });
-
-            if(!myalbums_gotten){
-                albadapter = new MyAlbumsGridAdapter(getContext().getApplicationContext(), myalbumslist);
-                MyAlbums(optionsAlbum, albadapter, gridAlbums);
-            } else {
-                gridAlbums.setAdapter(albadapter);
-                expandGridView(gridAlbums);
-            }
-
-            gridAlbums.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    // Play the clicked album
-                    mSpotifyAppRemote.getPlayerApi().play(albadapter.getItem(i).album.uri);
-                    toast("Now playing: "+albadapter.getItem(i).album.name, R.drawable.baseline_album_24, Color.BLACK, getContext());
-
-                    return true;
-                }
-            });
-
-            gridAlbums.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                    Album popupalbum = albadapter.getItem(i).album;
-                    AlbumPopup(popupalbum, view, false, false, false, 0);
-
-                }
-            });
-
-            gridTopArtists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    ArtistPopup(tagadapter.getItem(i) ,view, false);
-                }
-            });
 
 
             datatimeline.setOnTabStripSelectedIndexListener(new NavigationTabStrip.OnTabStripSelectedIndexListener() {
@@ -356,17 +199,17 @@ public class UserTab extends Fragment {
                     if(index == 0) {
                         options.clear();
                         options.put("time_range", "short_term");
-                        TopArtists(options, tagadapter, gridTopArtists);
+                        TopArtists(options, tagadapter, listTopArtists);
                         TopTracks(options, trackadapter, listTopTracks);
                     } else if(index == 1) {
                         options.clear();
                         options.put("time_range", "medium_term");
-                        TopArtists(options, tagadapter, gridTopArtists);
+                        TopArtists(options, tagadapter, listTopArtists);
                         TopTracks(options, trackadapter, listTopTracks);
                     } else if(index == 2) {
                         options.clear();
                         options.put("time_range", "long_term");
-                        TopArtists(options, tagadapter, gridTopArtists);
+                        TopArtists(options, tagadapter, listTopArtists);
                         TopTracks(options, trackadapter, listTopTracks);
                     }
                 }
@@ -377,27 +220,13 @@ public class UserTab extends Fragment {
                 }
             });
 
-            btnAbout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AboutPopup(view);
-                }
-            });
-
-            btnPinnedArtists.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    PinnedArtistsPopup(view);
-                }
-            });
-
         }
 
         return view;
     }
 
     // Helper functions for Spotify Web API queries
-    public void TopArtists( Map<String, Object> options, final TopArtistsGridAdapter adapter, final GridView grid) {
+    public void TopArtists( Map<String, Object> options, final TopArtistsGridAdapter adapter, final ListView grid) {
 
         spotify.getTopArtists(options, new Callback<Pager<Artist>>() {
             @Override
@@ -411,8 +240,7 @@ public class UserTab extends Fragment {
                     counter++;
 
                     // Add artist to GridView
-                    if(counter<13) { adapter.add(a); }
-
+                    if(counter<21) { adapter.add(a); }
 
                     // Get top genres based on artist rank + occurence
                     try{
@@ -450,7 +278,8 @@ public class UserTab extends Fragment {
                 });
 
 
-                String topgenres = ""; int genrecount = 1;
+                int genrecount = 1;
+                topgenres = "";
                 for(Object topgenre : obj){
                     if(genrecount < 11) {
                         topgenres += ((Map.Entry<String, Double>) topgenre).getKey() + "\n";
@@ -491,10 +320,8 @@ public class UserTab extends Fragment {
                     getAudioInfo(t.id, t.album.id);
                 }
 
-
                 toptracks_gotten = true;
                 list.setAdapter(adapter);
-
             }
 
             @Override
@@ -504,51 +331,6 @@ public class UserTab extends Fragment {
         });
     }
 
-
-    public void MyAlbums(Map<String, Object> options, final MyAlbumsGridAdapter adapter, final GridView grid) {
-        spotify.getMySavedAlbums(options, new Callback<Pager<SavedAlbum>>() {
-            @Override
-            public void success(Pager<SavedAlbum> savedAlbumPager, Response response) {
-
-                adapter.clear();
-                for(SavedAlbum sa : savedAlbumPager.items){
-                    adapter.add(sa);
-                }
-
-                myalbums_gotten = true;
-                grid.setAdapter(adapter);
-                expandGridView(grid);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("My albums failure", error.toString());
-            }
-        });
-    }
-
-    public void MyPlaylists(final MyPlaylistsGridAdapter adapter, final GridView grid) {
-
-        spotify.getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
-            @Override
-            public void success(Pager<PlaylistSimple> pager, Response response) {
-
-                adapter.clear();
-                for(PlaylistSimple p : pager.items){
-                    adapter.add(p);
-                }
-
-                myplaylists_gotten = true;
-                grid.setAdapter(adapter);
-                expandGridView(grid);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("My playlists failure", error.toString());
-            }
-        });
-    }
 
 
     public void myDevices() {
@@ -580,6 +362,7 @@ public class UserTab extends Fragment {
             @Override
             public void success(AudioFeaturesTrack aft, Response response){
 
+
                 acousticnesAvg += aft.acousticness;
                 danceabilityAvg += aft.danceability;
                 valencyAvg += aft.valence;
@@ -599,6 +382,8 @@ public class UserTab extends Fragment {
                     popularityAvg = popularityAvg / 20;
                     releaseyAvg = releaseyAvg / 20;
 
+                    targetsGotten = true;
+
                     String tempoRounded = Float.toString((int)Math.round(tempoAvg));
                     String duration = String.format(Locale.US, "%d:%02d",
                             TimeUnit.MILLISECONDS.toMinutes(durationAvg),
@@ -615,9 +400,7 @@ public class UserTab extends Fragment {
                     AvgInstruBar.setProgress((int)Math.round(100*instruAvg));
                     AvgPopularityBar.setProgress((int)Math.round(popularityAvg));
 
-
                 }
-
             }
 
             @Override
@@ -628,573 +411,6 @@ public class UserTab extends Fragment {
     }
 
 
-
-    public void AlbumPopup(final Album album, View view, Boolean throughArtist, final Boolean listentab, final Boolean searchtab, int y) {
-
-
-        Context ctx = getContext();
-        int height = MATCH_PARENT;
-        int width = MATCH_PARENT;
-        if(listentab){
-            ctx = view.getContext();
-            height = 600;
-            width = 600;
-        }
-        if(searchtab){
-            ctx = view.getContext();
-        }
-
-
-        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.popup_album,
-                (ViewGroup) view.findViewById(R.id.tab_layout_2));
-
-
-        popup = new PopupWindow(layout, width, height, true);
-        popup.showAtLocation(layout, Gravity.BOTTOM, 0, y);
-
-        final LinearLayout popupParent = layout.findViewById(R.id.popupParentLayout);
-        final String popupAlbumInfo = album.name + "\n by " + album.artists.get(0).name;
-        final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
-        final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
-        final TextView popupalbumname = layout.findViewById(R.id.txtPopupAlbumName);
-        popupalbumname.setText(popupAlbumInfo);
-        final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
-        popupinfo.setText("Released " + album.release_date);
-
-        ListView popuplist = layout.findViewById(R.id.listPopupTracks);
-
-        if(!listentab) {
-
-
-            popupalbumname.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(final View view) {
-                        spotify.getArtist(album.artists.get(0).id, new Callback<Artist>() {
-                            @Override
-                            public void success(Artist artist, Response response) {
-                                ArtistPopup(artist, view, false);
-                            }
-                            @Override
-                            public void failure(RetrofitError error) {
-
-                            }
-                        });
-
-                    }
-            });
-
-
-            ImageLoader imgloader = ImageLoader.getInstance();
-            DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                    .showStubImage(R.drawable.baseline_album_24).cacheInMemory(true).build();
-            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(ctx).defaultDisplayImageOptions(defaultOptions).build();
-            ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
-            imgloader.loadImage(album.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    popupImg.setImageBitmap(loadedImage);
-
-                    Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
-                    Palette.Swatch vibrant;
-                    try {
-                        vibrant = p.getVibrantSwatch();
-                        popupbg.setBackgroundColor(vibrant.getRgb());
-                        popupalbumname.setTextColor(vibrant.getTitleTextColor());
-                        popupinfo.setTextColor(vibrant.getBodyTextColor());
-                    } catch(NullPointerException e) {
-                        vibrant = p.getDominantSwatch();
-                        popupbg.setBackgroundColor(vibrant.getRgb());
-                        popupalbumname.setTextColor(vibrant.getTitleTextColor());
-                        popupinfo.setTextColor(vibrant.getBodyTextColor());
-                    }
-                }
-            });
-        } else {
-            popupParent.removeView(popupbg);
-        }
-
-
-        final TracksListAdapter popuptrackadapter = new TracksListAdapter(view.getContext().getApplicationContext(), new ArrayList<TrackSimple>(), false);
-        popuptrackadapter.clear();
-
-
-
-        if(!throughArtist) {
-            // Don't know why this won't work when calling PopupAlbum from PopupArtist
-            for(TrackSimple track : album.tracks.items) {
-                popuptrackadapter.add(track);
-            }
-        } else {
-            spotify.getAlbumTracks(album.id, new Callback<Pager<Track>>() {
-                @Override
-                public void success(Pager<Track> trackPager, Response response) {
-                    for(TrackSimple track : trackPager.items) {
-                        popuptrackadapter.add(track);
-                    }
-
-                }
-
-                @Override
-                public void failure(RetrofitError error) {
-                    Log.d("Album tracks failure", error.toString());
-                }
-            });
-        }
-
-        popuplist.setAdapter(popuptrackadapter);
-        popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
-                    if(!listentab && !searchtab){
-                        toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
-                    }
-                }
-            });
-
-
-    }
-
-
-    public void ArtistPopup(Artist artist, View view, final boolean listentab){
-
-        Context ctx = getContext();
-        if(listentab) {
-            ctx = view.getContext();
-        }
-        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.popup_artist,
-                (ViewGroup) view.findViewById(R.id.tab_layout_2));
-
-        popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
-        popup.showAtLocation(layout, Gravity.TOP, 0, 0);
-
-        final TextView popupArtistName = layout.findViewById(R.id.txtPopupArtistName);
-        final TextView popupArtistInfo = layout.findViewById(R.id.popupArtistInfo);
-        final TextView popupArtistInfo2 = layout.findViewById(R.id.popupArtistInfo2);
-        //final TextView popupGenreText = layout.findViewById(R.id.popupGenreText);
-        final TextView popupArtistBio = layout.findViewById(R.id.popupArtistBio);
-        final ImageView popupArtistImage = layout.findViewById(R.id.popupArtistImg);
-        final LinearLayout popupArtistBG = layout.findViewById(R.id.popupArtistBG);
-        final ListView listPopupArtistTopTracks = layout.findViewById(R.id.listPopupTopTracks);
-        final GridView gridPopupArtistAlbums = layout.findViewById(R.id.gridPopupAlbums);
-        final GridView gridPopupArtistSingles = layout.findViewById(R.id.gridPopupSingles);
-        final GridView gridPopupSimilarArtists = layout.findViewById(R.id.gridSimilarArtists);
-        final ImageButton btnPinArtist = layout.findViewById(R.id.btnPinArtist);
-        popupArtistName.setText(artist.name);
-        final String artistString = artist.id + "." + artist.name;
-
-        String popupArtistGenres = "Genres: ";
-        for(int i=0; i< artist.genres.size(); ++i){
-
-            if(i == artist.genres.size() - 1) {
-                popupArtistGenres += artist.genres.get(i);
-            } else {
-                popupArtistGenres += artist.genres.get(i) + ", ";
-            }
-
-
-        }
-
-
-        final TracksListAdapter popupTopTracksAdapter = new TracksListAdapter(ctx, new ArrayList<TrackSimple>(), false);
-        popupTopTracksAdapter.clear();
-
-        // Get Artist Top Tracks
-        spotify.getArtistTopTrack(artist.id, "fi", new Callback<Tracks>() {
-            @Override
-            public void success(Tracks tracks, Response response) {
-
-                for(TrackSimple t : tracks.tracks) {
-                    popupTopTracksAdapter.add(t);
-                }
-
-                listPopupArtistTopTracks.setAdapter(popupTopTracksAdapter);
-                listPopupArtistTopTracks.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        mSpotifyAppRemote.getPlayerApi().play(popupTopTracksAdapter.getItem(i).uri);
-                        if(listentab){
-                            toast("Now playing: "+ popupTopTracksAdapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, view.getContext());
-                        } else {
-                            toast("Now playing: "+ popupTopTracksAdapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
-                        }
-
-                    }
-                });
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("Artist toptracks fail", error.toString());
-            }
-        });
-
-        // Get Artist Bio
-        GetArtistBio(artist.name, popupArtistBio, ctx, false);
-
-        popupArtistInfo.setText(popupArtistGenres);
-        popupArtistInfo2.setText(artist.followers.total + " followers");
-
-        ImageLoader imgloader = ImageLoader.getInstance();
-        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .showStubImage(R.drawable.baseline_album_24).build();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(ctx).defaultDisplayImageOptions(defaultOptions).build();
-        ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
-        try{
-            imgloader.loadImage(artist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    popupArtistImage.setImageBitmap(loadedImage);
-
-                    Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
-                    Palette.Swatch vibrant;
-                    try {
-                        vibrant = p.getVibrantSwatch();
-                        popupArtistBG.setBackgroundColor(vibrant.getRgb());
-                        popupArtistName.setTextColor(vibrant.getTitleTextColor());
-                        //  popupGenreText.setTextColor(vibrant.getTitleTextColor());
-                        popupArtistInfo.setTextColor(vibrant.getBodyTextColor());
-                        popupArtistInfo2.setTextColor(vibrant.getBodyTextColor());
-                    } catch(NullPointerException e) {
-                        vibrant = p.getDominantSwatch();
-                        popupArtistBG.setBackgroundColor(vibrant.getRgb());
-                        popupArtistName.setTextColor(vibrant.getTitleTextColor());
-                        //  popupGenreText.setTextColor(vibrant.getTitleTextColor());
-                        popupArtistInfo.setTextColor(vibrant.getBodyTextColor());
-                        popupArtistInfo2.setTextColor(vibrant.getBodyTextColor());
-                    }
-
-                }
-            });
-        } catch (IndexOutOfBoundsException ioe) {
-
-        }
-
-        // Get similar artists
-        final TopArtistsGridAdapter similaradapter = new TopArtistsGridAdapter(ctx, new ArrayList<Artist>());
-        similaradapter.clear();
-
-
-        spotify.getRelatedArtists(artist.id, new Callback<Artists>() {
-            @Override
-            public void success(Artists artists, Response response) {
-                int tempHeight = 0;
-                for(Artist a : artists.artists) {
-                    Log.i("Similar: ", a.name);
-                    similaradapter.add(a);
-                    tempHeight += 164;
-                }
-
-               ViewGroup.LayoutParams params = gridPopupSimilarArtists.getLayoutParams();
-               params.height = tempHeight / 2;
-               gridPopupSimilarArtists.setLayoutParams(params);
-
-
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
-
-        gridPopupSimilarArtists.setAdapter(similaradapter);
-
-
-        gridPopupSimilarArtists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                ArtistPopup(similaradapter.getItem(i), view, false);
-            }
-        });
-
-
-        // Get Artist Albums
-        final AlbumsGridAdapter albumadapter = new AlbumsGridAdapter(ctx, new ArrayList<Album>());
-        albumadapter.clear();
-        final AlbumsGridAdapter singleadapter = new AlbumsGridAdapter(ctx, new ArrayList<Album>());
-        singleadapter.clear();
-
-        spotify.getArtistAlbums(artist.id, new Callback<Pager<Album>>() {
-            @Override
-            public void success(Pager<Album> albumPager, Response response) {
-                int singlesHeight = 0;
-                int albumsHeight = 0;
-                for(Album a : albumPager.items) {
-                    if(a.album_type.contains("single")) {
-                        singleadapter.add(a);
-                        singlesHeight += 164;
-                    } else if(a.album_type.contains("album")) {
-                        albumadapter.add(a);
-                        albumsHeight += 164;
-                    }
-                }
-
-                Log.i("albumsheight", Integer.toString(albumsHeight));
-
-                if(albumsHeight > 656) {
-                    final ViewGroup.LayoutParams params = gridPopupArtistAlbums.getLayoutParams();
-                    params.height = albumsHeight;
-                    gridPopupArtistAlbums.setLayoutParams(params);
-                }
-                if(singlesHeight > 656) {
-                    ViewGroup.LayoutParams params2 = gridPopupArtistSingles.getLayoutParams();
-                    params2.height = singlesHeight;
-                    gridPopupArtistSingles.setLayoutParams(params2);
-                }
-
-
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("Artist albums fail", error.toString());
-            }
-        });
-
-        gridPopupArtistAlbums.setAdapter(albumadapter);
-        //gridPopupArtistAlbums.setLayoutParams(new LinearLayout.LayoutParams(200, 1000));
-        gridPopupArtistAlbums.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Album a = albumadapter.getItem(i);
-                AlbumPopup(a, view, true, false, false, 0);
-            }
-        });
-        gridPopupArtistAlbums.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                mSpotifyAppRemote.getPlayerApi().play(albumadapter.getItem(i).uri);
-                if(listentab){
-                    toast("Now shuffling: "+ albumadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, view.getContext());
-                } else {
-                    toast("Now shuffling: "+ albumadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
-                }
-
-                return true;
-            }
-        });
-
-        gridPopupArtistSingles.setAdapter(singleadapter);
-        gridPopupArtistSingles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                mSpotifyAppRemote.getPlayerApi().play(singleadapter.getItem(i).uri);
-                if(listentab){
-                    toast("Now playing: "+ singleadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, view.getContext());
-                } else {
-                    toast("Now playing: "+ singleadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
-                }
-
-            }
-        });
-
-        if(FileService.fileContainsString(ctx, "artistlist.txt", artistString)) {
-            btnPinArtist.setColorFilter(Color.parseColor("#427DD1"));
-        } else {
-            btnPinArtist.setColorFilter(Color.parseColor( "#4C40AD"));
-        }
-
-        btnPinArtist.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Context ctx;
-                if(listentab){
-                    ctx = view.getContext();
-
-                } else {
-                   ctx = getContext();
-                }
-
-                if(FileService.fileContainsString(ctx, "artistlist.txt", artistString)) {
-                    FileService.removeItem(ctx, "artistlist.txt", artistString);
-                    toast("Artist unpinned", R.drawable.ic_person_pin_black_36dp, Color.BLACK, ctx);
-                    btnPinArtist.setColorFilter(Color.parseColor( "#4C40AD"));
-
-                } else {
-                    FileService.writeFile(ctx, "artistlist.txt", artistString + "-");
-                    toast("Artist pinned", R.drawable.ic_person_pin_black_36dp, Color.BLACK, ctx);
-                    btnPinArtist.setColorFilter(Color.parseColor("#427DD1"));
-
-                }
-
-            }
-        });
-
-
-    };
-
-
-     public void GetArtistBio(final String artistname, final TextView bio, final Context ctx, final boolean isClicked) {
-        // Fetch Artist Bio from Wikipedia
-
-         String query = "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + artistname;
-         if(isClicked) {
-           query =   "https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exlimit&explaintext&redirects=1&titles=" + artistname;
-         }
-
-
-        RequestQueue queue = Volley.newRequestQueue(ctx);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, query, null, new com.android.volley.Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try{
-                            JSONObject jobject = response.getJSONObject("query");
-                            String txtbio = jobject.getJSONObject("pages").toString();
-                            try{
-                                txtbio = txtbio.split("extract")[1];
-                                txtbio = txtbio.subSequence(2, txtbio.length()-2).toString();
-                                txtbio = txtbio.replaceAll("\\\\n", "\n");
-                                txtbio = txtbio.replaceAll("\\\\", "");
-
-                                if(txtbio.contains("==")){
-                                    txtbio = txtbio.replaceAll("==", "\n\n");
-                                }
-
-                                // Handle case where artist name refers to something else too
-                                if(txtbio.contains("may refer to:")){
-
-                                    if(isClicked) {
-                                        GetArtistBio( artistname + " (band)", bio, ctx, true);
-                                    } else {
-                                        GetArtistBio( artistname + " (band)", bio, ctx, false);
-                                    }
-
-                                }
-                                bio.setText(txtbio + "\n - Wikipedia \n");
-
-                                bio.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        // View more or view less
-                                        if(!isClicked) {
-                                            GetArtistBio( artistname, bio, ctx, true);
-                                        } else {
-                                            GetArtistBio( artistname, bio, ctx, false);
-                                            GetArtistBio( artistname, bio, ctx, false);
-                                        }
-                                    }
-                                });
-
-                            } catch(ArrayIndexOutOfBoundsException ae) {
-                                bio.setText("Artist Bio not found :( Check back later");
-                            }
-
-                        } catch(JSONException je) {
-                            je.printStackTrace();
-                        }
-
-                    }
-                }, new com.android.volley.Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        bio.setText("Couldn't contact Wikipedia :( Check back later");
-                    }
-                });
-
-        queue.add(jsonObjectRequest);
-
-
-
-    }
-
-    public void PinnedArtistsPopup(View view) {
-
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.popup_pinnedartists,
-                (ViewGroup) view.findViewById(R.id.tab_layout_2));
-
-        pinnedartistsPopup = new PopupWindow(layout, MATCH_PARENT, 600, true);
-        pinnedartistsPopup.showAtLocation(layout, Gravity.BOTTOM, 0, 0);
-
-        TextView pinnedTemp = layout.findViewById(R.id.tempPinned);
-        ListView listPinnedArtists = layout.findViewById(R.id.listPinnedArtists);
-
-        String artistString = FileService.readFile(getContext(), "artistlist.txt");
-        final String[] artistListTemp = artistString.split("-");
-
-
-        ArrayAdapter adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1);
-        try{
-            for(String artist : artistListTemp) {
-                adapter.add(artist.split("\\.")[1]);
-            }
-        } catch(ArrayIndexOutOfBoundsException aio) {
-
-        }
-
-
-
-        listPinnedArtists.setAdapter(adapter);
-
-        listPinnedArtists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, final View view, int i, long l) {
-
-                spotify.getArtist(artistListTemp[i].split("\\.")[0].trim(), new Callback<Artist>() {
-                    @Override
-                    public void success(Artist artist, Response response) {
-                        ArtistPopup(artist, view, false);
-                        pinnedartistsPopup.dismiss();
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.d("Pinned artist fail", error.toString());
-                    }
-                });
-            }
-        });
-
-    }
-
-    public void AboutPopup(View view) {
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.popup_about,
-                (ViewGroup) view.findViewById(R.id.tab_layout_2));
-
-        popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
-        popup.showAtLocation(layout, Gravity.TOP, 0, 0);
-    }
-
-    public void toast(String message, int drawable, int tintcolor, Context ctx) {
-        Toasty.custom(ctx, message, drawable, tintcolor, 700, true, true).show();
-    }
-
-
-
-    public void expandGridView(GridView gridView) {
-        int columns = 4;
-        ListAdapter listAdapter = gridView.getAdapter();
-        if (listAdapter == null) {
-            // pre-condition
-            return;
-        }
-
-        int totalHeight = 0;
-        int items = listAdapter.getCount();
-        int rows = 0;
-
-        View listItem = listAdapter.getView(0, null, gridView);
-        listItem.measure(0, 0);
-        totalHeight = listItem.getMeasuredHeight();
-
-        float x = 1;
-        if( items > columns ){
-            x = items/columns;
-            rows = (int) (x + 1);
-            totalHeight *= rows;
-        }
-
-        ViewGroup.LayoutParams params = gridView.getLayoutParams();
-        params.height = totalHeight;
-        gridView.setLayoutParams(params);
-
-    }
 
 
 }
