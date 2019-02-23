@@ -28,11 +28,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -41,9 +43,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -56,9 +60,11 @@ import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,6 +88,7 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.media.audiofx.AudioEffect.CONTENT_TYPE_MUSIC;
 import static android.media.audiofx.AudioEffect.EXTRA_PACKAGE_NAME;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.jukka.jugify.MainActivity.atoken;
 import static com.jukka.jugify.MainActivity.audioSessionId;
 import static com.jukka.jugify.MainActivity.displayheight;
 import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
@@ -102,6 +109,7 @@ public class ListenTab extends Fragment {
     ImageButton prev;
     ImageButton shuffle;
     ImageButton playlistAdd;
+    ImageButton devices;
     Boolean isplaying = false;
     Boolean shuffling = false;
     Float instrumental;
@@ -157,6 +165,7 @@ public class ListenTab extends Fragment {
         txtenergy = (TextView) view.findViewById(R.id.txtEnergy);
         txtdance = (TextView) view.findViewById(R.id.txtDanceability);
         playlistAdd = (ImageButton) view.findViewById(R.id.btnPlaylistAdd);
+        devices = (ImageButton) view.findViewById(R.id.btnDevices);
         final UserTab userTab = new UserTab();
 
         final ScrollView scrollview = (ScrollView) view.findViewById(R.id.scrollview);
@@ -333,10 +342,19 @@ public class ListenTab extends Fragment {
                 }
             });
 
+            devices.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                   getAvailableDevices(atoken);
+                }
+            });
+
+
 
         }
         return view;
     }
+
 
     public void getNowPlayingInformation(final String uri) {
 
@@ -494,6 +512,129 @@ public class ListenTab extends Fragment {
             }
         });
 
+    }
+
+    public void getAvailableDevices(final String token) {
+       // curl -X GET "https://api.spotify.com/v1/me/player/devices" -H "Authorization: Bearer {your access token}"
+
+        String url = "https://api.spotify.com/v1/me/player/devices";
+
+        RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new com.android.volley.Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+                            final ArrayList<String> deviceNames = new ArrayList<String>();
+                            final ArrayList<String> deviceIds = new ArrayList<String>();
+
+                            deviceNames.add("This device");
+                            deviceIds.add("dummyid");
+
+                            JSONArray jarray = response.getJSONArray("devices");
+                            for (int i = 0; i < jarray.length(); i++) {
+                                JSONObject jo = jarray.getJSONObject(i);
+
+                                deviceNames.add(jo.getString("name"));
+                                deviceIds.add(jo.getString("id"));
+                            }
+
+                            // Open a popup containing device names
+                            PopupWindow devicespopup;
+
+                            LayoutInflater inflater = (LayoutInflater) getView().getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+                            View layout = inflater.inflate(R.layout.popup_devices,
+                                    (ViewGroup) getView().findViewById(R.id.tab_layout_2));
+
+                            devicespopup = new PopupWindow(layout, MATCH_PARENT, 600, true);
+                            devicespopup.showAtLocation(layout, Gravity.BOTTOM, -250, 550);
+
+                            ListView listdevices = (ListView) layout.findViewById(R.id.listAvailableDevices);
+                            ArrayAdapter<String> devicesadapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, deviceNames);
+                            listdevices.setAdapter(devicesadapter);
+
+                            listdevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
+
+                                    // Current device
+                                    if(deviceNames.get(i) == "This device") {
+                                        mSpotifyAppRemote.getConnectApi().connectSwitchToLocalDevice();
+                                    } else {
+                                        // Transfer playback to device at i
+                                        // curl -X PUT "https://api.spotify.com/v1/me/player"
+                                        // -H "Authorization: Bearer {your access token}" -H "Content-Type: application/json" --data "{device_ids:[\"74ASZWbe4lXaubB36ztrGX\"]}"
+                                        String url = "https://api.spotify.com/v1/me/player";
+                                        Log.d("TOKKENI", token);
+                                        RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
+                                        JsonObjectRequest putRequest = new JsonObjectRequest
+                                                (Request.Method.PUT, url, null, new com.android.volley.Response.Listener<JSONObject>() {
+                                                    @Override
+                                                    public void onResponse(JSONObject response) {
+                                                    }
+                                                }, new com.android.volley.Response.ErrorListener() {
+                                                    @Override
+                                                    public void onErrorResponse(VolleyError error) {
+                                                    }
+                                                })
+                                        {
+                                            @Override
+                                            public Map getHeaders() throws AuthFailureError {
+                                                HashMap headers = new HashMap();
+                                                headers.put("Authorization", "Bearer " + token);
+                                                headers.put("Content-type", "application/json");
+                                                return headers;
+                                            }
+
+                                            @Override
+                                            public String getBodyContentType() {
+                                                return "application/json; charset=utf-8";
+                                            }
+
+                                            @Override
+                                            public byte[] getBody() {
+
+                                                final String mRequestBody = "{\"device_ids\":[" + "\"" + deviceIds.get(i) + "\"]}";
+                                                try {
+                                                    return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
+                                                } catch (UnsupportedEncodingException uee) {
+                                                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", mRequestBody, "utf-8");
+                                                    return null;
+                                                }
+                                            }
+                                        };
+
+
+                                        queue.add(putRequest);
+
+                                    }
+
+                                }
+                            });
+
+                        } catch(JSONException je) {
+
+                        }
+
+
+                    }
+                }, new com.android.volley.Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                })
+        {
+            @Override
+            public Map getHeaders() throws AuthFailureError {
+                HashMap headers = new HashMap();
+                headers.put("Authorization", "Bearer " + token);
+                return headers;
+            }
+        };
+
+
+        queue.add(jsonObjectRequest);
     }
 
 

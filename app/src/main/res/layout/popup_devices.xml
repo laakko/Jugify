@@ -14,23 +14,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/eczar"
-            android:text="Pinned Artists:"
+            android:text="Available devices"
             android:textAlignment="center"
+            android:textColor="@color/colorAccent"
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/tempPinned"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/eczar"
-            android:text=" "
-            android:textAlignment="center"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
         <ListView
-            android:id="@+id/listPinnedArtists"
+            android:id="@+id/listAvailableDevices"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>

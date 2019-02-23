@@ -38,6 +38,8 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +64,7 @@ import retrofit.client.Response;
 import static android.content.ContentValues.TAG;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.jukka.jugify.MainActivity.atoken;
 import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 import static com.jukka.jugify.MainActivity.spotify;
 import static com.jukka.jugify.MainActivity.userAuthd;
@@ -77,8 +80,12 @@ public class ExploreTab extends Fragment {
     public String userid;
     public static MyPlaylistsGridAdapter padapter;
     public static MyAlbumsGridAdapter albadapter;
+    public static ArtistsGridAdapter pinnedadapter;
+
     public ArrayList<PlaylistSimple> myplaylistslist = new ArrayList<>();
     public ArrayList<SavedAlbum> myalbumslist = new ArrayList<>();
+    public ArrayList<Artist> pinnedartistslist = new ArrayList<>();
+
     private PopupWindow popup;
     private PopupWindow pinnedartistsPopup;
     Common cm = new Common();
@@ -88,8 +95,7 @@ public class ExploreTab extends Fragment {
         View view = inflater.inflate(R.layout.activity_explore_tab, container, false);
         final GridView gridPlaylists = (GridView) view.findViewById(R.id.gridPlaylists);
         final GridView gridAlbums = (GridView) view.findViewById(R.id.gridAlbums);
-        ImageButton btnAbout = (ImageButton) view.findViewById(R.id.btnAbout);
-        ImageButton btnPinnedArtists = (ImageButton) view.findViewById(R.id.btnPinnedArtists);
+        final GridView gridPinned = (GridView) view.findViewById(R.id.gridPinnedArtists);
 
         if(userAuthd) {
 
@@ -242,20 +248,41 @@ public class ExploreTab extends Fragment {
             });
 
 
+            pinnedadapter = new ArtistsGridAdapter(getContext().getApplicationContext(), pinnedartistslist);
 
-            btnAbout.setOnClickListener(new View.OnClickListener() {
+            String artistString = FileService.readFile(getContext(), "artistlist.txt");
+            final String[] artistListTemp = artistString.split("-");
+
+            try{
+                for(String artist : artistListTemp) {
+                    spotify.getArtist(artist.split("\\.")[0].trim(), new Callback<Artist>() {
+                        @Override
+                        public void success(Artist artist, Response response) {
+                           pinnedadapter.add(artist);
+                           cm.expandGridView(gridPinned, 2);
+
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.d("Pinned artist fail", error.toString());
+                        }
+                    });
+
+                }
+
+                gridPinned.setAdapter(pinnedadapter);
+            } catch(IndexOutOfBoundsException aio) {
+
+            }
+
+            gridPinned.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void onClick(View view) {
-                    AboutPopup(view);
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    cm.ArtistPopup(pinnedadapter.getItem(i), view, false, getContext());
                 }
             });
 
-            btnPinnedArtists.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    PinnedArtistsPopup(view);
-                }
-            });
 
         }
         return view;
@@ -309,65 +336,6 @@ public class ExploreTab extends Fragment {
                 Log.d("My albums failure", error.toString());
             }
         });
-    }
-
-    public void PinnedArtistsPopup(View view) {
-
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.popup_pinnedartists,
-                (ViewGroup) view.findViewById(R.id.tab_layout_2));
-
-        pinnedartistsPopup = new PopupWindow(layout, MATCH_PARENT, 600, true);
-        pinnedartistsPopup.showAtLocation(layout, Gravity.BOTTOM, 0, 0);
-
-        TextView pinnedTemp = layout.findViewById(R.id.tempPinned);
-        ListView listPinnedArtists = layout.findViewById(R.id.listPinnedArtists);
-
-        String artistString = FileService.readFile(getContext(), "artistlist.txt");
-        final String[] artistListTemp = artistString.split("-");
-
-
-        ArrayAdapter adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1);
-        try{
-            for(String artist : artistListTemp) {
-                adapter.add(artist.split("\\.")[1]);
-            }
-        } catch(ArrayIndexOutOfBoundsException aio) {
-
-        }
-
-
-
-        listPinnedArtists.setAdapter(adapter);
-
-        listPinnedArtists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, final View view, int i, long l) {
-
-                spotify.getArtist(artistListTemp[i].split("\\.")[0].trim(), new Callback<Artist>() {
-                    @Override
-                    public void success(Artist artist, Response response) {
-                        cm.ArtistPopup(artist, view, false, getContext());
-                        pinnedartistsPopup.dismiss();
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.d("Pinned artist fail", error.toString());
-                    }
-                });
-            }
-        });
-
-    }
-
-    public void AboutPopup(View view) {
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.popup_about,
-                (ViewGroup) view.findViewById(R.id.tab_layout_2));
-
-        popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
-        popup.showAtLocation(layout, Gravity.TOP, 0, 0);
     }
 
 
