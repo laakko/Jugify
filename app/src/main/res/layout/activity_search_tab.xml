@@ -16,9 +16,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/eczar"
-            android:text="Results:"
+            android:text="Search"
+            android:textColor="@color/colorAccent"
             android:textAlignment="center"
-            android:textSize="24sp"
+            android:textSize="30sp"
             android:textStyle="bold" />
 
         <ListView

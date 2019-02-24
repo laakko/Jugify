@@ -2,6 +2,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:orientation="vertical">
 
     <ScrollView
@@ -20,7 +22,9 @@
                 android:fontFamily="@font/eczar"
                 android:text="Collection"
                 android:textAlignment="center"
-                android:textSize="24sp"
+                android:textAllCaps="false"
+                android:textColor="@color/colorAccent"
+                android:textSize="30sp"
                 android:textStyle="bold" />
 
 
@@ -30,9 +34,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/eczar"
-                android:text="Saved playlists"
+                android:text="Saved Playlists"
                 android:textAlignment="center"
-                android:textSize="18sp"
+                android:textColor="@color/white"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
 
@@ -52,7 +57,8 @@
                 android:fontFamily="@font/eczar"
                 android:text="Saved Albums"
                 android:textAlignment="center"
-                android:textSize="18sp"
+                android:textColor="@color/white"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <GridView
@@ -69,9 +75,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/eczar"
-                android:text="Pinned artists"
+                android:text="Pinned Artists"
                 android:textAlignment="center"
-                android:textSize="18sp"
+                android:textColor="@color/white"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <GridView

@@ -8,7 +8,9 @@
     <color name="colorPrimary">#000</color>
     <color name="colorPrimaryDark">#000</color>
     <color name="colorAccent">#3E84DA</color>
-    <color name="colorAccent2">#FF3173</color>
-    <color name="colorAccent3">#3F40DF</color>
+    <color name="colorAccentGreen">#3c7571</color>
+    <color name="colorText">#3c393d</color>
+
+
 
 </resources>

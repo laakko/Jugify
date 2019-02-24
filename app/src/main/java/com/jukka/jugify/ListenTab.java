@@ -278,11 +278,15 @@ public class ListenTab extends Fragment {
                         imageNowPlayingBig.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                cm.AlbumPopup(nowPlayingAlbum , view.getContext(), getView(), false, true, false, (850+scrollview.getScrollY()));
+                                if(displayheight == 2560) {
+                                    // 1440p
+                                    cm.AlbumPopup(nowPlayingAlbum , view.getContext(), getView(), false, true, false, (960+scrollview.getScrollY()));
+                                } else {
+                                    // 1080p
+                                    cm.AlbumPopup(nowPlayingAlbum , view.getContext(), getView(), false, true, false, (850+scrollview.getScrollY()));
+                                }
                             }
                         });
-
-
 
                         playlistAdd.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -465,13 +469,15 @@ public class ListenTab extends Fragment {
 
     public void addToPlaylist(final Track song, View view, final String token) {
         final PopupWindow playlistpopup;
-
         LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.popup_addtoplaylist,
                 (ViewGroup) view.findViewById(R.id.tab_layout_2));
 
         playlistpopup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
         playlistpopup.showAtLocation(layout, Gravity.TOP, 0, 0);
+
+        TextView txtPlaylistPopup = (TextView) layout.findViewById(R.id.txtPlaylistPopup);
+        txtPlaylistPopup.setText("Add " + song.name + " to playlist:");
 
         final MyPlaylistsGridAdapter pladapter;
         final ArrayList<PlaylistSimple> myplaylistslist = new ArrayList<>();
@@ -498,7 +504,6 @@ public class ListenTab extends Fragment {
 
 
                         String url = "https://api.spotify.com/v1/playlists/" + pladapter.getItem(i).id + "/tracks?uris=" + song.uri;
-                        Log.d("URLPERK", url);
                         RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
                         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                                 (Request.Method.POST, url, null, new com.android.volley.Response.Listener<JSONObject>() {
@@ -572,7 +577,7 @@ public class ListenTab extends Fragment {
                                     (ViewGroup) getView().findViewById(R.id.tab_layout_2));
 
                             devicespopup = new PopupWindow(layout, MATCH_PARENT, 600, true);
-                            devicespopup.showAtLocation(layout, Gravity.BOTTOM, -250, 550);
+                            devicespopup.showAtLocation(layout, Gravity.BOTTOM, -250, 570);
 
                             ListView listdevices = (ListView) layout.findViewById(R.id.listAvailableDevices);
                             ArrayAdapter<String> devicesadapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, deviceNames);

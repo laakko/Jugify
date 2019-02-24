@@ -140,7 +140,7 @@ public class ExploreTab extends Fragment {
                     popup.showAtLocation(layout, Gravity.TOP, 0, 0);
 
                     // SavedAlbum popupAlbum = padapter.getItem(i);
-                    PlaylistSimple playlist = padapter.getItem(i);
+                    final PlaylistSimple playlist = padapter.getItem(i);
 
                     final String popupPlaylistInfo = playlist.name + "\n by " + playlist.owner.id;
 
@@ -189,13 +189,39 @@ public class ExploreTab extends Fragment {
                         @Override
                         public void success(Pager<PlaylistTrack> pager, Response response) {
 
-
+                            Log.d("PLTOTAL", Integer.toString(pager.total));
+                            Log.d("PLITEMS", Integer.toString(pager.items.size()));
                             for(PlaylistTrack p : pager.items){
                                 popuptrackadapter.add(p.track);
                             }
 
-                            myplaylists_gotten = true;
-                            popuplist.setAdapter(popuptrackadapter);
+                            if(pager.total > 100) {
+                                final Map<String, Object> nextPage = new HashMap<>();
+                                nextPage.put("offset", "100");
+                                spotify.getPlaylistTracks(userid, playlist.id, nextPage, new Callback<Pager<PlaylistTrack>>() {
+                                    @Override
+                                    public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
+                                        Log.d("PLITEMS", Integer.toString(playlistTrackPager.items.size()));
+                                        for(PlaylistTrack p : playlistTrackPager.items){
+                                            popuptrackadapter.add(p.track);
+                                        }
+                                        myplaylists_gotten = true;
+                                        popuplist.setAdapter(popuptrackadapter);
+                                    }
+
+                                    @Override
+                                    public void failure(RetrofitError error) {
+
+                                    }
+                                });
+
+
+                            } else {
+                                myplaylists_gotten = true;
+                                popuplist.setAdapter(popuptrackadapter);
+                            }
+
+
                             popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -323,9 +349,38 @@ public class ExploreTab extends Fragment {
                     adapter.add(sa);
                 }
 
-                myalbums_gotten = true;
-                grid.setAdapter(adapter);
-                cm.expandGridView(grid, 2);
+                if(savedAlbumPager.total > 50) {
+
+                    final Map<String, Object> nextPage = new HashMap<>();
+                    nextPage.put("limit", "50");
+                    nextPage.put("offset", "50");
+
+                    spotify.getMySavedAlbums(nextPage, new Callback<Pager<SavedAlbum>>() {
+                        @Override
+                        public void success(Pager<SavedAlbum> savedAlbumPager, Response response) {
+                            for(SavedAlbum sa : savedAlbumPager.items){
+                                adapter.add(sa);
+                            }
+
+                            myalbums_gotten = true;
+                            grid.setAdapter(adapter);
+                            cm.expandGridView(grid, 2);
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+
+                        }
+                    });
+
+
+                } else {
+                    myalbums_gotten = true;
+                    grid.setAdapter(adapter);
+                    cm.expandGridView(grid, 2);
+                }
+
+
 
             }
 

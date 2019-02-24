@@ -131,7 +131,7 @@ public class UserTab extends Fragment {
         final ListView listTopArtists = (ListView) view.findViewById(R.id.listTopArtists);
 
 
-        txtTopGenres = (TextView) view.findViewById(R.id.txtTopGenres);
+        //txtTopGenres = (TextView) view.findViewById(R.id.txtTopGenres);
         txtAvgTempo = (TextView) view.findViewById(R.id.avgTempo);
         txtAvgDuration = (TextView) view.findViewById(R.id.avgDuration);
         txtAvgReleaseYear = (TextView) view.findViewById(R.id.avgReleaseYear);
@@ -289,7 +289,8 @@ public class UserTab extends Fragment {
                 }
 
 
-                txtTopGenres.setText(topgenres);
+                // Disable genres for now
+               // txtTopGenres.setText(topgenres);
 
 
 
@@ -329,13 +330,6 @@ public class UserTab extends Fragment {
                 Log.d("Top tracks failure", error.toString());
             }
         });
-    }
-
-
-
-    public void myDevices() {
-        // TODO
-
     }
 
 

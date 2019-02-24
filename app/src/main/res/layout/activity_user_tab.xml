@@ -11,6 +11,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:orientation="vertical">
 
             <TextView
@@ -61,9 +63,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/eczar"
-                android:text="Top Artists:"
+                android:text="Top Artists"
                 android:textAlignment="center"
-                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <ListView
@@ -82,9 +85,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:fontFamily="@font/eczar"
-                android:text="Top tracks: "
+                android:text="Top Tracks"
                 android:textAlignment="center"
-                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <ListView
@@ -96,34 +100,15 @@
 
 
             <TextView
-                android:id="@+id/textView8"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/eczar"
-                android:text="Top Genres: "
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-
-            <TextView
-                android:id="@+id/txtTopGenres"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Loading..."
-                android:textAlignment="center"
-                android:textStyle="bold" />
-
-
-            <TextView
                 android:id="@+id/textView9"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15dp"
                 android:fontFamily="@font/eczar"
-                android:text="Extra statistics: "
+                android:text="Extra Statistics"
                 android:textAlignment="center"
-                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -246,7 +231,7 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
+                android:layout_marginBottom="35dp"
                 android:max="100"
                 android:progress="50"
                 android:scaleY="3" />

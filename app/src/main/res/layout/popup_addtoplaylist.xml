@@ -10,10 +10,10 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/textView14"
+            android:id="@+id/txtPlaylistPopup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add song x to playlist:"
+            android:text="Add song to playlist:"
             android:textAlignment="center"
             android:textSize="24sp"
             android:textStyle="bold" />

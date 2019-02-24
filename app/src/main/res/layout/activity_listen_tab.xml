@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:text="Atlas, Rise by Metallica"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/white"
                 android:textAlignment="center"
                 android:elegantTextHeight="true"
                 android:textSize="24sp"
@@ -131,6 +131,7 @@
                 android:text="Musical information (estimations)"
                 android:textAlignment="center"
                 android:textSize="24sp"
+                android:textColor="@color/white"
                 android:fontFamily="@font/eczar"
                 android:textStyle="bold" />
 
@@ -190,6 +191,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="Song Lyrics"
+                android:textColor="@color/white"
                 android:textAlignment="center"
                 android:fontFamily="@font/eczar"
                 android:textSize="24sp"

@@ -3,7 +3,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
     <ScrollView
         android:layout_width="fill_parent"
@@ -39,14 +41,14 @@
                             android:id="@+id/txtPopupArtistName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:layout_marginLeft="100dp"
                             android:layout_weight="1"
                             android:fontFamily="@font/eczar"
                             android:text="TextView"
-                            android:layout_gravity="center"
 
                             android:textAlignment="center"
-                            android:textSize="24sp"
+                            android:textSize="26sp"
                             android:textStyle="bold" />
 
                         <ImageButton
@@ -94,11 +96,11 @@
                     android:id="@+id/textView10"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/eczar"
                     android:layout_marginTop="10dp"
+                    android:fontFamily="@font/eczar"
                     android:text="Popular"
                     android:textAlignment="center"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <ListView
@@ -108,13 +110,14 @@
 
                 <TextView
                     android:id="@+id/textView11"
-                    android:layout_marginTop="20dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/eczar"
                     android:text="Discography"
                     android:textAlignment="center"
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <GridView
@@ -129,9 +132,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/eczar"
+                    android:layout_marginBottom="10dp"
                     android:text="Singles"
                     android:textAlignment="center"
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <GridView
@@ -145,10 +149,11 @@
                     android:id="@+id/textView22"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
                     android:fontFamily="@font/eczar"
                     android:text="Bio"
                     android:textAlignment="center"
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -158,21 +163,22 @@
                     android:layout_marginBottom="10dp"
                     android:layout_marginEnd="10dp"
                     android:layout_marginStart="10dp"
-                    android:lineSpacingExtra="3sp"
+                    android:lineSpacingExtra="4sp"
                     android:text=" Loading ... "
                     android:textAlignment="textStart"
-                    android:textSize="16sp"
-                    android:textStyle="italic" />
+                    android:textSize="20sp"
+                    android:typeface="serif" />
 
                 <TextView
                     android:id="@+id/textView222"
-                    android:layout_marginTop="20dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/eczar"
                     android:text="Fans also liked"
                     android:textAlignment="center"
-                    android:textSize="18sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <GridView

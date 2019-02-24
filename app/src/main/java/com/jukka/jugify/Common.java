@@ -52,6 +52,7 @@ import retrofit.client.Response;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.jukka.jugify.MainActivity.displayheight;
 import static com.jukka.jugify.MainActivity.mSpotifyAppRemote;
 import static com.jukka.jugify.MainActivity.spotify;
 
@@ -89,7 +90,7 @@ public class Common {
 
 
 
-    public void ArtistPopup(Artist artist, View view, final boolean listentab, final Context ctx){
+    public void ArtistPopup(final Artist artist, View view, final boolean listentab, final Context ctx){
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.popup_artist,
@@ -251,44 +252,75 @@ public class Common {
         spotify.getArtistAlbums(artist.id, options, new Callback<Pager<Album>>() {
             @Override
             public void success(Pager<Album> albumPager, Response response) {
-                int singlesHeight = 0;
-                int albumsHeight = 0;
+
                 for(Album a : albumPager.items) {
                     if(a.album_type.contains("single")) {
                         singleadapter.add(a);
-                        singlesHeight += 164;
+
                     } else if(a.album_type.contains("album")) {
                         albumadapter.add(a);
-                        albumsHeight += 164;
+
                     }
                 }
 
-                gridPopupArtistAlbums.setAdapter(albumadapter);
-                try{
-                    expandGridView(gridPopupArtistAlbums, 2);
-                } catch (IndexOutOfBoundsException o) {
+                if(albumPager.total > 50) {
+                    final Map<String, Object> nextPage = new HashMap<>();
+                    nextPage.put("limit", "50");
+                    nextPage.put("include_groups", "album,single");
+                    nextPage.put("offset", "50");
 
+                    spotify.getArtistAlbums(artist.id, nextPage, new Callback<Pager<Album>>() {
+                        @Override
+                        public void success(Pager<Album> albumPager, Response response) {
+
+                            for(Album a : albumPager.items) {
+                                if(a.album_type.contains("single")) {
+                                    singleadapter.add(a);
+                                } else if(a.album_type.contains("album")) {
+                                    albumadapter.add(a);
+                                }
+                            }
+
+                            gridPopupArtistAlbums.setAdapter(albumadapter);
+                            try{
+                                expandGridView(gridPopupArtistAlbums, 2);
+                            } catch (IndexOutOfBoundsException o) {
+
+                            }
+
+                            gridPopupArtistSingles.setAdapter(singleadapter);
+                            try{
+                                expandGridView(gridPopupArtistSingles, 2);
+                            } catch (IndexOutOfBoundsException o) {
+
+                            }
+
+
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+
+                        }
+                    });
+
+
+                } else {
+                    gridPopupArtistAlbums.setAdapter(albumadapter);
+                    try{
+                        expandGridView(gridPopupArtistAlbums, 2);
+                    } catch (IndexOutOfBoundsException o) {
+
+                    }
+
+                    gridPopupArtistSingles.setAdapter(singleadapter);
+                    try{
+                        expandGridView(gridPopupArtistSingles, 2);
+                    } catch (IndexOutOfBoundsException o) {
+
+                    }
                 }
 
-                gridPopupArtistSingles.setAdapter(singleadapter);
-                try{
-                    expandGridView(gridPopupArtistSingles, 2);
-                } catch (IndexOutOfBoundsException o) {
-
-                }
-                /*
-                Log.i("albumsheight", Integer.toString(albumsHeight));
-                if(albumsHeight > 656) {
-                    final ViewGroup.LayoutParams params = gridPopupArtistAlbums.getLayoutParams();
-                    params.height = albumsHeight;
-                    gridPopupArtistAlbums.setLayoutParams(params);
-                }
-                if(singlesHeight > 656) {
-                    ViewGroup.LayoutParams params2 = gridPopupArtistSingles.getLayoutParams();
-                    params2.height = singlesHeight;
-                    gridPopupArtistSingles.setLayoutParams(params2);
-                }
-                */
 
 
             }
@@ -433,9 +465,17 @@ public class Common {
         final Context ctx2 = ctx;
         int height = MATCH_PARENT;
         int width = MATCH_PARENT;
+
         if(listentab){
-            height = 600;
-            width = 600;
+            if(displayheight == 2560) {
+                // 1440p
+                height = 1000;
+                width = 1000;
+            } else{
+                // 1080p
+                height = 600;
+                width = 600;
+            }
         }
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE);
