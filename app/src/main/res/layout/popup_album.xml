@@ -56,6 +56,18 @@
                 android:text=""
                 android:textAlignment="center" />
 
+
+            <Button
+                android:id="@+id/btnAlbumAdd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:text="Add album to your library"
+                android:textSize="10sp" />
+
+
         </LinearLayout>
 
         <ListView

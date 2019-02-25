@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -30,6 +31,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.spotify.sdk.android.player.Spotify;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,11 +39,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import es.dmoral.toasty.Toasty;
+import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Artists;
+import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
@@ -491,12 +496,22 @@ public class Common {
         final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
         final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
         final TextView popupalbumname = layout.findViewById(R.id.txtPopupAlbumName);
+        final Button btnAddAlbum = layout.findViewById(R.id.btnAlbumAdd);
         popupalbumname.setText(popupAlbumInfo);
         final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
         final TextView popupinfo2 = layout.findViewById(R.id.txtPopupInfo3);
         popupinfo.setText(album.release_date);
         if(!throughArtist){
-            popupinfo2.setText(album.tracks.total + " tracks");
+
+            int AlbumTime = 0;
+            for(TrackSimple t : album.tracks.items) {
+                AlbumTime += t.duration_ms;
+            }
+            String parsedTime = String.format("%d",
+                    TimeUnit.MILLISECONDS.toMinutes(AlbumTime)
+            );
+
+            popupinfo2.setText(album.tracks.total + " tracks" + " - " + parsedTime + " minutes");
         }
         ListView popuplist = layout.findViewById(R.id.listPopupTracks);
 
@@ -517,9 +532,45 @@ public class Common {
                         }
                     });
 
+
                 }
             });
 
+            spotify.containsMySavedAlbums(album.id, new Callback<boolean[]>() {
+                @Override
+                public void success(boolean[] booleans, Response response) {
+                    if(booleans[0]) {
+                        popupbg.removeView(btnAddAlbum);
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+
+                }
+            });
+
+
+
+            btnAddAlbum.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try  {
+                                spotify.addToMySavedAlbums(album.id);
+                                popupbg.removeView(btnAddAlbum);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+
+                    thread.start();
+                }
+            });
 
             ImageLoader imgloader = ImageLoader.getInstance();
             DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
@@ -539,6 +590,8 @@ public class Common {
                         popupalbumname.setTextColor(vibrant.getTitleTextColor());
                         popupinfo.setTextColor(vibrant.getBodyTextColor());
                         popupinfo2.setTextColor(vibrant.getBodyTextColor());
+                        btnAddAlbum.setBackgroundColor(vibrant.getTitleTextColor());
+                        btnAddAlbum.setTextColor(vibrant.getRgb());
 
 
                     } catch(NullPointerException e) {
@@ -547,6 +600,10 @@ public class Common {
                         popupalbumname.setTextColor(vibrant.getTitleTextColor());
                         popupinfo.setTextColor(vibrant.getBodyTextColor());
                         popupinfo2.setTextColor(vibrant.getBodyTextColor());
+                        btnAddAlbum.setBackgroundColor(vibrant.getTitleTextColor());
+                        btnAddAlbum.setTextColor(vibrant.getRgb());
+
+
 
                     }
                 }
