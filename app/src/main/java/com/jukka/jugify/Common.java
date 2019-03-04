@@ -517,6 +517,7 @@ public class Common {
 
         if(!listentab) {
 
+            popupbg.removeView(btnAddAlbum);
 
             popupalbumname.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -539,8 +540,8 @@ public class Common {
             spotify.containsMySavedAlbums(album.id, new Callback<boolean[]>() {
                 @Override
                 public void success(boolean[] booleans, Response response) {
-                    if(booleans[0]) {
-                        popupbg.removeView(btnAddAlbum);
+                    if(!booleans[0]) {
+                        popupbg.addView(btnAddAlbum);
                     }
                 }
 

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -150,6 +151,9 @@ public class ExploreTab extends Fragment {
                     popupalbumname.setText(popupPlaylistInfo);
                     final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
                     popupinfo.setText(playlist.tracks.total + " tracks");
+                    final Button btnAddAlbum = (Button) layout.findViewById(R.id.btnAlbumAdd);
+
+                    popupbg.removeView(btnAddAlbum);
 
                     final ListView popuplist = layout.findViewById(R.id.listPopupTracks);
                     ImageLoader imgloader = ImageLoader.getInstance();
