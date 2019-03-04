@@ -213,7 +213,7 @@ public class ListenTab extends Fragment {
                         mTrackProgressBar.pause();
                     }
 
-
+                    
                     if (track != null) {
 
                         // Get basic information
@@ -436,7 +436,7 @@ public class ListenTab extends Fragment {
         });
     }
 
-    public void lyricsApi(String url) {
+    public void lyricsApi(final String url) {
 
         // API: https://lyricsovh.docs.apiary.io
         RequestQueue queue = Volley.newRequestQueue(getActivity().getApplicationContext());
@@ -455,12 +455,19 @@ public class ListenTab extends Fragment {
                     }, new com.android.volley.Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            lyrics.setText(" There are no lyrics for this track yet \n (or it's instrumental) \n ");
+                            lyrics.setText(" There are no lyrics for this track yet \n (or it's instrumental) \n (This API is flanky) \n Click to try again! ");
 
                         }
                     });
 
             queue.add(jsonObjectRequest);
+
+            lyrics.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    lyricsApi(url);
+                }
+            });
     }
 
 
@@ -689,7 +696,6 @@ public class ListenTab extends Fragment {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 mSpotifyAppRemote.getPlayerApi().seekTo(seekBar.getProgress());
-
             }
         };
 
