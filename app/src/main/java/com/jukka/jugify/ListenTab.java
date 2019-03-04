@@ -221,8 +221,6 @@ public class ListenTab extends Fragment {
                         trackArtist = track.artist.name;
                         txtNowPlaying.setText(trackName);
                         txtNowArtist.setText(trackArtist);
-
-                        //txtNowArtist.setTextColor(Color.GRAY);
                         txtTitle.setText(track.name + "\n by " + track.artist.name);
                         String duration = String.format("%d:%d",
                                 TimeUnit.MILLISECONDS.toMinutes(track.duration),
@@ -447,7 +445,6 @@ public class ListenTab extends Fragment {
                     @Override
                     public void onResponse(JSONObject response) {
                             try{
-                                Log.d("RESPONSSISSA", "OLLAAN");
                                 String txtlyrics = response.getString("lyrics");
                                 lyrics.setText("\n" + txtlyrics + "\n");
                             } catch(JSONException je) {

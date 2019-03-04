@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -47,9 +48,11 @@ public class SearchTab extends Fragment {
 
     String chosen_tab;
     ArrayList<String> names;
+    ArrayList<String> urls;
     ArrayList<String> ids;
     ArrayList<Artist> artists;
     ArrayList<AlbumSimple> albums;
+    ArrayList<PlaylistSimple> playlists;
     Common cm = new Common();
 
     @Override
@@ -59,7 +62,7 @@ public class SearchTab extends Fragment {
         final SearchView search = (SearchView) view.findViewById(R.id.searchView);
         ListView listResults = (ListView) view.findViewById(R.id.listResults);
         final NavigationTabStrip datatimeline = view.findViewById(R.id.searchFilter);
-        datatimeline.setTitles("Artists", "Albums", "Tracks");
+        datatimeline.setTitles("Artists", "Albums", "Tracks", "Playlists");
         datatimeline.setAnimationDuration(50);
         datatimeline.setTabIndex(0);
         chosen_tab = "artists";
@@ -70,10 +73,12 @@ public class SearchTab extends Fragment {
         search.setFocusable(true);
 
         names = new ArrayList<String>();
+        urls = new ArrayList<String>();
         ids = new ArrayList<String>();
         artists = new ArrayList<Artist>();
         albums = new ArrayList<AlbumSimple>();
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, names);
+        playlists = new ArrayList<PlaylistSimple>();
+        final SearchListAdapter adapter = new SearchListAdapter(getContext(), names, urls);
 
         datatimeline.setOnTabStripSelectedIndexListener(new NavigationTabStrip.OnTabStripSelectedIndexListener() {
             @Override
@@ -86,6 +91,9 @@ public class SearchTab extends Fragment {
                     search.setQueryHint("Search for " + chosen_tab);
                 } else if(index == 2) {
                     chosen_tab = "tracks";
+                    search.setQueryHint("Search for " + chosen_tab);
+                } else if(index == 3) {
+                    chosen_tab = "playlists";
                     search.setQueryHint("Search for " + chosen_tab);
                 }
             }
@@ -113,12 +121,12 @@ public class SearchTab extends Fragment {
             public boolean onQueryTextSubmit(String s) {
 
                 names.clear();
+                urls.clear();
                 ids.clear();
                 artists.clear();
                 albums.clear();
                 adapter.notifyDataSetChanged();
                 spotifySearch(s, chosen_tab, adapter);
-
 
                 return false;
             }
@@ -127,6 +135,7 @@ public class SearchTab extends Fragment {
             public boolean onQueryTextChange(String s) {
 
                 names.clear();
+                urls.clear();
                 ids.clear();
                 artists.clear();
                 albums.clear();
@@ -162,6 +171,10 @@ public class SearchTab extends Fragment {
                     search.clearFocus();
                     cm.ArtistPopup(artists.get(i), view, true, getContext());
                 }
+                else if(chosen_tab == "playlists") {
+                    mSpotifyAppRemote.getPlayerApi().play(playlists.get(i).uri);
+                    toast("Now playing: "+ adapter.getItem(i), R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
+                }
             }
         });
 
@@ -169,7 +182,7 @@ public class SearchTab extends Fragment {
     }
 
 
-    public void spotifySearch(String query, String type, final ArrayAdapter adapter) {
+    public void spotifySearch(String query, String type, final SearchListAdapter adapter) {
 
 
         final Map<String, Object> options = new HashMap<>();
@@ -181,9 +194,15 @@ public class SearchTab extends Fragment {
                 @Override
                 public void success(ArtistsPager artistsPager, Response response) {
                     names.clear();
+                    urls.clear();
                     artists.clear();
                     for(Artist a : artistsPager.artists.items) {
                         names.add(a.name);
+                        try{
+                            urls.add(a.images.get(0).url);
+                        } catch(IndexOutOfBoundsException ioobe) {
+
+                        }
                         artists.add(a);
                     }
                     adapter.notifyDataSetChanged();
@@ -202,9 +221,15 @@ public class SearchTab extends Fragment {
                 @Override
                 public void success(AlbumsPager albumsPager, Response response) {
                     names.clear();
+                    urls.clear();
                     albums.clear();
                     for(AlbumSimple a : albumsPager.albums.items) {
                         names.add(a.name);
+                        try{
+                            urls.add(a.images.get(0).url);
+                        } catch(IndexOutOfBoundsException ioobe) {
+
+                        }
                         albums.add(a);
                     }
                     adapter.notifyDataSetChanged();
@@ -222,9 +247,15 @@ public class SearchTab extends Fragment {
                 @Override
                 public void success(TracksPager tracksPager, Response response) {
                     names.clear();
+                    urls.clear();
                     ids.clear();
                     for(Track t : tracksPager.tracks.items) {
                         names.add(t.name + " - " + t.artists.get(0).name);
+                        try{
+                            urls.add(t.album.images.get(0).url);
+                        } catch (IndexOutOfBoundsException ioobe) {
+
+                        }
                         ids.add(t.uri);
                     }
                     adapter.notifyDataSetChanged();
@@ -237,6 +268,29 @@ public class SearchTab extends Fragment {
                 }
             });
 
+        } else if(type == "playlists") {
+            spotify.searchPlaylists(query, options, new Callback<PlaylistsPager>() {
+                @Override
+                public void success(PlaylistsPager playlistsPager, Response response) {
+                    names.clear();
+                    urls.clear();
+                    playlists.clear();
+                    for(PlaylistSimple p : playlistsPager.playlists.items) {
+                        names.add(p.name + " - " + p.owner.display_name);
+                        try {
+                            urls.add(p.images.get(0).url);
+                        } catch (IndexOutOfBoundsException ioobe) {
+
+                        }
+                        playlists.add(p);
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+
+                }
+            });
         }
 
     }

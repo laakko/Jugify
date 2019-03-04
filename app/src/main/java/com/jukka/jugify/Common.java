@@ -657,6 +657,10 @@ public class Common {
     }
 
 
+    public void fixPlaylistUri(String plUri) {
+        
+    }
+
     public void toast(String message, int drawable, int tintcolor, Context ctx) {
         Toasty.custom(ctx, message, drawable, tintcolor, 700, true, true).show();
     }
