@@ -57,6 +57,7 @@ import com.ohoussein.playpause.PlayPauseView;
 import com.spotify.protocol.client.CallResult;
 import com.spotify.protocol.client.Subscription;
 import com.spotify.protocol.types.Image;
+import com.spotify.protocol.types.PlayerContext;
 import com.spotify.protocol.types.PlayerState;
 import com.spotify.protocol.types.Track;
 
@@ -128,7 +129,9 @@ public class ListenTab extends Fragment {
     TextView txtpopularity,txtvalence,txtdance, txtenergy;
     private PopupWindow EQpopup;
     Album nowPlayingAlbum;
+    int lyricerrors = 0;
     Common cm = new Common();
+    Boolean dontupdate;
 
 
     @Override
@@ -182,11 +185,14 @@ public class ListenTab extends Fragment {
 
         if(userAuthd){
 
+
             txtNowPlaying.setText(trackName);
 
             mSpotifyAppRemote.getPlayerApi()
                     .subscribeToPlayerState().setEventCallback(new Subscription.EventCallback<PlayerState>() {
                 public void onEvent(PlayerState playerState) {
+
+                    lyricerrors = 0;
                     final Track track = playerState.track;
                     if(playerState.isPaused){
                         isplaying = false;
@@ -213,7 +219,7 @@ public class ListenTab extends Fragment {
                         mTrackProgressBar.pause();
                     }
 
-                    
+
                     if (track != null) {
 
                         // Get basic information
@@ -317,7 +323,7 @@ public class ListenTab extends Fragment {
             skip.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    lyrics.setText("loading..");
+                    lyrics.setText("Loading ...");
                     mSpotifyAppRemote.getPlayerApi().skipNext();
                 }
             });
@@ -325,7 +331,6 @@ public class ListenTab extends Fragment {
             prev.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    lyrics.setText("loading..");
                     mSpotifyAppRemote.getPlayerApi().skipPrevious();
                 }
             });
@@ -450,17 +455,21 @@ public class ListenTab extends Fragment {
                             } catch(JSONException je) {
                                 je.printStackTrace();
                             }
-
                         }
                     }, new com.android.volley.Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            lyrics.setText(" There are no lyrics for this track yet \n (or it's instrumental) \n (This API is flanky) \n Click to try again! ");
-
+                            lyricerrors += 1;
+                            if(lyricerrors < 5) {
+                                lyricsApi(url);
+                            } else {
+                                lyrics.setText("Lyrics not found  \n (or the track is instrumental) \n Click to try again \n");
+                            }
                         }
                     });
 
             queue.add(jsonObjectRequest);
+
 
             lyrics.setOnClickListener(new View.OnClickListener() {
                 @Override
