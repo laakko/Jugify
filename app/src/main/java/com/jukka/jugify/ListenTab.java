@@ -460,7 +460,7 @@ public class ListenTab extends Fragment {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             lyricerrors += 1;
-                            if(lyricerrors < 5) {
+                            if(lyricerrors < 8) {
                                 lyricsApi(url);
                             } else {
                                 lyrics.setText("Lyrics not found  \n (or the track is instrumental) \n Click to try again \n");

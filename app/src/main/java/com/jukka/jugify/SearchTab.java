@@ -20,6 +20,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
+import com.rw.keyboardlistener.KeyboardUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,16 +59,14 @@ public class SearchTab extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_search_tab, container, false);
-
         final SearchView search = (SearchView) view.findViewById(R.id.searchView);
-        ListView listResults = (ListView) view.findViewById(R.id.listResults);
+        final ListView listResults = (ListView) view.findViewById(R.id.listResults);
         final NavigationTabStrip datatimeline = view.findViewById(R.id.searchFilter);
         datatimeline.setTitles("Artists", "Albums", "Tracks", "Playlists");
         datatimeline.setAnimationDuration(50);
         datatimeline.setTabIndex(0);
         chosen_tab = "artists";
 
-        final SearchManager searchManager = (SearchManager) view.getContext().getSystemService(SEARCH_SERVICE);
         search.setIconifiedByDefault(false);
         search.setQueryHint("Search for " + chosen_tab);
         search.setFocusable(true);
@@ -79,6 +78,24 @@ public class SearchTab extends Fragment {
         albums = new ArrayList<AlbumSimple>();
         playlists = new ArrayList<PlaylistSimple>();
         final SearchListAdapter adapter = new SearchListAdapter(getContext(), names, urls);
+
+        // Handle keyboard
+        KeyboardUtils.addKeyboardToggleListener(getActivity(), new KeyboardUtils.SoftKeyboardToggleListener()
+        {
+            @Override
+            public void onToggleSoftKeyboard(boolean isVisible)
+            {
+                if(isVisible){
+                    // NOTE: This is for 1440p screen, may need to be changed for other sizes
+                    listResults.getLayoutParams().height = 800;
+                    listResults.requestLayout();
+                } else {
+                    // NOTE: This is for 1440p screen, may need to be changed for other sizes
+                    listResults.getLayoutParams().height = 1600;
+                    listResults.requestLayout();
+                }
+            }
+        });
 
         datatimeline.setOnTabStripSelectedIndexListener(new NavigationTabStrip.OnTabStripSelectedIndexListener() {
             @Override
@@ -172,8 +189,10 @@ public class SearchTab extends Fragment {
                     cm.ArtistPopup(artists.get(i), view, true, getContext());
                 }
                 else if(chosen_tab == "playlists") {
-                    mSpotifyAppRemote.getPlayerApi().play(playlists.get(i).uri);
-                    toast("Now playing: "+ adapter.getItem(i), R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
+                    search.clearFocus();
+                    cm.PlaylistPopup(getContext(), view, playlists.get(i).owner.toString(), playlists.get(i), true);
+                   // mSpotifyAppRemote.getPlayerApi().play(playlists.get(i).uri);
+                   // toast("Now playing: "+ adapter.getItem(i), R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
                 }
             }
         });
@@ -187,6 +206,10 @@ public class SearchTab extends Fragment {
 
         final Map<String, Object> options = new HashMap<>();
         options.put("limit", 10);
+
+        final Map<String, Object> options2 = new HashMap<>();
+        options2.put("limit", 25);
+
 
         if(type == "artists") {
 
@@ -269,7 +292,7 @@ public class SearchTab extends Fragment {
             });
 
         } else if(type == "playlists") {
-            spotify.searchPlaylists(query, options, new Callback<PlaylistsPager>() {
+            spotify.searchPlaylists(query, options2, new Callback<PlaylistsPager>() {
                 @Override
                 public void success(PlaylistsPager playlistsPager, Response response) {
                     names.clear();
@@ -284,6 +307,7 @@ public class SearchTab extends Fragment {
                         }
                         playlists.add(p);
                     }
+                    adapter.notifyDataSetChanged();
                 }
 
                 @Override

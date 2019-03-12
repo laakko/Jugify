@@ -64,11 +64,12 @@
                     </LinearLayout>
 
                     <ImageView
-                    android:id="@+id/popupArtistImg"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_gravity="center"
-                    app:srcCompat="@drawable/baseline_album_24" />
+                        android:id="@+id/popupArtistImg"
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="275dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/baseline_album_24" />
 
                     <TextView
                         android:id="@+id/popupArtistInfo2"
@@ -122,7 +123,7 @@
 
                 <GridView
                     android:id="@+id/gridPopupAlbums"
-                    android:layout_width="match_parent"
+                    android:layout_width="400dp"
                     android:layout_height="wrap_content"
                     android:numColumns="2">
                 </GridView>
@@ -140,7 +141,7 @@
 
                 <GridView
                     android:id="@+id/gridPopupSingles"
-                    android:layout_width="match_parent"
+                    android:layout_width="400dp"
                     android:layout_height="wrap_content"
                     android:numColumns="2">
                 </GridView>
@@ -183,7 +184,7 @@
 
                 <GridView
                     android:id="@+id/gridSimilarArtists"
-                    android:layout_width="match_parent"
+                    android:layout_width="400dp"
                     android:layout_height="100dp"
                     android:layout_marginBottom="20dp"
                     android:numColumns="2">

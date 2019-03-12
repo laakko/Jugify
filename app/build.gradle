@@ -76,5 +76,6 @@ dependencies {
     // Multi-selection spinner
     compile 'com.github.pratikbutani:MultiSelectSpinner:08d324c987'
 
-
+    // Keybaord listener
+    compile 'com.github.ravindu1024:android-keyboardlistener:1.0.0'
 }

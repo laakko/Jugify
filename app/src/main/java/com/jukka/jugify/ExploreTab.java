@@ -132,116 +132,8 @@ public class ExploreTab extends Fragment {
             gridPlaylists.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                    LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
-                    View layout = inflater.inflate(R.layout.popup_album,
-                            (ViewGroup) view.findViewById(R.id.tab_layout_2));
-
-                    popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
-                    popup.showAtLocation(layout, Gravity.TOP, 0, 0);
-
-                    // SavedAlbum popupAlbum = padapter.getItem(i);
-                    final PlaylistSimple playlist = padapter.getItem(i);
-
-                    final String popupPlaylistInfo = playlist.name + "\n by " + playlist.owner.id;
-
-                    final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
-                    final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
-                    final TextView popupalbumname = layout.findViewById(R.id.txtPopupAlbumName);
-                    popupalbumname.setText(popupPlaylistInfo);
-                    final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
-                    popupinfo.setText(playlist.tracks.total + " tracks");
-                    final Button btnAddAlbum = (Button) layout.findViewById(R.id.btnAlbumAdd);
-
-                    popupbg.removeView(btnAddAlbum);
-
-                    final ListView popuplist = layout.findViewById(R.id.listPopupTracks);
-                    ImageLoader imgloader = ImageLoader.getInstance();
-
-                    DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                            .showStubImage(R.drawable.baseline_album_24).cacheOnDisk(true).build();
-                    ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
-                    ImageSize targetSize = new ImageSize(200, 200); // result Bitmap will be fit to this size
-                    imgloader.loadImage(playlist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
-                        @Override
-                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                            popupImg.setImageBitmap(loadedImage);
-
-                            Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
-                            Palette.Swatch vibrant;
-                            try {
-                                vibrant = p.getVibrantSwatch();
-                                popupbg.setBackgroundColor(vibrant.getRgb());
-                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
-                                popupinfo.setTextColor(vibrant.getBodyTextColor());
-                            } catch (NullPointerException e) {
-                                vibrant = p.getDominantSwatch();
-                                popupbg.setBackgroundColor(vibrant.getRgb());
-                                popupalbumname.setTextColor(vibrant.getTitleTextColor());
-                                popupinfo.setTextColor(vibrant.getBodyTextColor());
-                            }
-
-
-                        }
-
-                    });
-
-                    final TracksListAdapter popuptrackadapter = new TracksListAdapter(getContext().getApplicationContext(), new ArrayList<TrackSimple>(), true);
-                    popuptrackadapter.clear();
-
-                    spotify.getPlaylistTracks(userid, playlist.id, new Callback<Pager<PlaylistTrack>>() {
-                        @Override
-                        public void success(Pager<PlaylistTrack> pager, Response response) {
-
-                            Log.d("PLTOTAL", Integer.toString(pager.total));
-                            Log.d("PLITEMS", Integer.toString(pager.items.size()));
-                            for(PlaylistTrack p : pager.items){
-                                popuptrackadapter.add(p.track);
-                            }
-
-                            if(pager.total > 100) {
-                                final Map<String, Object> nextPage = new HashMap<>();
-                                nextPage.put("offset", "100");
-                                spotify.getPlaylistTracks(userid, playlist.id, nextPage, new Callback<Pager<PlaylistTrack>>() {
-                                    @Override
-                                    public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
-                                        Log.d("PLITEMS", Integer.toString(playlistTrackPager.items.size()));
-                                        for(PlaylistTrack p : playlistTrackPager.items){
-                                            popuptrackadapter.add(p.track);
-                                        }
-                                        myplaylists_gotten = true;
-                                        popuplist.setAdapter(popuptrackadapter);
-                                    }
-
-                                    @Override
-                                    public void failure(RetrofitError error) {
-
-                                    }
-                                });
-
-
-                            } else {
-                                myplaylists_gotten = true;
-                                popuplist.setAdapter(popuptrackadapter);
-                            }
-
-
-                            popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                    mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
-                                    cm.toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, getContext());
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void failure(RetrofitError error) {
-                            Log.d("My playlists failure", error.toString());
-                        }
-                    });
-
-
+                    PlaylistSimple popupplaylist = padapter.getItem(i);
+                    cm.PlaylistPopup(getContext(), view, userid, popupplaylist, false);
                 }
             });
 
@@ -270,7 +162,6 @@ public class ExploreTab extends Fragment {
             gridAlbums.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
                     Album popupalbum = albadapter.getItem(i).album;
                     cm.AlbumPopup(popupalbum, getContext(), view, false, false, false, 0);
 

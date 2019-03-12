@@ -9,7 +9,7 @@
         android:id="@+id/imgSearch"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        app:srcCompat="@drawable/baseline_album_24" />
 
     <LinearLayout
         android:layout_width="match_parent"

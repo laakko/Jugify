@@ -43,13 +43,17 @@ public class ArtistsGridAdapter extends ArrayAdapter<Artist> {
         TextView albumName = listItem.findViewById(R.id.txtArtistName);
 
         albumName.setText(a.name);
-        String albumImageUrl = a.images.get(0).url;
-        ImageLoader imgloader = ImageLoader.getInstance();
-        //imgloader.displayImage(albumImageUrl, albumImage, new ImageSize(100,100));
-        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
-                .showStubImage(R.drawable.baseline_album_24).cacheOnDisk(true).build();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
-        imgloader.displayImage(albumImageUrl, albumImage, defaultOptions);
+        try {
+            String albumImageUrl = a.images.get(0).url;
+
+            ImageLoader imgloader = ImageLoader.getInstance();
+            //imgloader.displayImage(albumImageUrl, albumImage, new ImageSize(100,100));
+            DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                    .showStubImage(R.drawable.baseline_album_24).cacheOnDisk(true).build();
+            ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).defaultDisplayImageOptions(defaultOptions).build();
+            imgloader.displayImage(albumImageUrl, albumImage, defaultOptions);
+        } catch(IndexOutOfBoundsException ioobe){
+        }
 
 
         return listItem;

@@ -10,6 +10,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
@@ -48,6 +49,8 @@ import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Artists;
 import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
+import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
 import kaaes.spotify.webapi.android.models.Tracks;
@@ -100,6 +103,7 @@ public class Common {
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.popup_artist,
                 (ViewGroup) view.findViewById(R.id.tab_layout_2));
+        layout.setAnimation(AnimationUtils.loadAnimation(ctx.getApplicationContext(), R.anim.animation2));
 
         popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
         popup.showAtLocation(layout, Gravity.TOP, 0, 0);
@@ -166,11 +170,11 @@ public class Common {
         popupArtistInfo.setText(popupArtistGenres);
         popupArtistInfo2.setText(artist.followers.total + " followers");
 
-        ImageLoader imgloader = ImageLoader.getInstance();
-        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+       ImageLoader imgloader = ImageLoader.getInstance();
+       DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
                 .showStubImage(R.drawable.baseline_album_24).build();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(ctx).defaultDisplayImageOptions(defaultOptions).build();
-        ImageSize targetSize = new ImageSize(200 , 200); // result Bitmap will be fit to this size
+        ImageSize targetSize = new ImageSize(275 , 275); // result Bitmap will be fit to this size
         try{
             imgloader.loadImage(artist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
                 @Override
@@ -465,6 +469,131 @@ public class Common {
 
     }
 
+
+    public void PlaylistPopup(final Context ctx, View view, final String userid, final PlaylistSimple playlist, final boolean searchtab) {
+        LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.popup_album,
+                (ViewGroup) view.findViewById(R.id.tab_layout_2));
+        layout.setAnimation(AnimationUtils.loadAnimation(ctx.getApplicationContext(), R.anim.animation));
+
+        popup = new PopupWindow(layout, MATCH_PARENT, MATCH_PARENT, true);
+        popup.showAtLocation(layout, Gravity.TOP, 0, 0);
+
+        final String popupPlaylistInfo = playlist.name + "\n by " + playlist.owner.id;
+
+        final LinearLayout popupbg = layout.findViewById(R.id.popupBG);
+        final ImageView popupImg = layout.findViewById(R.id.imgPopupAlbumImg);
+        final Button btnAddAlbum = layout.findViewById(R.id.btnAlbumAdd);
+        final TextView popupalbumname = layout.findViewById(R.id.txtPopupAlbumName);
+        popupalbumname.setText(popupPlaylistInfo);
+        final TextView popupinfo = layout.findViewById(R.id.txtPopupInfo2);
+        popupinfo.setText(playlist.tracks.total + " tracks");
+        final TextView popupinfo2 = layout.findViewById(R.id.txtPopupInfo3);
+
+
+        popupbg.removeView(btnAddAlbum);
+
+        final ListView popuplist = layout.findViewById(R.id.listPopupTracks);
+        ImageLoader imgloader = ImageLoader.getInstance();
+
+        DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
+                .showStubImage(R.drawable.baseline_album_24).cacheOnDisk(true).build();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(ctx).defaultDisplayImageOptions(defaultOptions).build();
+        ImageSize targetSize = new ImageSize(200, 200); // result Bitmap will be fit to this size
+        imgloader.loadImage(playlist.images.get(0).url, targetSize, defaultOptions, new SimpleImageLoadingListener() {
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                popupImg.setImageBitmap(loadedImage);
+
+                Palette p = Palette.from(loadedImage).maximumColorCount(8).generate();
+                Palette.Swatch vibrant;
+                try {
+                    vibrant = p.getVibrantSwatch();
+                    popupbg.setBackgroundColor(vibrant.getRgb());
+                    popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                    popupinfo.setTextColor(vibrant.getBodyTextColor());
+                } catch (NullPointerException e) {
+                    vibrant = p.getDominantSwatch();
+                    popupbg.setBackgroundColor(vibrant.getRgb());
+                    popupalbumname.setTextColor(vibrant.getTitleTextColor());
+                    popupinfo.setTextColor(vibrant.getBodyTextColor());
+                }
+
+
+            }
+
+        });
+
+        final TracksListAdapter popuptrackadapter = new TracksListAdapter(ctx.getApplicationContext(), new ArrayList<TrackSimple>(), true);
+        popuptrackadapter.clear();
+
+        spotify.getPlaylistTracks(userid, playlist.id, new Callback<Pager<PlaylistTrack>>() {
+            @Override
+            public void success(Pager<PlaylistTrack> pager, Response response) {
+                int playlistTime = 0;
+
+                for(PlaylistTrack p : pager.items){
+                    popuptrackadapter.add(p.track);
+                    playlistTime += p.track.duration_ms;
+                }
+
+                final int playlistTimeFinal = playlistTime;
+
+                if(pager.total > 100) {
+                    final Map<String, Object> nextPage = new HashMap<>();
+                    nextPage.put("offset", "100");
+                    spotify.getPlaylistTracks(userid, playlist.id, nextPage, new Callback<Pager<PlaylistTrack>>() {
+                        @Override
+                        public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
+                            int playlistTime2 = 0;
+                            for(PlaylistTrack p : playlistTrackPager.items){
+                                popuptrackadapter.add(p.track);
+                                playlistTime2 += p.track.duration_ms;
+
+                            }
+                            String parsedTime = String.format("%d",
+                                    TimeUnit.MILLISECONDS.toMinutes(playlistTime2 + playlistTimeFinal )
+                            );
+                            popupinfo2.setText(playlist.tracks.total + " tracks" + " - " + parsedTime + " minutes");
+                            popuplist.setAdapter(popuptrackadapter);
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+
+                        }
+                    });
+
+
+                } else {
+                    String parsedTime = String.format("%d",
+                            TimeUnit.MILLISECONDS.toMinutes(playlistTime)
+                    );
+                    popupinfo2.setText(playlist.tracks.total + " tracks" + " - " + parsedTime + " minutes");
+                    popuplist.setAdapter(popuptrackadapter);
+                }
+
+
+                popuplist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
+                        mSpotifyAppRemote.getPlayerApi().queue(playlist.uri);
+                        if(!searchtab){
+                            toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, ctx);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("My playlists failure", error.toString());
+            }
+        });
+
+    }
+
     public void AlbumPopup(final Album album, Context ctx, View view, Boolean throughArtist, final Boolean listentab, final Boolean searchtab, int y) {
 
         final Context ctx2 = ctx;
@@ -486,7 +615,9 @@ public class Common {
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE);
         View layout = inflater.inflate(R.layout.popup_album,
                 (ViewGroup) view.findViewById(R.id.tab_layout_2));
-
+        if(!listentab){
+            layout.setAnimation(AnimationUtils.loadAnimation(ctx.getApplicationContext(), R.anim.animation));
+        }
 
         popup = new PopupWindow(layout, width, height, true);
         popup.showAtLocation(layout, Gravity.BOTTOM, 0, y);
@@ -647,6 +778,7 @@ public class Common {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 mSpotifyAppRemote.getPlayerApi().play(popuptrackadapter.getItem(i).uri);
+                mSpotifyAppRemote.getPlayerApi().queue(album.uri);
                 if(!listentab && !searchtab){
                     toast("Now playing: "+ popuptrackadapter.getItem(i).name, R.drawable.ic_play_circle_outline_black_36dp, Color.BLACK, ctx2);
                 }
@@ -657,9 +789,6 @@ public class Common {
     }
 
 
-    public void fixPlaylistUri(String plUri) {
-        
-    }
 
     public void toast(String message, int drawable, int tintcolor, Context ctx) {
         Toasty.custom(ctx, message, drawable, tintcolor, 700, true, true).show();
